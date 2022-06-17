@@ -1,0 +1,27 @@
+{
+    "controller": {
+        "allowDesktopConfig": false,
+        "emulateDS4": false,
+        "maxControllers": 4
+    },
+    "devices": {
+        "hideDevices": true,
+        "realDeviceIds": false
+    },
+    "icon": "<icon>",
+    "launch": {
+        "closeOnExit": false,
+        "launch": false,
+        "launchAppArgs": null,
+        "launchPath": null,
+        "waitForChildProcs": false
+    },
+    "name": "<name>",
+    "version": 1,
+    "window": {
+        "disableOverlay": false,
+        "maxFps": null,
+        "scale": null,
+        "windowMode": false
+    }
+}
