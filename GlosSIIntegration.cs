@@ -19,6 +19,7 @@ namespace GlosSIIntegration
         private GlosSIIntegrationSettingsViewModel settings { get; set; }
         private Process glosSIOverlay;
         private readonly INotificationsAPI notifications;
+        public static readonly string INTEGRATED_TAG = "[GI] Integrated";
 
         public override Guid Id { get; } = Guid.Parse("6b0297da-75e5-4330-bb2d-b64bff22c315");
 
@@ -40,11 +41,11 @@ namespace GlosSIIntegration
 
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
-            if(settings.Settings.IntegrationEnabled && GameHasTag(args.Game) && glosSIOverlay == null)
+            if(settings.Settings.IntegrationEnabled && GameHasIntegratedTag(args.Game) && glosSIOverlay == null)
             {
                 // TODO: Stop any already running GlosSI overlays.
 
-                if (!GlosSITarget.HasJsonFile(args.Game.GameId))
+                if (!GlosSITarget.HasJsonFile(args.Game))
                 {
                     notifications.Add($"{Id}-OnGameStarted-NoJsonFile",
                         $"GlosSI Integration failed to run the Steam Shortcut: The .json target file is missing.",
@@ -66,9 +67,9 @@ namespace GlosSIIntegration
             }
         }
 
-        private bool GameHasTag(Game game)
+        private static bool GameHasIntegratedTag(Game game)
         {
-            return game.Tags.Any(t => t.Name == "[GI] Integrated");
+            return game.Tags.Any(t => t.Name == INTEGRATED_TAG);
         }
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
@@ -82,7 +83,7 @@ namespace GlosSIIntegration
 
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
-            if(settings.Settings.IntegrationEnabled && GameHasTag(args.Game))
+            if(settings.Settings.IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
                 try
                 {
@@ -148,7 +149,18 @@ namespace GlosSIIntegration
 
         private void RemoveGames(GameMenuItemActionArgs args)
         {
-
+            // TODO: Ask the user for confirmation.
+            try
+            {
+                foreach (Game game in args.Games)
+                {
+                    GlosSITarget.Remove(game);
+                }
+            }
+            catch (Exception e)
+            {
+                notifications.Add($"{Id}-RemoveGames", $"GlosSI Integration failed to remove a GlosSI Target Configuration file, the removal process was aborted: {e.Message}", NotificationType.Error);
+            }
         }
 
         public override ISettings GetSettings(bool firstRunSettings)
