@@ -119,6 +119,38 @@ namespace GlosSIIntegration
             // Add code to be executed when library is updated.
         }
 
+        public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
+        {
+            List<GameMenuItem> newGameMenuItems = new List<GameMenuItem>
+            {
+                new GameMenuItem
+                {
+                    Description = "Add Integration",
+                    MenuSection = "GlosSI Integration",
+                    Action = (arg) => AddGames(arg)
+                },
+
+                new GameMenuItem
+                {
+                    Description = "Remove Integration",
+                    MenuSection = "GlosSI Integration",
+                    Action = (arg) => RemoveGames(arg)
+                }
+            };
+
+            return newGameMenuItems;
+        }
+
+        private void AddGames(GameMenuItemActionArgs args)
+        {
+
+        }
+
+        private void RemoveGames(GameMenuItemActionArgs args)
+        {
+
+        }
+
         public override ISettings GetSettings(bool firstRunSettings)
         {
             return settings;
