@@ -64,7 +64,7 @@ namespace GlosSIIntegration
         private static void SaveToSteamShortcuts(string jsonFileName)
         {
             // TODO: glosSIConfigPath
-            Process glosSIConfig = Process.Start(glosSIConfigPath, $"add {jsonFileName} {GetSteamShortcutsPath()}");
+            Process glosSIConfig = Process.Start(glosSIConfigPath, $"add \"{jsonFileName}\" \"{GetSteamShortcutsPath()}\"");
             glosSIConfig.WaitForExit();
         }
     }
