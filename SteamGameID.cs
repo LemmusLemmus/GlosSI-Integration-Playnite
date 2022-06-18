@@ -2,7 +2,10 @@
 // from their "Steam Shortcut Manager" at https://github.com/CorporalQuesadilla/Steam-Shortcut-Manager.
 // Corporal Quesadilla's getURL() function is licensed under the MIT License, copyright (c) Corporal Quesadilla 2018.
 
-namespace Test_gameID_getter
+using Playnite.SDK.Models;
+using System.Diagnostics;
+
+namespace GlosSIIntegration
 {
     class SteamGameID
     {
@@ -10,9 +13,11 @@ namespace Test_gameID_getter
         public SteamGameID(string name, string path)
         {
             Crc algorithm = new Crc(32, 0x04C11DB7, true, 0xffffffff, true, 0xffffffff);
-            string input = path + name;
+            string input = "\"" + path + "\"" + name;
             this.top32 = algorithm.BitByBit(input) | 0x80000000;
         }
+
+        public SteamGameID(Game playniteGame) : this(GlosSITarget.GetJsonFileName(playniteGame.GameId), glosSITargetsPath) { }
 
         public SteamGameID(uint top32)
         {
@@ -30,9 +35,9 @@ namespace Test_gameID_getter
             return top32;
         }
 
-        public static string GetGameURL(string gameID)
+        public void Run()
         {
-            return "steam://rungameid/" + gameID;
+            Process.Start("steam://rungameid/" + GetSteamGameID());
         }
     }
 }

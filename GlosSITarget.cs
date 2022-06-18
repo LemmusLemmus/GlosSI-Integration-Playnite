@@ -24,13 +24,18 @@ namespace GlosSIIntegration
             jObject.SelectToken("name").Replace(playniteGame.Name);
             jObject.SelectToken("icon").Replace(playniteGame.Icon);
 
-            string jsonFileName = TARGET_FILENAME_PREFIX + playniteGame.GameId + ".json";
+            string jsonFileName = GetJsonFileName(playniteGame.GameId);
             jsonString = jObject.ToString();
 
             // TODO: glosSITargetsPath & INTEGRATED_TAG_ID
             File.WriteAllText(glosSITargetsPath + jsonFileName, jsonString);
             playniteGame.TagIds.Add(INTEGRATED_TAG_ID);
             SaveToSteamShortcuts(jsonFileName);
+        }
+
+        public static string GetJsonFileName(string playniteGameId)
+        {
+            return TARGET_FILENAME_PREFIX + playniteGameId + ".json";
         }
 
         private static void SaveToSteamShortcuts(string jsonFileName)
