@@ -12,8 +12,14 @@ namespace GlosSIIntegration
     {
         private bool integrationEnabled = false;
         private bool optionThatWontBeSaved = false;
+        private bool closeGameWhenOverlayIsClosed = true;
+        private string glosSIConfigPath = null;
 
         public bool IntegrationEnabled { get => integrationEnabled; set => SetValue(ref integrationEnabled, value); }
+        public bool CloseGameWhenOverlayIsClosed { get => closeGameWhenOverlayIsClosed; set => SetValue(ref closeGameWhenOverlayIsClosed, value); }
+        public string GlosSIConfigPath { get => glosSIConfigPath; set => SetValue(ref glosSIConfigPath, value); }
+
+        // TODO: Remove below.
         // Playnite serializes settings object to a JSON object and saves it as text file.
         // If you want to exclude some property from being saved then use `JsonDontSerialize` ignore attribute.
         [DontSerialize]
