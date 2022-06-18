@@ -6,9 +6,12 @@
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
     <StackPanel>
-        <TextBlock Text="Description for Option1:"/>
-        <TextBox Text="{Binding Settings.Option1}"/>
-        <TextBlock Text="Description for IntegrationEnabled:"/>
+        <TextBlock Text="Enable GlosSI Integration:"/>
         <CheckBox IsChecked="{Binding Settings.IntegrationEnabled}"/>
+        <TextBlock Text="Also close the game when the overlay is closed?"/>
+        <CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}"/>
+        <TextBlock Text="Path to GlosSIConfig.exe:"/>
+        <TextBox Text="{Binding Settings.GlosSIConfigPath}"/>
+        <Button Click="Button_Click">Edit Default GlosSI Target Configuration</Button>
     </StackPanel>
 </UserControl>

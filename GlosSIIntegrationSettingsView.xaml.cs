@@ -21,5 +21,11 @@ namespace GlosSIIntegration
         {
             InitializeComponent();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: This would be better done via the GlosSI GUI, perphaps by adding a command line argument.
+            System.Diagnostics.Process.Start("DefaultTarget.json");
+        }
     }
 }
