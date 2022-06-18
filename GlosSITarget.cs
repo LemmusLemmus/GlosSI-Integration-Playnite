@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Diagnostics;
+using System;
 
 namespace GlosSIIntegration
 {
@@ -40,7 +41,7 @@ namespace GlosSIIntegration
 
         private static string GetJsonFilePath(string jsonFileName)
         {
-            return glosSITargetsPath + jsonFileName;
+            return Environment.ExpandEnvironmentVariables("%appdata%/GlosSI/Targets/" + jsonFileName);
         }
 
         public static bool HasJsonFile(string playniteGameId)
@@ -48,10 +49,22 @@ namespace GlosSIIntegration
             return File.Exists(GetJsonFilePath(GetJsonFileName(playniteGameId)));
         }
 
+        private static string GetSteamShortcutsPath() // TODO: Fix this!
+        {
+            string steamUserdataPath = Environment.ExpandEnvironmentVariables("%programfiles(x86)%/Steam/userdata");
+            return null;
+        }
+
+        /// <summary>
+        /// Saves the GlosSITarget profile to Steam. 
+        /// A restart of Steam is required for these changes to take effect.
+        /// </summary>
+        /// <param name="jsonFileName">The filname of the .json GlosSITarget profile.</param>
+        /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
         private static void SaveToSteamShortcuts(string jsonFileName)
         {
-            // TODO: glosSIConfigPath & steamShortcutsPath
-            Process glosSIConfig = Process.Start(glosSIConfigPath, $"add {jsonFileName} {steamShortcutsPath}");
+            // TODO: glosSIConfigPath
+            Process glosSIConfig = Process.Start(glosSIConfigPath, $"add {jsonFileName} {GetSteamShortcutsPath()}");
             glosSIConfig.WaitForExit();
         }
     }
