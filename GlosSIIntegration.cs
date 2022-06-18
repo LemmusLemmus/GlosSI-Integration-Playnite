@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Diagnostics;
+using System.IO;
 
 namespace GlosSIIntegration
 {
@@ -19,7 +20,7 @@ namespace GlosSIIntegration
         private GlosSIIntegrationSettingsViewModel settings { get; set; }
         private Process glosSIOverlay;
         private readonly INotificationsAPI notifications;
-        public static readonly string INTEGRATED_TAG = "[GI] Integrated";
+        public static readonly string INTEGRATED_TAG = "[GI] Integrated", IGNORED_TAG = "[GI] Ignored";
 
         public override Guid Id { get; } = Guid.Parse("6b0297da-75e5-4330-bb2d-b64bff22c315");
 
@@ -67,9 +68,19 @@ namespace GlosSIIntegration
             }
         }
 
-        private static bool GameHasIntegratedTag(Game game)
+        public static bool GameHasIntegratedTag(Game game)
         {
-            return game.Tags.Any(t => t.Name == INTEGRATED_TAG);
+            return GameHasTag(game, INTEGRATED_TAG);
+        }
+
+        public static bool GameHasIgnoredTag(Game game)
+        {
+            return GameHasTag(game, IGNORED_TAG);
+        }
+
+        private static bool GameHasTag(Game game, string tagName)
+        {
+            return game.Tags.Any(t => t.Name == tagName);
         }
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
@@ -144,23 +155,58 @@ namespace GlosSIIntegration
 
         private void AddGames(GameMenuItemActionArgs args)
         {
+            foreach (Game game in args.Games)
+            {
+                try
+                {
+                    GlosSITarget.Create(game);
+                }
+                catch(FileNotFoundException)
+                {
+                    notifications.Add($"{Id}-AddGamesFileMissing", 
+                        "The DefaultTarget.json file was not found. The adding process was aborted.", 
+                        NotificationType.Error);
+                    return;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    notifications.Add($"{Id}-AddGamesDirMissing",
+                        "The GlosSI Target Path directory could not be found. The adding process was aborted.",
+                        NotificationType.Error);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    notifications.Add($"{Id}-GeneralAddGames", $"GlosSI Integration failed to add the GlosSI Target " +
+                        $"Configuration file for {game.Name}, the adding process was aborted: " +
+                        $"{e.Message}", NotificationType.Error);
+                    return;
+                }
+            }
 
+            // TODO: Message the user that the operation succeeded and that Steam should be restarted.
         }
 
         private void RemoveGames(GameMenuItemActionArgs args)
         {
             // TODO: Ask the user for confirmation.
-            try
+
+            foreach (Game game in args.Games)
             {
-                foreach (Game game in args.Games)
+                try
                 {
                     GlosSITarget.Remove(game);
                 }
+                catch (Exception e)
+                {
+                    notifications.Add($"{Id}-RemoveGames", $"GlosSI Integration failed to remove the GlosSI Target " +
+                        $"Configuration file for {game.Name}, the removal process was aborted: " +
+                        $"{e.Message}", NotificationType.Error);
+                    return;
+                }
             }
-            catch (Exception e)
-            {
-                notifications.Add($"{Id}-RemoveGames", $"GlosSI Integration failed to remove a GlosSI Target Configuration file, the removal process was aborted: {e.Message}", NotificationType.Error);
-            }
+
+            // TODO: Message the user that the operation succeeded and that Steam should be restarted.
         }
 
         public override ISettings GetSettings(bool firstRunSettings)

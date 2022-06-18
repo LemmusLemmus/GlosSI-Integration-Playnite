@@ -9,16 +9,23 @@ namespace GlosSIIntegration
     static class GlosSITarget
     {
         private static readonly string TARGET_FILENAME_PREFIX = "[GI] ";
+        private static readonly string STEAM_SOURCE = "Steam";
 
         // TODO: Testing
         /// <summary>
-        /// Creates a GlosSITarget for a game, using the default .json structure.
+        /// Creates a GlosSITarget for a game, using the default .json structure. 
+        /// Steam games, already integrated games and games tagged for ignoring are ignored.
         /// </summary>
         /// <param name="playniteGame">The game to be added to GlosSI</param>
         /// <exception cref="FileNotFoundException">If the default target json-file could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">If the glosSITargetsPath directory could not be found.</exception>
         public static void Create(Game playniteGame)
         {
+            // TODO: It might be a bad idea to simply compare the name of the source.
+            if (playniteGame.Source.Name == STEAM_SOURCE || 
+                GlosSIIntegration.GameHasIgnoredTag(playniteGame) || 
+                GlosSIIntegration.GameHasIntegratedTag(playniteGame)) return;
+
             string jsonString = File.ReadAllText("DefaultTarget.json");
             JObject jObject = (JObject) Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
 
@@ -28,7 +35,7 @@ namespace GlosSIIntegration
             string jsonFileName = GetJsonFileName(playniteGame.GameId);
             jsonString = jObject.ToString();
 
-            // TODO: glosSITargetsPath & INTEGRATED_TAG_ID
+            // TODO: INTEGRATED_TAG_ID
             File.WriteAllText(GetJsonFilePath(jsonFileName), jsonString);
             playniteGame.TagIds.Add(INTEGRATED_TAG_ID);
             SaveToSteamShortcuts(jsonFileName);
