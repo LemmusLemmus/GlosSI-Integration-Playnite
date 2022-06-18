@@ -35,9 +35,9 @@ namespace GlosSIIntegration
             return top32;
         }
 
-        public void Run()
+        public Process Run()
         {
-            Process.Start("steam://rungameid/" + GetSteamGameID());
+            return Process.Start("steam://rungameid/" + GetSteamGameID());
         }
     }
 }

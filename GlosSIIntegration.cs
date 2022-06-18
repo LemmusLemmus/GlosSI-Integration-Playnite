@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Diagnostics;
 
 namespace GlosSIIntegration
 {
@@ -16,6 +17,8 @@ namespace GlosSIIntegration
         private static readonly ILogger logger = LogManager.GetLogger();
 
         private GlosSIIntegrationSettingsViewModel settings { get; set; }
+        private Process glosSIOverlay;
+        private readonly INotificationsAPI notifications;
 
         public override Guid Id { get; } = Guid.Parse("6b0297da-75e5-4330-bb2d-b64bff22c315");
 
@@ -26,6 +29,8 @@ namespace GlosSIIntegration
             {
                 HasSettings = true
             };
+            glosSIOverlay = null;
+            notifications = api.Notifications;
         }
 
         public override void OnGameInstalled(OnGameInstalledEventArgs args)
@@ -35,17 +40,63 @@ namespace GlosSIIntegration
 
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
-            // Add code to be executed when game is started running.
+            if(settings.Settings.IntegrationEnabled && GameHasTag(args.Game) && glosSIOverlay == null)
+            {
+                // TODO: Stop any already running GlosSI overlays.
+
+                if (!GlosSITarget.HasJsonFile(args.Game.GameId))
+                {
+                    notifications.Add($"{Id}-OnGameStarted-NoJsonFile",
+                        $"GlosSI Integration failed to run the Steam Shortcut: The .json target file is missing.",
+                        NotificationType.Error);
+                    // TODO: Remove the GlosSI Integrated tag?
+                    return;
+                }
+
+                try
+                {
+                    glosSIOverlay = (new SteamGameID(args.Game)).Run();
+                }
+                catch (Exception e)
+                {
+                    notifications.Add($"{Id}-OnGameStarted-OverlayOpened",
+                        $"GlosSI Integration failed to run the Steam Shortcut: {e.Message}",
+                        NotificationType.Error);
+                }
+            }
+        }
+
+        private bool GameHasTag(Game game)
+        {
+            return game.Tags.Any(t => t.Name == "[GI] Integrated");
         }
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
-            // Add code to be executed when game is preparing to be started.
+            if(settings.Settings.CloseGameWhenOverlayIsClosed)
+            {
+                // TODO: Set up a thread that closes the application when the overlay is closed.
+            }
+
         }
 
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
-            // Add code to be executed when game is preparing to be started.
+            if(settings.Settings.IntegrationEnabled && GameHasTag(args.Game))
+            {
+                try
+                {
+                    glosSIOverlay.CloseMainWindow();
+                    glosSIOverlay = null;
+                }
+                catch (InvalidOperationException) { }
+                catch (PlatformNotSupportedException e)
+                {
+                    notifications.Add($"{Id}-OnGameStopped", $"GlosSI Integration failed to close the Steam Shortcut: {e.Message}", NotificationType.Error);
+                }
+
+                // TODO: Start the playnite GlosSI overlay, if the user has configured one.
+            }
         }
 
         public override void OnGameUninstalled(OnGameUninstalledEventArgs args)

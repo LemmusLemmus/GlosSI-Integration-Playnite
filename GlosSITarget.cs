@@ -28,7 +28,7 @@ namespace GlosSIIntegration
             jsonString = jObject.ToString();
 
             // TODO: glosSITargetsPath & INTEGRATED_TAG_ID
-            File.WriteAllText(glosSITargetsPath + jsonFileName, jsonString);
+            File.WriteAllText(GetJsonFilePath(jsonFileName), jsonString);
             playniteGame.TagIds.Add(INTEGRATED_TAG_ID);
             SaveToSteamShortcuts(jsonFileName);
         }
@@ -36,6 +36,16 @@ namespace GlosSIIntegration
         public static string GetJsonFileName(string playniteGameId)
         {
             return TARGET_FILENAME_PREFIX + playniteGameId + ".json";
+        }
+
+        private static string GetJsonFilePath(string jsonFileName)
+        {
+            return glosSITargetsPath + jsonFileName;
+        }
+
+        public static bool HasJsonFile(string playniteGameId)
+        {
+            return File.Exists(GetJsonFilePath(GetJsonFileName(playniteGameId)));
         }
 
         private static void SaveToSteamShortcuts(string jsonFileName)
