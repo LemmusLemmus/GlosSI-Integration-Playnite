@@ -46,7 +46,7 @@ namespace GlosSIIntegration
             {
                 // TODO: Stop any already running GlosSI overlays.
 
-                if (!GlosSITarget.HasJsonFile(args.Game))
+                if (!(new GlosSITarget(args.Game)).HasJsonFile())
                 {
                     notifications.Add($"{Id}-OnGameStarted-NoJsonFile",
                         $"GlosSI Integration failed to run the Steam Shortcut: The .json target file is missing.",
@@ -159,7 +159,7 @@ namespace GlosSIIntegration
             {
                 try
                 {
-                    GlosSITarget.Create(game);
+                    (new GlosSITarget(game)).Create();
                 }
                 catch(FileNotFoundException)
                 {
@@ -195,7 +195,7 @@ namespace GlosSIIntegration
             {
                 try
                 {
-                    GlosSITarget.Remove(game);
+                    (new GlosSITarget(game)).Remove();
                 }
                 catch (Exception e)
                 {

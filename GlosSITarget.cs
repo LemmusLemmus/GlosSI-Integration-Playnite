@@ -6,20 +6,28 @@ using System;
 
 namespace GlosSIIntegration
 {
-    static class GlosSITarget
+    class GlosSITarget
     {
         private static readonly string TARGET_FILENAME_PREFIX = "[GI] ";
         private static readonly string STEAM_SOURCE = "Steam";
+
+        private readonly Game playniteGame;
+        private readonly string jsonFileName; // The filname of the .json GlosSITarget profile.
+
+        public GlosSITarget(Game playniteGame)
+        {
+            this.playniteGame = playniteGame;
+            this.jsonFileName = TARGET_FILENAME_PREFIX + playniteGame.GameId + ".json";
+        }
 
         // TODO: Testing
         /// <summary>
         /// Creates a GlosSITarget for a game, using the default .json structure. 
         /// Steam games, already integrated games and games tagged for ignoring are ignored.
         /// </summary>
-        /// <param name="playniteGame">The game to be added to GlosSI</param>
         /// <exception cref="FileNotFoundException">If the default target json-file could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">If the glosSITargetsPath directory could not be found.</exception>
-        public static void Create(Game playniteGame)
+        public void Create()
         {
             // TODO: It might be a bad idea to simply compare the name of the source.
             if (playniteGame.Source.Name == STEAM_SOURCE || 
@@ -32,58 +40,50 @@ namespace GlosSIIntegration
             jObject.SelectToken("name").Replace(playniteGame.Name);
             jObject.SelectToken("icon").Replace(playniteGame.Icon);
 
-            string jsonFileName = GetJsonFileName(playniteGame.GameId);
             jsonString = jObject.ToString();
 
             // TODO: INTEGRATED_TAG_ID
-            File.WriteAllText(GetJsonFilePath(jsonFileName), jsonString);
+            File.WriteAllText(GetJsonFilePath(), jsonString);
             playniteGame.TagIds.Add(INTEGRATED_TAG_ID);
-            SaveToSteamShortcuts(jsonFileName);
+            SaveToSteamShortcuts();
         }
 
-        public static string GetJsonFileName(string playniteGameId)
+        public string GetJsonFileName()
         {
-            return TARGET_FILENAME_PREFIX + playniteGameId + ".json";
+            return jsonFileName;
         }
 
-        private static string GetJsonFilePath(string jsonFileName)
+        private string GetJsonFilePath()
         {
             return Environment.ExpandEnvironmentVariables("%appdata%/GlosSI/Targets/" + jsonFileName);
         }
 
-        public static bool HasJsonFile(Game playniteGame)
+        public bool HasJsonFile()
         {
-            return HasJsonFile(GetJsonFileName(playniteGame.GameId));
+            return File.Exists(GetJsonFilePath());
         }
 
-        public static bool HasJsonFile(string jsonFileName)
+        private int GetIndexOfIntegratedTag()
         {
-            return File.Exists(GetJsonFilePath(jsonFileName));
+            return playniteGame.Tags.FindIndex(t => t.Name == GlosSIIntegration.INTEGRATED_TAG);
         }
 
-        private static int GetIndexOfIntegratedTag(Game game)
+        public void Remove()
         {
-            return game.Tags.FindIndex(t => t.Name == GlosSIIntegration.INTEGRATED_TAG);
-        }
-
-        public static void Remove(Game game)
-        {
-            int integratedTagIndex = GetIndexOfIntegratedTag(game);
+            int integratedTagIndex = GetIndexOfIntegratedTag();
 
             if (integratedTagIndex == -1) return;
-            game.Tags.RemoveAt(integratedTagIndex);
-
-            string jsonFileName = GetJsonFileName(game.GameId);
-            RemoveFromSteamShortcuts(jsonFileName);
-            RemoveJsonFile(jsonFileName);
+            playniteGame.Tags.RemoveAt(integratedTagIndex);
+            RemoveFromSteamShortcuts();
+            RemoveJsonFile();
 
         }
 
-        private static void RemoveJsonFile(string jsonFileName)
+        private void RemoveJsonFile()
         {
-            if(HasJsonFile(jsonFileName))
+            if(HasJsonFile())
             {
-                File.Delete(GetJsonFilePath(jsonFileName));
+                File.Delete(GetJsonFilePath());
             }
         }
 
@@ -97,11 +97,10 @@ namespace GlosSIIntegration
         /// Saves the GlosSITarget profile to Steam. 
         /// A restart of Steam is required for these changes to take effect.
         /// </summary>
-        /// <param name="jsonFileName">The filname of the .json GlosSITarget profile.</param>
         /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
-        private static void SaveToSteamShortcuts(string jsonFileName)
+        private void SaveToSteamShortcuts()
         {
-            RunGlosSIConfigWithArguments("add", jsonFileName);
+            RunGlosSIConfigWithArguments("add");
         }
 
         /// <summary>
@@ -110,12 +109,12 @@ namespace GlosSIIntegration
         /// </summary>
         /// <param name="jsonFileName">The filname of the .json GlosSITarget profile.</param>
         /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
-        private static void RemoveFromSteamShortcuts(string jsonFileName)
+        private void RemoveFromSteamShortcuts()
         {
-            RunGlosSIConfigWithArguments("remove", jsonFileName);
+            RunGlosSIConfigWithArguments("remove");
         }
 
-        private static void RunGlosSIConfigWithArguments(string initialArgument, string jsonFileName)
+        private void RunGlosSIConfigWithArguments(string initialArgument)
         {
             // TODO: glosSIConfigPath
             Process glosSIConfig = Process.Start(glosSIConfigPath, $"{initialArgument} \"{jsonFileName}\" \"{GetSteamShortcutsPath()}\"");

@@ -17,7 +17,7 @@ namespace GlosSIIntegration
             this.top32 = algorithm.BitByBit(input) | 0x80000000;
         }
 
-        public SteamGameID(Game playniteGame) : this(GlosSITarget.GetJsonFileName(playniteGame.GameId), glosSITargetsPath) { }
+        public SteamGameID(Game playniteGame) : this((new GlosSITarget(playniteGame)).GetJsonFileName(), glosSITargetsPath) { }
 
         public SteamGameID(uint top32)
         {
