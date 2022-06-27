@@ -42,7 +42,14 @@ namespace GlosSIIntegration
 
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
-            if(settings.Settings.IntegrationEnabled && GameHasIntegratedTag(args.Game) && glosSIOverlay == null)
+            if (GameHasIgnoredTag(args.Game)) return;
+
+            if(glosSIOverlay != null)
+            {
+                // TODO: Give the user a choice? Replace the already open overlay or do not open a new overlay.
+                // If the overlay is replaced, make sure that this doesn't also close the previous game.
+            }
+            else if(settings.Settings.IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
                 // TODO: Stop any already running GlosSI overlays.
 
@@ -94,7 +101,9 @@ namespace GlosSIIntegration
 
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
-            if(settings.Settings.IntegrationEnabled && GameHasIntegratedTag(args.Game))
+            if (GameHasIgnoredTag(args.Game)) return;
+
+            if (settings.Settings.IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
                 try
                 {
