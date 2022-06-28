@@ -117,7 +117,8 @@ namespace GlosSIIntegration
         private void RunGlosSIConfigWithArguments(string initialArgument)
         {
             // TODO: glosSIConfigPath
-            Process glosSIConfig = Process.Start(glosSIConfigPath, $"{initialArgument} \"{jsonFileName}\" \"{GetSteamShortcutsPath()}\"");
+            Process glosSIConfig = Process.Start(GlosSIIntegration.GetSettings().GlosSIConfigPath, 
+                $"{initialArgument} \"{jsonFileName}\" \"{GetSteamShortcutsPath()}\"");
             glosSIConfig.WaitForExit();
         }
     }

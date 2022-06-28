@@ -17,22 +17,29 @@ namespace GlosSIIntegration
     {
         private static readonly ILogger logger = LogManager.GetLogger();
 
-        private GlosSIIntegrationSettingsViewModel settings { get; set; }
+        private GlosSIIntegrationSettingsViewModel settingsViewModel { get; set; }
         private Process glosSIOverlay;
         private readonly INotificationsAPI notifications;
         public static readonly string INTEGRATED_TAG = "[GI] Integrated", IGNORED_TAG = "[GI] Ignored";
+        public static GlosSIIntegration Instance { get; private set; }
 
         public override Guid Id { get; } = Guid.Parse("6b0297da-75e5-4330-bb2d-b64bff22c315");
 
         public GlosSIIntegration(IPlayniteAPI api) : base(api)
         {
-            settings = new GlosSIIntegrationSettingsViewModel(this);
+            settingsViewModel = new GlosSIIntegrationSettingsViewModel(this);
             Properties = new GenericPluginProperties
             {
                 HasSettings = true
             };
             glosSIOverlay = null;
             notifications = api.Notifications;
+            Instance = this;
+        }
+
+        public static GlosSIIntegrationSettings GetSettings()
+        {
+            return Instance.settingsViewModel.Settings;
         }
 
         public override void OnGameInstalled(OnGameInstalledEventArgs args)
@@ -49,7 +56,7 @@ namespace GlosSIIntegration
                 // TODO: Give the user a choice? Replace the already open overlay or do not open a new overlay.
                 // If the overlay is replaced, make sure that this doesn't also close the previous game.
             }
-            else if(settings.Settings.IntegrationEnabled && GameHasIntegratedTag(args.Game))
+            else if(GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
                 // TODO: Stop any already running GlosSI overlays.
 
@@ -92,7 +99,7 @@ namespace GlosSIIntegration
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
-            if(settings.Settings.CloseGameWhenOverlayIsClosed)
+            if(GetSettings().CloseGameWhenOverlayIsClosed)
             {
                 // TODO: Set up a thread that closes the application when the overlay is closed.
             }
@@ -103,7 +110,7 @@ namespace GlosSIIntegration
         {
             if (GameHasIgnoredTag(args.Game)) return;
 
-            if (settings.Settings.IntegrationEnabled && GameHasIntegratedTag(args.Game))
+            if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
                 try
                 {
@@ -220,7 +227,7 @@ namespace GlosSIIntegration
 
         public override ISettings GetSettings(bool firstRunSettings)
         {
-            return settings;
+            return settingsViewModel;
         }
 
         public override UserControl GetSettingsView(bool firstRunSettings)

@@ -9,7 +9,7 @@ namespace GlosSIIntegration
 {
     class SteamGameID
     {
-        readonly uint top32;
+        private readonly uint top32;
         public SteamGameID(string name, string path)
         {
             Crc algorithm = new Crc(32, 0x04C11DB7, true, 0xffffffff, true, 0xffffffff);
@@ -17,7 +17,7 @@ namespace GlosSIIntegration
             this.top32 = algorithm.BitByBit(input) | 0x80000000;
         }
 
-        public SteamGameID(Game playniteGame) : this((new GlosSITarget(playniteGame)).GetJsonFileName(), glosSITargetsPath) { }
+        public SteamGameID(Game playniteGame) : this((new GlosSITarget(playniteGame)).GetJsonFileName(), GlosSIIntegration.GetSettings().glosSITargetsPath) { }
 
         public SteamGameID(uint top32)
         {
