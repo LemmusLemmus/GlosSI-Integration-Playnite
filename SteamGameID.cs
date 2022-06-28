@@ -4,6 +4,7 @@
 
 using Playnite.SDK.Models;
 using System.Diagnostics;
+using System.IO;
 
 namespace GlosSIIntegration
 {
@@ -17,7 +18,7 @@ namespace GlosSIIntegration
             this.top32 = algorithm.BitByBit(input) | 0x80000000;
         }
 
-        public SteamGameID(Game playniteGame) : this((new GlosSITarget(playniteGame)).GetJsonFileName(), GlosSIIntegration.GetSettings().glosSITargetsPath) { }
+        public SteamGameID(Game playniteGame) : this(playniteGame.Name, Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSITarget.exe")) { }
 
         public SteamGameID(uint top32)
         {

@@ -48,14 +48,9 @@ namespace GlosSIIntegration
             SaveToSteamShortcuts();
         }
 
-        public string GetJsonFileName()
-        {
-            return jsonFileName;
-        }
-
         private string GetJsonFilePath()
         {
-            return Environment.ExpandEnvironmentVariables("%appdata%/GlosSI/Targets/" + jsonFileName);
+            return Path.Combine(GlosSIIntegration.GetSettings().GlosSITargetsPath, jsonFileName);
         }
 
         public bool HasJsonFile()
@@ -116,8 +111,7 @@ namespace GlosSIIntegration
 
         private void RunGlosSIConfigWithArguments(string initialArgument)
         {
-            // TODO: glosSIConfigPath
-            Process glosSIConfig = Process.Start(GlosSIIntegration.GetSettings().GlosSIConfigPath, 
+            Process glosSIConfig = Process.Start(Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSIConfig.exe"), 
                 $"{initialArgument} \"{jsonFileName}\" \"{GetSteamShortcutsPath()}\"");
             glosSIConfig.WaitForExit();
         }
