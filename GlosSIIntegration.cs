@@ -20,6 +20,7 @@ namespace GlosSIIntegration
         private GlosSIIntegrationSettingsViewModel settingsViewModel { get; set; }
         private Process glosSIOverlay;
         private readonly INotificationsAPI notifications;
+        private static IGameDatabase database;
         public static readonly string INTEGRATED_TAG = "[GI] Integrated", IGNORED_TAG = "[GI] Ignored";
         public static GlosSIIntegration Instance { get; private set; }
 
@@ -34,12 +35,45 @@ namespace GlosSIIntegration
             };
             glosSIOverlay = null;
             notifications = api.Notifications;
+            database = api.Database;
             Instance = this;
         }
 
         public static GlosSIIntegrationSettings GetSettings()
         {
             return Instance.settingsViewModel.Settings;
+        }
+
+        // Method code heavily inspired by https://github.com/darklinkpower's PlayniteUtilites AddTagToGame method
+        // from their PlayniteExtensionsCollection repository.
+        public static void AddTagToGame(string tagName, Game game)
+        {
+            Tag tag = database.Tags.Add(tagName);
+
+            if(game.Tags == null)
+            {
+                game.TagIds = new List<Guid> { tag.Id };
+                database.Games.Update(game);
+            }
+            else if (!game.TagIds.Contains(tag.Id))
+            {
+                game.TagIds.Add(tag.Id);
+                database.Games.Update(game);
+            }
+        }
+
+        // Method code heavily inspired by https://github.com/darklinkpower's PlayniteUtilites RemoveTagFromGame method
+        // from their PlayniteExtensionsCollection repository.
+        public static void RemoveTagFromGame(string tagName, Game game)
+        {
+            if (game.Tags == null) return;
+
+            Tag tag = game.Tags.FirstOrDefault(x => x.Name == tagName);
+            if (tag != null)
+            {
+                game.TagIds.Remove(tag.Id);
+                database.Games.Update(game);
+            }
         }
 
         public override void OnGameInstalled(OnGameInstalledEventArgs args)

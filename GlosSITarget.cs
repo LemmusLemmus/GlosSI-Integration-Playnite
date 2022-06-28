@@ -42,9 +42,8 @@ namespace GlosSIIntegration
 
             jsonString = jObject.ToString();
 
-            // TODO: INTEGRATED_TAG_ID
             File.WriteAllText(GetJsonFilePath(), jsonString);
-            playniteGame.TagIds.Add(INTEGRATED_TAG_ID);
+            GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
             SaveToSteamShortcuts();
         }
 
@@ -58,20 +57,14 @@ namespace GlosSIIntegration
             return File.Exists(GetJsonFilePath());
         }
 
-        private int GetIndexOfIntegratedTag()
-        {
-            return playniteGame.Tags.FindIndex(t => t.Name == GlosSIIntegration.INTEGRATED_TAG);
-        }
-
         public void Remove()
         {
-            int integratedTagIndex = GetIndexOfIntegratedTag();
-
-            if (integratedTagIndex == -1) return;
-            playniteGame.Tags.RemoveAt(integratedTagIndex);
-            RemoveFromSteamShortcuts();
-            RemoveJsonFile();
-
+            if(GlosSIIntegration.GameHasIntegratedTag(playniteGame))
+            {
+                GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
+                RemoveFromSteamShortcuts();
+                RemoveJsonFile();
+            }
         }
 
         private void RemoveJsonFile()
