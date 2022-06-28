@@ -2,6 +2,7 @@
 using Playnite.SDK.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,10 +15,12 @@ namespace GlosSIIntegration
         private bool closeGameWhenOverlayIsClosed = true;
         private string glosSIPath = null;
         private string glosSITargetsPath = Environment.ExpandEnvironmentVariables("%appdata%/GlosSI/Targets");
+        private string steamShortcutsPath = null;
 
         public bool IntegrationEnabled { get => integrationEnabled; set => SetValue(ref integrationEnabled, value); }
         public bool CloseGameWhenOverlayIsClosed { get => closeGameWhenOverlayIsClosed; set => SetValue(ref closeGameWhenOverlayIsClosed, value); }
         public string GlosSIPath { get => glosSIPath; set => SetValue(ref glosSIPath, value); }
+        public string SteamShortcutsPath { get => steamShortcutsPath; set => SetValue(ref steamShortcutsPath, value); }
 
         [DontSerialize]
         public string GlosSITargetsPath { get => glosSITargetsPath; }
@@ -56,6 +59,50 @@ namespace GlosSIIntegration
             {
                 Settings = new GlosSIIntegrationSettings();
             }
+
+            if(Settings.SteamShortcutsPath == null)
+            {
+                string newSteamShortcutsPath = GetSteamShortcutsPath();
+                if(newSteamShortcutsPath != null)
+                {
+                    Settings.SteamShortcutsPath = newSteamShortcutsPath;
+                    plugin.SavePluginSettings(Settings);
+                }
+            }
+        }
+
+        private string GetSteamShortcutsPath()
+        {
+            // Get the Steam userdata folder.
+            string curPath = "%programfiles(x86)%\\Steam\\userdata";
+            if (!Directory.Exists(curPath))
+            {
+                curPath = "%programfiles%\\Steam\\userdata";
+                if (!Directory.Exists(curPath))
+                {
+                    // The user has to manually input a path.
+                    return null;
+                }
+            }
+            curPath = Environment.ExpandEnvironmentVariables(curPath);
+
+            // Find the path that leads to shortcuts.vdf
+            curPath = null;
+            foreach(string dir in Directory.GetDirectories(curPath))
+            {
+                string newPath = Path.Combine(dir, "\\config\\shortcuts.vdf");
+                if(File.Exists(newPath))
+                {
+                    if(curPath != null)
+                    {
+                        // TODO: Let the user choose which directory is the correct one?
+                        return null;
+                    }
+                    curPath = newPath;
+                }
+            }
+
+            return curPath;
         }
 
         public void BeginEdit()

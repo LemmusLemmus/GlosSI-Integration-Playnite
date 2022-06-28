@@ -81,12 +81,6 @@ namespace GlosSIIntegration
             }
         }
 
-        private static string GetSteamShortcutsPath() // TODO: Fix this!
-        {
-            string steamUserdataPath = Environment.ExpandEnvironmentVariables("%programfiles(x86)%/Steam/userdata");
-            return null;
-        }
-
         /// <summary>
         /// Saves the GlosSITarget profile to Steam. 
         /// A restart of Steam is required for these changes to take effect.
@@ -111,7 +105,7 @@ namespace GlosSIIntegration
         private void RunGlosSIConfigWithArguments(string initialArgument)
         {
             Process glosSIConfig = Process.Start(Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSIConfig.exe"), 
-                $"{initialArgument} \"{jsonFileName}\" \"{GetSteamShortcutsPath()}\"");
+                $"{initialArgument} \"{jsonFileName}\" \"{GlosSIIntegration.GetSettings().SteamShortcutsPath}\"");
             glosSIConfig.WaitForExit();
         }
     }
