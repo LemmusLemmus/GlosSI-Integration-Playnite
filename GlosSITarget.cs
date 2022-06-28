@@ -29,8 +29,7 @@ namespace GlosSIIntegration
         /// <exception cref="DirectoryNotFoundException">If the glosSITargetsPath directory could not be found.</exception>
         public void Create()
         {
-            // TODO: It might be a bad idea to simply compare the name of the source.
-            if (playniteGame.Source.Name == STEAM_SOURCE || 
+            if (IsSteamGame() || 
                 GlosSIIntegration.GameHasIgnoredTag(playniteGame) || 
                 GlosSIIntegration.GameHasIntegratedTag(playniteGame)) return;
 
@@ -45,6 +44,13 @@ namespace GlosSIIntegration
             File.WriteAllText(GetJsonFilePath(), jsonString);
             GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
             SaveToSteamShortcuts();
+        }
+
+        private bool IsSteamGame()
+        {
+            return playniteGame.Source.Name == STEAM_SOURCE || 
+                (playniteGame.InstallDirectory != null && 
+                Path.GetFullPath(playniteGame.InstallDirectory).Contains("Steam\\steamapps\\common"));
         }
 
         private string GetJsonFilePath()
