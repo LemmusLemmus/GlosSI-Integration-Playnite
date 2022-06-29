@@ -28,7 +28,7 @@ namespace GlosSIIntegration
 
         public GlosSIIntegration(IPlayniteAPI api) : base(api)
         {
-            settingsViewModel = new GlosSIIntegrationSettingsViewModel(this);
+            settingsViewModel = new GlosSIIntegrationSettingsViewModel(this, api);
             Properties = new GenericPluginProperties
             {
                 HasSettings = true

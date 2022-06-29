@@ -3,15 +3,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:glossiintegration="clr-namespace:GlosSIIntegration" d:DataContext="{d:DesignInstance Type=glossiintegration:GlosSIIntegrationSettingsViewModel}"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
-    <StackPanel>
-        <TextBlock Text="Enable GlosSI Integration:"/>
-        <CheckBox IsChecked="{Binding Settings.IntegrationEnabled}"/>
-        <TextBlock Text="Also close the game when the overlay is closed?"/>
-        <CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}"/>
-        <TextBlock Text="Path to GlosSIConfig.exe:"/>
-        <TextBox Text="{Binding Settings.GlosSIConfigPath}"/>
-        <Button Click="Button_Click">Edit Default GlosSI Target Configuration</Button>
+    <StackPanel Margin="20">
+        <CheckBox IsChecked="{Binding Settings.IntegrationEnabled}" Content="Use GlosSI Integration" Margin="0,0,0,10"/>
+        <CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}" Content="When the overlay is closed, also close the game." Margin="0,0,0,10"/>
+        <Button Content="Edit Default GlosSI Target Configuration" Click="Button_Click" HorizontalAlignment="Left"/>
+        <StackPanel Margin="0,10,0,0">
+            <Label Content="Path Settings" Margin="0,0,0,5"/>
+            <Separator Margin="0,0,0,5" />
+            <DockPanel Margin="0,0,0,10">
+                <TextBlock Text="Steam shortcuts path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseSteamShortcutsFile}" />
+                <TextBox Margin="10,0,0,0" Text="{Binding Settings.SteamShortcutsPath}" />
+            </DockPanel>
+            <DockPanel Margin="0,0,0,10">
+                <TextBlock Text="GlosSI folder path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseGlosSIFolder}" />
+                <TextBox Margin="10,0,0,0" Text="{Binding Settings.GlosSIPath}" />
+        </DockPanel>
+        </StackPanel>
     </StackPanel>
 </UserControl>

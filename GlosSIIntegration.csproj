@@ -62,7 +62,9 @@
     <Compile Include="SteamGameID.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DefaultTarget.json" />
+    <None Include="DefaultTarget.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="extension.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

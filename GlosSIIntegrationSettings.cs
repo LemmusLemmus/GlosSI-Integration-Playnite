@@ -29,6 +29,7 @@ namespace GlosSIIntegration
     public class GlosSIIntegrationSettingsViewModel : ObservableObject, ISettings
     {
         private readonly GlosSIIntegration plugin;
+        private readonly IPlayniteAPI playniteApi;
         private GlosSIIntegrationSettings editingClone { get; set; }
 
         private GlosSIIntegrationSettings settings;
@@ -42,10 +43,11 @@ namespace GlosSIIntegration
             }
         }
 
-        public GlosSIIntegrationSettingsViewModel(GlosSIIntegration plugin)
+        public GlosSIIntegrationSettingsViewModel(GlosSIIntegration plugin, IPlayniteAPI playniteApi)
         {
             // Injecting your plugin instance is required for Save/Load method because Playnite saves data to a location based on what plugin requested the operation.
             this.plugin = plugin;
+            this.playniteApi = playniteApi;
 
             // Load saved settings.
             var savedSettings = plugin.LoadPluginSettings<GlosSIIntegrationSettings>();
@@ -60,12 +62,12 @@ namespace GlosSIIntegration
                 Settings = new GlosSIIntegrationSettings();
             }
 
-            if(Settings.SteamShortcutsPath == null)
+            if(settings.SteamShortcutsPath == null)
             {
                 string newSteamShortcutsPath = GetSteamShortcutsPath();
                 if(newSteamShortcutsPath != null)
                 {
-                    Settings.SteamShortcutsPath = newSteamShortcutsPath;
+                    settings.SteamShortcutsPath = newSteamShortcutsPath;
                     plugin.SavePluginSettings(Settings);
                 }
             }
@@ -84,11 +86,11 @@ namespace GlosSIIntegration
                     return null;
                 }
             }
-            curPath = Environment.ExpandEnvironmentVariables(curPath);
 
             // Find the path that leads to shortcuts.vdf
+            string[] dirs = Directory.GetDirectories(curPath);
             curPath = null;
-            foreach(string dir in Directory.GetDirectories(curPath))
+            foreach(string dir in dirs)
             {
                 string newPath = Path.Combine(dir, "\\config\\shortcuts.vdf");
                 if(File.Exists(newPath))
@@ -131,6 +133,36 @@ namespace GlosSIIntegration
             // Executed before EndEdit is called and EndEdit is not called if false is returned.
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
+            return true;
+        }
+
+        public RelayCommand<object> BrowseSteamShortcutsFile
+        {
+            get => new RelayCommand<object>((o) =>
+            {
+                string filePath = playniteApi.Dialogs.SelectFile("Steam Shortcuts file|shortcuts.vdf");
+                if (!string.IsNullOrEmpty(filePath)) settings.SteamShortcutsPath = filePath;
+            });
+        }
+
+        public RelayCommand<object> BrowseGlosSIFolder
+        {
+            get => new RelayCommand<object>((o) =>
+            {
+                string filePath = playniteApi.Dialogs.SelectFolder();
+                if (!string.IsNullOrEmpty(filePath)) settings.GlosSIPath = filePath;
+            });
+        }
+
+        private bool VerifySteamShortcutsPath(string path)
+        {
+            // TODO. Check that path contains steam/userdata and config/shortcuts.vdf.
+            return true;
+        }
+
+        private bool VerifyGlosSIPath(string path)
+        {
+            // TODO. Check that the folder contains the two executables.
             return true;
         }
     }
