@@ -128,7 +128,7 @@ namespace GlosSIIntegration
 
         private static bool GameHasTag(Game game, string tagName)
         {
-            return game.Tags.Any(t => t.Name == tagName);
+            return game.Tags != null && game.Tags.Any(t => t.Name == tagName);
         }
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
@@ -255,11 +255,16 @@ namespace GlosSIIntegration
         {
             // TODO: Ask the user for confirmation.
 
+            int gamesRemoved = 0;
+
             foreach (Game game in args.Games)
             {
                 try
                 {
-                    (new GlosSITarget(game)).Remove();
+                    if((new GlosSITarget(game)).Remove())
+                    {
+                        gamesRemoved++;
+                    }
                 }
                 catch (Exception e)
                 {
@@ -270,7 +275,21 @@ namespace GlosSIIntegration
                 }
             }
 
-            // TODO: Message the user that the operation succeeded and that Steam should be restarted.
+            if(gamesRemoved == 0)
+            {
+                API.Dialogs.ShowMessage("No GlosSI/Steam integrations were removed.",
+                    "GlosSI Integration");
+            }
+            else if(gamesRemoved == 1)
+            {
+                API.Dialogs.ShowMessage($"The GlosSI/Steam integration of the game \"{args.Games[0].Name}\" was removed!",
+                    "GlosSI Integration");
+            }
+            else
+            {
+                API.Dialogs.ShowMessage($"The GlosSI/Steam integration of {gamesRemoved} games were removed!", 
+                    "GlosSI Integration");
+            }
         }
 
         public override ISettings GetSettings(bool firstRunSettings)

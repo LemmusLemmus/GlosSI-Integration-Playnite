@@ -65,13 +65,23 @@ namespace GlosSIIntegration
             return File.Exists(GetJsonFilePath());
         }
 
-        public void Remove()
+        /// <summary>
+        /// Removes the integration of a game. 
+        /// This removes the game's integrated tag, GlosSITarget and entry in Steam shortcuts.vdf file.
+        /// </summary>
+        /// <returns>true if the integration was removed; false if it was nonexistent to begin with.</returns>
+        public bool Remove()
         {
             if(GlosSIIntegration.GameHasIntegratedTag(playniteGame))
             {
                 GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
                 RemoveFromSteamShortcuts();
                 RemoveJsonFile();
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
