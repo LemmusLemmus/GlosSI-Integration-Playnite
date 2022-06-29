@@ -25,13 +25,14 @@ namespace GlosSIIntegration
         /// Creates a GlosSITarget for a game, using the default .json structure. 
         /// Steam games, already integrated games and games tagged for ignoring are ignored.
         /// </summary>
+        /// <returns>true if the GlosSITarget was created; false if the game was ignored.</returns>
         /// <exception cref="FileNotFoundException">If the default target json-file could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">If the glosSITargetsPath directory could not be found.</exception>
-        public void Create()
+        public bool Create()
         {
             if (IsSteamGame() || 
                 GlosSIIntegration.GameHasIgnoredTag(playniteGame) || 
-                GlosSIIntegration.GameHasIntegratedTag(playniteGame)) return;
+                GlosSIIntegration.GameHasIntegratedTag(playniteGame)) return false;
 
             string jsonString = File.ReadAllText("DefaultTarget.json");
             JObject jObject = (JObject) Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
@@ -44,6 +45,7 @@ namespace GlosSIIntegration
             File.WriteAllText(GetJsonFilePath(), jsonString);
             GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
             SaveToSteamShortcuts();
+            return true;
         }
 
         private bool IsSteamGame()

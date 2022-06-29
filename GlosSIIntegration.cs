@@ -19,7 +19,7 @@ namespace GlosSIIntegration
 
         private GlosSIIntegrationSettingsViewModel settingsViewModel { get; set; }
         private Process glosSIOverlay;
-        private readonly INotificationsAPI notifications;
+        private readonly IPlayniteAPI API;
         private static IGameDatabase database;
         public static readonly string INTEGRATED_TAG = "[GI] Integrated", IGNORED_TAG = "[GI] Ignored";
         public static GlosSIIntegration Instance { get; private set; }
@@ -34,7 +34,7 @@ namespace GlosSIIntegration
                 HasSettings = true
             };
             glosSIOverlay = null;
-            notifications = api.Notifications;
+            API = api;
             database = api.Database;
             Instance = this;
         }
@@ -96,7 +96,7 @@ namespace GlosSIIntegration
 
                 if (!(new GlosSITarget(args.Game)).HasJsonFile())
                 {
-                    notifications.Add($"{Id}-OnGameStarted-NoJsonFile",
+                    API.Notifications.Add($"{Id}-OnGameStarted-NoJsonFile",
                         $"GlosSI Integration failed to run the Steam Shortcut: The .json target file is missing.",
                         NotificationType.Error);
                     // TODO: Remove the GlosSI Integrated tag?
@@ -109,7 +109,7 @@ namespace GlosSIIntegration
                 }
                 catch (Exception e)
                 {
-                    notifications.Add($"{Id}-OnGameStarted-OverlayOpened",
+                    API.Notifications.Add($"{Id}-OnGameStarted-OverlayOpened",
                         $"GlosSI Integration failed to run the Steam Shortcut: {e.Message}",
                         NotificationType.Error);
                 }
@@ -154,7 +154,7 @@ namespace GlosSIIntegration
                 catch (InvalidOperationException) { }
                 catch (PlatformNotSupportedException e)
                 {
-                    notifications.Add($"{Id}-OnGameStopped", $"GlosSI Integration failed to close the Steam Shortcut: {e.Message}", NotificationType.Error);
+                    API.Notifications.Add($"{Id}-OnGameStopped", $"GlosSI Integration failed to close the Steam Shortcut: {e.Message}", NotificationType.Error);
                 }
 
                 // TODO: Start the playnite GlosSI overlay, if the user has configured one.
@@ -205,36 +205,50 @@ namespace GlosSIIntegration
 
         private void AddGames(GameMenuItemActionArgs args)
         {
+            int addedGames = 0;
+
             foreach (Game game in args.Games)
             {
                 try
                 {
-                    (new GlosSITarget(game)).Create();
+                    if ((new GlosSITarget(game)).Create())
+                    {
+                        addedGames++;
+                    }
                 }
                 catch(FileNotFoundException)
                 {
-                    notifications.Add($"{Id}-AddGamesFileMissing", 
+                    API.Notifications.Add($"{Id}-AddGamesFileMissing", 
                         "The DefaultTarget.json file was not found. The adding process was aborted.", 
                         NotificationType.Error);
                     return;
                 }
                 catch (DirectoryNotFoundException)
                 {
-                    notifications.Add($"{Id}-AddGamesDirMissing",
+                    API.Notifications.Add($"{Id}-AddGamesDirMissing",
                         "The GlosSI Target Path directory could not be found. The adding process was aborted.",
                         NotificationType.Error);
                     return;
                 }
                 catch (Exception e)
                 {
-                    notifications.Add($"{Id}-GeneralAddGames", $"GlosSI Integration failed to add the GlosSI Target " +
+                    API.Notifications.Add($"{Id}-GeneralAddGames", $"GlosSI Integration failed to add the GlosSI Target " +
                         $"Configuration file for {game.Name}, the adding process was aborted: " +
                         $"{e.Message}", NotificationType.Error);
                     return;
                 }
             }
 
-            // TODO: Message the user that the operation succeeded and that Steam should be restarted.
+            if (addedGames > 0)
+            {
+                API.Dialogs.ShowMessage($"{addedGames}/{args.Games.Count} games were successfully added as GlosSI Steam Shortcuts. " +
+                $"Steam has to be restarted for the changes to take effect!", "GlosSI Integration");
+            }
+            else
+            {
+                API.Dialogs.ShowMessage($"No games were added as GlosSI Steam Shortcuts. " +
+                $"This could be due to the games being Steam games, already having been added or having the ignored tag.", "GlosSI Integration");
+            }
         }
 
         private void RemoveGames(GameMenuItemActionArgs args)
@@ -249,7 +263,7 @@ namespace GlosSIIntegration
                 }
                 catch (Exception e)
                 {
-                    notifications.Add($"{Id}-RemoveGames", $"GlosSI Integration failed to remove the GlosSI Target " +
+                    API.Notifications.Add($"{Id}-RemoveGames", $"GlosSI Integration failed to remove the GlosSI Target " +
                         $"Configuration file for {game.Name}, the removal process was aborted: " +
                         $"{e.Message}", NotificationType.Error);
                     return;
