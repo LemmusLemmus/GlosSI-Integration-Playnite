@@ -110,7 +110,7 @@ namespace GlosSIIntegration
                 catch (Exception e)
                 {
                     API.Notifications.Add($"{Id}-OnGameStarted-OverlayOpened",
-                        $"GlosSI Integration failed to run the Steam Shortcut: {e.Message}",
+                        $"GlosSI Integration failed to run the Steam Shortcut:\n{e.ToString()}",
                         NotificationType.Error);
                 }
             }
@@ -154,7 +154,7 @@ namespace GlosSIIntegration
                 catch (InvalidOperationException) { }
                 catch (PlatformNotSupportedException e)
                 {
-                    API.Notifications.Add($"{Id}-OnGameStopped", $"GlosSI Integration failed to close the Steam Shortcut: {e.Message}", NotificationType.Error);
+                    API.Notifications.Add($"{Id}-OnGameStopped", $"GlosSI Integration failed to close the Steam Shortcut:\n{e.ToString()}", NotificationType.Error);
                 }
 
                 // TODO: Start the playnite GlosSI overlay, if the user has configured one.
@@ -233,8 +233,8 @@ namespace GlosSIIntegration
                 catch (Exception e)
                 {
                     API.Notifications.Add($"{Id}-GeneralAddGames", $"GlosSI Integration failed to add the GlosSI Target " +
-                        $"Configuration file for {game.Name}, the adding process was aborted: " +
-                        $"{e.Message}", NotificationType.Error);
+                        $"Configuration file for {game.Name}, the adding process was aborted:\n" +
+                        $"{e.ToString()}", NotificationType.Error);
                     return;
                 }
             }
@@ -269,8 +269,8 @@ namespace GlosSIIntegration
                 catch (Exception e)
                 {
                     API.Notifications.Add($"{Id}-RemoveGames", $"GlosSI Integration failed to remove the GlosSI Target " +
-                        $"Configuration file for {game.Name}, the removal process was aborted: " +
-                        $"{e.Message}", NotificationType.Error);
+                        $"Configuration file for {game.Name}, the removal process was aborted:\n" +
+                        $"{e.ToString()}", NotificationType.Error);
                     return;
                 }
             }
