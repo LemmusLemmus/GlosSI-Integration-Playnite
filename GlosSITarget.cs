@@ -55,7 +55,7 @@ namespace GlosSIIntegration
 
         private bool IsSteamGame()
         {
-            return playniteGame.Source.Name == STEAM_SOURCE || 
+            return (playniteGame.Source != null && playniteGame.Source.Name == STEAM_SOURCE) || 
                 (playniteGame.InstallDirectory != null && 
                 Path.GetFullPath(playniteGame.InstallDirectory).Contains("Steam\\steamapps\\common"));
         }
