@@ -34,7 +34,7 @@ namespace GlosSIIntegration
                 GlosSIIntegration.GameHasIgnoredTag(playniteGame) || 
                 GlosSIIntegration.GameHasIntegratedTag(playniteGame)) return false;
 
-            string jsonString = File.ReadAllText("DefaultTarget.json");
+            string jsonString = File.ReadAllText(GlosSIIntegration.GetSettings().DefaultTargetPath);
             JObject jObject = (JObject) Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
 
             jObject.SelectToken("name").Replace(playniteGame.Name);
@@ -43,8 +43,8 @@ namespace GlosSIIntegration
             jsonString = jObject.ToString();
 
             File.WriteAllText(GetJsonFilePath(), jsonString);
-            GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
             SaveToSteamShortcuts();
+            GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
             return true;
         }
 

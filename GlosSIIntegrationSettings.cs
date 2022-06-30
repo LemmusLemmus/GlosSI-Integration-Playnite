@@ -3,9 +3,7 @@ using Playnite.SDK.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace GlosSIIntegration
 {
@@ -16,6 +14,8 @@ namespace GlosSIIntegration
         private string glosSIPath = null;
         private string glosSITargetsPath = Environment.ExpandEnvironmentVariables("%appdata%/GlosSI/Targets");
         private string steamShortcutsPath = null;
+        private string defaultTargetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+            "DefaultTarget.json");
 
         public bool IntegrationEnabled { get => integrationEnabled; set => SetValue(ref integrationEnabled, value); }
         public bool CloseGameWhenOverlayIsClosed { get => closeGameWhenOverlayIsClosed; set => SetValue(ref closeGameWhenOverlayIsClosed, value); }
@@ -24,6 +24,8 @@ namespace GlosSIIntegration
 
         [DontSerialize]
         public string GlosSITargetsPath { get => glosSITargetsPath; }
+        [DontSerialize]
+        public string DefaultTargetPath { get => defaultTargetPath; }
     }
 
     public class GlosSIIntegrationSettingsViewModel : ObservableObject, ISettings
