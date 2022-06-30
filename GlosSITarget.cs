@@ -34,8 +34,16 @@ namespace GlosSIIntegration
                 GlosSIIntegration.GameHasIgnoredTag(playniteGame) || 
                 GlosSIIntegration.GameHasIntegratedTag(playniteGame)) return false;
 
+            SaveAsJsonTarget();
+            SaveToSteamShortcuts();
+            GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
+            return true;
+        }
+
+        private void SaveAsJsonTarget()
+        {
             string jsonString = File.ReadAllText(GlosSIIntegration.GetSettings().DefaultTargetPath);
-            JObject jObject = (JObject) Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
+            JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
 
             jObject.SelectToken("name").Replace(playniteGame.Name);
             jObject.SelectToken("icon").Replace(playniteGame.Icon);
@@ -43,9 +51,6 @@ namespace GlosSIIntegration
             jsonString = jObject.ToString();
 
             File.WriteAllText(GetJsonFilePath(), jsonString);
-            SaveToSteamShortcuts();
-            GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
-            return true;
         }
 
         private bool IsSteamGame()
