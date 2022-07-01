@@ -3,24 +3,29 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Diagnostics;
 using System;
+using System.Text.RegularExpressions;
 
 namespace GlosSIIntegration
 {
     class GlosSITarget
     {
-        private static readonly string TARGET_FILENAME_PREFIX = "[GI] ";
         private static readonly string STEAM_SOURCE = "Steam";
 
         private readonly Game playniteGame;
-        private readonly string jsonFileName; // The filname of the .json GlosSITarget profile.
+        // The filname of the .json GlosSITarget profile, without the extension.
+        private readonly string jsonFileName;
 
         public GlosSITarget(Game playniteGame)
         {
             this.playniteGame = playniteGame;
-            this.jsonFileName = TARGET_FILENAME_PREFIX + playniteGame.GameId + ".json";
+            jsonFileName = RemoveIllegalFileNameChars(playniteGame.Name);
         }
 
-        // TODO: Testing
+        private static string RemoveIllegalFileNameChars(string filename)
+        {
+            return string.Concat(filename.Split(Path.GetInvalidFileNameChars()));
+        }
+
         /// <summary>
         /// Creates a GlosSITarget for a game, using the default .json structure. 
         /// Steam games, already integrated games and games tagged for ignoring are ignored.
@@ -46,9 +51,12 @@ namespace GlosSIIntegration
             JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
 
             jObject.SelectToken("name").Replace(playniteGame.Name);
-            jObject.SelectToken("icon").Replace(playniteGame.Icon);
+            jObject.SelectToken("icon").Replace(playniteGame.Icon); // TODO: Icon path is local, get the absolute file path instead.
 
             jsonString = jObject.ToString();
+
+            // TODO: Send a warning message if there already exists a .json file with the same path but with a name.
+            // There is a risk that two different games with different game names have the same filename after illegal characters are removed.
 
             File.WriteAllText(GetJsonFilePath(), jsonString);
         }
@@ -57,12 +65,12 @@ namespace GlosSIIntegration
         {
             return (playniteGame.Source != null && playniteGame.Source.Name == STEAM_SOURCE) || 
                 (playniteGame.InstallDirectory != null && 
-                Path.GetFullPath(playniteGame.InstallDirectory).Contains("Steam\\steamapps\\common"));
+                Path.GetFullPath(playniteGame.InstallDirectory).Contains(@"Steam\steamapps\common"));
         }
 
         private string GetJsonFilePath()
         {
-            return Path.Combine(GlosSIIntegration.GetSettings().GlosSITargetsPath, jsonFileName);
+            return Path.Combine(GlosSIIntegration.GetSettings().GlosSITargetsPath, jsonFileName + ".json");
         }
 
         public bool HasJsonFile()
@@ -105,24 +113,36 @@ namespace GlosSIIntegration
         /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
         private void SaveToSteamShortcuts()
         {
-            RunGlosSIConfigWithArguments("add");
+            // When adding, GlosSI takes the game name without illegal file name characters.
+            RunGlosSIConfigWithArguments("add", "\"" + jsonFileName + "\"");
         }
 
         /// <summary>
         /// Removes the GlosSITarget profile to Steam. 
         /// A restart of Steam is required for these changes to take effect.
         /// </summary>
-        /// <param name="jsonFileName">The filname of the .json GlosSITarget profile.</param>
         /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
         private void RemoveFromSteamShortcuts()
         {
-            RunGlosSIConfigWithArguments("remove");
+            // TODO: There is a risk that the user changes the name of the game.
+            // The name should therefore be taken from the json file instead.
+            // There will have to be a way to identify which json file belongs to which game though.
+
+            // When removing, GlosSI takes the game name with all characters, including illegal file name characters.
+            RunGlosSIConfigWithArguments("remove", GetCommandLineArgumentSafeString(playniteGame.Name));
         }
 
-        private void RunGlosSIConfigWithArguments(string initialArgument)
+        private static string GetCommandLineArgumentSafeString(string str)
+        {
+            // Credit to Stack Overflow user Nas Banov for this magic.
+            str = Regex.Replace(str, @"(\\*)" + "\"", @"$1$1\" + "\"");
+            return "\"" + Regex.Replace(str, @"(\\+)$", @"$1$1") + "\"";
+        }
+
+        private void RunGlosSIConfigWithArguments(string initialArgument, string gameArgument)
         {
             Process glosSIConfig = Process.Start(Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSIConfig.exe"), 
-                $"{initialArgument} \"{jsonFileName}\" \"{GlosSIIntegration.GetSettings().SteamShortcutsPath}\"");
+                $"{initialArgument} {gameArgument} \"{GlosSIIntegration.GetSettings().SteamShortcutsPath}\"");
             glosSIConfig.WaitForExit();
         }
     }
