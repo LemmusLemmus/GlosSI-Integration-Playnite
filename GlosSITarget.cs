@@ -51,7 +51,7 @@ namespace GlosSIIntegration
             JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
 
             jObject.SelectToken("name").Replace(playniteGame.Name);
-            jObject.SelectToken("icon").Replace(playniteGame.Icon); // TODO: Icon path is local, get the absolute file path instead.
+            jObject.SelectToken("icon").Replace(GetGameIconPath());
 
             jsonString = jObject.ToString();
 
@@ -59,6 +59,11 @@ namespace GlosSIIntegration
             // There is a risk that two different games with different game names have the same filename after illegal characters are removed.
 
             File.WriteAllText(GetJsonFilePath(), jsonString);
+        }
+
+        private string GetGameIconPath()
+        {
+            return Path.Combine(GlosSIIntegration.API.Paths.ConfigurationPath, @"library\files\", playniteGame.Icon);
         }
 
         private bool IsSteamGame()
