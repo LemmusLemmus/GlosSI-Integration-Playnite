@@ -19,8 +19,7 @@ namespace GlosSIIntegration
 
         private GlosSIIntegrationSettingsViewModel settingsViewModel { get; set; }
         private Process glosSIOverlay;
-        private readonly IPlayniteAPI API;
-        private static IGameDatabase database;
+        internal static IPlayniteAPI API { get; private set; }
         public static readonly string INTEGRATED_TAG = "[GI] Integrated", IGNORED_TAG = "[GI] Ignored";
         public static GlosSIIntegration Instance { get; private set; }
 
@@ -35,7 +34,6 @@ namespace GlosSIIntegration
             };
             glosSIOverlay = null;
             API = api;
-            database = api.Database;
             Instance = this;
         }
 
@@ -48,17 +46,17 @@ namespace GlosSIIntegration
         // from their PlayniteExtensionsCollection repository.
         public static void AddTagToGame(string tagName, Game game)
         {
-            Tag tag = database.Tags.Add(tagName);
+            Tag tag = API.Database.Tags.Add(tagName);
 
             if(game.Tags == null)
             {
                 game.TagIds = new List<Guid> { tag.Id };
-                database.Games.Update(game);
+                API.Database.Games.Update(game);
             }
             else if (!game.TagIds.Contains(tag.Id))
             {
                 game.TagIds.Add(tag.Id);
-                database.Games.Update(game);
+                API.Database.Games.Update(game);
             }
         }
 
@@ -72,7 +70,7 @@ namespace GlosSIIntegration
             if (tag != null)
             {
                 game.TagIds.Remove(tag.Id);
-                database.Games.Update(game);
+                API.Database.Games.Update(game);
             }
         }
 
