@@ -20,7 +20,9 @@ namespace GlosSIIntegration
 
         // TODO: If the name of the game in playnite is changed, the correct SteamGameID won't be found.
         // It might therefore be better to store the IDs.
-        public SteamGameID(Game playniteGame) : this(playniteGame.Name, 
+        public SteamGameID(Game playniteGame) : this(playniteGame.Name) { }
+
+        public SteamGameID(string name) : this(name, 
             Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSITarget.exe").Replace('\\', '/')) { }
 
         public SteamGameID(uint top32)
