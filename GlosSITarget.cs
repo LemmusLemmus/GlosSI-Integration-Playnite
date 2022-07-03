@@ -21,7 +21,7 @@ namespace GlosSIIntegration
             jsonFileName = RemoveIllegalFileNameChars(playniteGame.Name);
         }
 
-        private static string RemoveIllegalFileNameChars(string filename)
+        public static string RemoveIllegalFileNameChars(string filename)
         {
             return string.Concat(filename.Split(Path.GetInvalidFileNameChars()));
         }
@@ -50,8 +50,15 @@ namespace GlosSIIntegration
             string jsonString = File.ReadAllText(GlosSIIntegration.GetSettings().DefaultTargetPath);
             JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
 
-            jObject.SelectToken("name").Replace(playniteGame.Name);
-            jObject.SelectToken("icon").Replace(GetGameIconPath());
+            try
+            {
+                jObject.SelectToken("name").Replace(playniteGame.Name);
+                jObject.SelectToken("icon").Replace(GetGameIconPath());
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullReferenceException("The GlosSI default target is missing items.");
+            }
 
             jsonString = jObject.ToString();
 
@@ -73,9 +80,14 @@ namespace GlosSIIntegration
                 Path.GetFullPath(playniteGame.InstallDirectory).Contains(@"Steam\steamapps\common"));
         }
 
-        private string GetJsonFilePath()
+        public static string GetJsonFilePath(string jsonFileName)
         {
             return Path.Combine(GlosSIIntegration.GetSettings().GlosSITargetsPath, jsonFileName + ".json");
+        }
+
+        private string GetJsonFilePath()
+        {
+            return GetJsonFilePath(jsonFileName);
         }
 
         public bool HasJsonFile()
