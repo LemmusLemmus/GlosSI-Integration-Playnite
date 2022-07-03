@@ -1,4 +1,5 @@
-﻿using Playnite.SDK;
+﻿using Newtonsoft.Json.Linq;
+using Playnite.SDK;
 using Playnite.SDK.Data;
 using System;
 using System.Collections.Generic;
@@ -16,11 +17,15 @@ namespace GlosSIIntegration
         private string steamShortcutsPath = null;
         private string defaultTargetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
             "DefaultTarget.json");
+        private string playniteOverlayName = null;
+        private bool usePlayniteOverlay = false;
 
         public bool IntegrationEnabled { get => integrationEnabled; set => SetValue(ref integrationEnabled, value); }
         public bool CloseGameWhenOverlayIsClosed { get => closeGameWhenOverlayIsClosed; set => SetValue(ref closeGameWhenOverlayIsClosed, value); }
         public string GlosSIPath { get => glosSIPath; set => SetValue(ref glosSIPath, value); }
         public string SteamShortcutsPath { get => steamShortcutsPath; set => SetValue(ref steamShortcutsPath, value); }
+        public string PlayniteOverlayName { get => playniteOverlayName; set => SetValue(ref playniteOverlayName, value); }
+        public bool UsePlayniteOverlay { get => usePlayniteOverlay; set => SetValue(ref usePlayniteOverlay, value); }
 
         [DontSerialize]
         public string GlosSITargetsPath { get => glosSITargetsPath; }
@@ -64,12 +69,12 @@ namespace GlosSIIntegration
                 Settings = new GlosSIIntegrationSettings();
             }
 
-            if(settings.SteamShortcutsPath == null)
+            if(Settings.SteamShortcutsPath == null)
             {
                 string newSteamShortcutsPath = GetSteamShortcutsPath();
                 if(newSteamShortcutsPath != null)
                 {
-                    settings.SteamShortcutsPath = newSteamShortcutsPath;
+                    Settings.SteamShortcutsPath = newSteamShortcutsPath;
                     plugin.SavePluginSettings(Settings);
                 }
             }
@@ -135,6 +140,12 @@ namespace GlosSIIntegration
             // Executed before EndEdit is called and EndEdit is not called if false is returned.
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
+
+            if(Settings.UsePlayniteOverlay && !VerifyPlayniteOverlayName(ref errors))
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -158,13 +169,46 @@ namespace GlosSIIntegration
 
         private bool VerifySteamShortcutsPath(string path)
         {
-            // TODO. Check that path contains steam/userdata and config/shortcuts.vdf.
+            // TODO: Check that path contains steam/userdata and config/shortcuts.vdf.
             return true;
         }
 
         private bool VerifyGlosSIPath(string path)
         {
-            // TODO. Check that the folder contains the two executables.
+            // TODO: Check that the folder contains the two executables.
+            return true;
+        }
+
+        private bool VerifyPlayniteOverlayName(ref List<string> errors)
+        {
+            string targetName = Settings.PlayniteOverlayName;
+            string fileName = GlosSITarget.RemoveIllegalFileNameChars(targetName);
+
+            if (string.IsNullOrEmpty(targetName))
+            {
+                errors.Add("The name of the Playnite overlay has not been set.");
+                return false;
+            }
+
+            // Verify that the corresponding .json file actually exists:
+            if (!File.Exists(GlosSITarget.GetJsonFilePath(fileName)))
+            {
+                errors.Add("The target file referenced by the Playnite overlay name could not be found.");
+                return false;
+            }
+
+            // If there is a mismatch between the entered name and the name stored in the .json file,
+            // use the name in the .json file instead.
+            string jsonString = File.ReadAllText(GlosSITarget.GetJsonFilePath(fileName));
+            JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
+            string actualName = jObject.GetValue("name")?.ToString();
+            if(actualName != targetName)
+            {
+                Settings.PlayniteOverlayName = actualName;
+            }
+
+            // TODO: Verify that the shortcut has actually been added to Steam (i.e. the shortcuts.vdf file)?
+
             return true;
         }
     }

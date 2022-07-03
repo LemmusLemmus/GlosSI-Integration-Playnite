@@ -20,12 +20,26 @@ namespace GlosSIIntegration
         public GlosSIIntegrationSettingsView()
         {
             InitializeComponent();
+            if(!GlosSIIntegration.GetSettings().UsePlayniteOverlay)
+            {
+                PlayniteOverlayNamePanel.IsEnabled = false;
+            }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void EditDefaultGlosSITarget_Click(object sender, RoutedEventArgs e)
         {
             // TODO: This would be better done via the GlosSI GUI, perphaps by adding a command line argument.
             System.Diagnostics.Process.Start(GlosSIIntegration.GetSettings().DefaultTargetPath);
+        }
+
+        private void UsePlayniteOverlay_Checked(object sender, RoutedEventArgs e)
+        {
+            PlayniteOverlayNamePanel.IsEnabled = true;
+        }
+
+        private void UsePlayniteOverlay_Unchecked(object sender, RoutedEventArgs e)
+        {
+            PlayniteOverlayNamePanel.IsEnabled = false;
         }
     }
 }

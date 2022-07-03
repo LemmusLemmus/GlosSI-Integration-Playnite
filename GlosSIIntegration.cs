@@ -18,7 +18,6 @@ namespace GlosSIIntegration
         private static readonly ILogger logger = LogManager.GetLogger();
 
         private GlosSIIntegrationSettingsViewModel settingsViewModel { get; set; }
-        private Process glosSIOverlay;
         internal static IPlayniteAPI API { get; private set; }
         public static readonly string INTEGRATED_TAG = "[GI] Integrated", IGNORED_TAG = "[GI] Ignored";
         public static GlosSIIntegration Instance { get; private set; }
@@ -32,7 +31,6 @@ namespace GlosSIIntegration
             {
                 HasSettings = true
             };
-            glosSIOverlay = null;
             API = api;
             Instance = this;
         }
@@ -81,7 +79,7 @@ namespace GlosSIIntegration
 
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
-            
+
         }
 
         public static bool GameHasIntegratedTag(Game game)
@@ -101,17 +99,13 @@ namespace GlosSIIntegration
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
+            // TODO: The user might not necessarily always want the previous overlay to be closed when a new game is started.
+            CloseGlosSITargets();
+
             if (GameHasIgnoredTag(args.Game)) return;
-
-            if (glosSIOverlay != null)
+            
+            if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
-                // TODO: Give the user a choice? Replace the already open overlay or do not open a new overlay.
-                // If the overlay is replaced, make sure that this doesn't also close the previous game.
-            }
-            else if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
-            {
-                // TODO: Stop any already running GlosSI overlays.
-
                 if (!(new GlosSITarget(args.Game)).HasJsonFile())
                 {
                     API.Notifications.Add($"{Id}-OnGameStarted-NoJsonFile",
@@ -123,7 +117,7 @@ namespace GlosSIIntegration
 
                 try
                 {
-                    glosSIOverlay = (new SteamGameID(args.Game)).Run();
+                    new SteamGameID(args.Game).Run();
                 }
                 catch (Exception e)
                 {
@@ -134,7 +128,7 @@ namespace GlosSIIntegration
 
                 if (GetSettings().CloseGameWhenOverlayIsClosed)
                 {
-                    // TODO: Set up a thread that closes the application when the overlay is closed.
+                    // TODO: Set up a thread that closes the application when the overlay is closed via the overlay itself (i.e. forcefully closed).
                 }
             }
         }
@@ -145,21 +139,58 @@ namespace GlosSIIntegration
 
             if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
-                try
-                {
-                    glosSIOverlay.CloseMainWindow();
-                }
-                catch (InvalidOperationException) { }
-                catch (PlatformNotSupportedException e)
-                {
-                    API.Notifications.Add($"{Id}-OnGameStopped", $"GlosSI Integration failed to close the Steam Shortcut:\n{e}", NotificationType.Error);
-                }
-                finally
-                {
-                    glosSIOverlay = null;
-                }
+                CloseGlosSITargets();
+                RunPlayniteOverlay();
+            }
+        }
 
-                // TODO: Start the playnite GlosSI overlay, if the user has configured one.
+        /// <summary>
+        /// Starts the Playnite GlosSI/Steam overlay, if the user has enabled/configured one.
+        /// </summary>
+        private void RunPlayniteOverlay()
+        {
+            if (!GetSettings().UsePlayniteOverlay) return;
+
+            try
+            {
+                new SteamGameID(GetSettings().PlayniteOverlayName).Run();
+            }
+            catch (Exception e)
+            {
+                API.Notifications.Add($"{Id}-RunPlayniteOverlay",
+                    $"GlosSI Integration failed to run the Playnite Overlay Steam Shortcut: \n{e}",
+                    NotificationType.Error);
+            }
+        }
+
+        private void CloseGlosSITargets()
+        {
+            try
+            {
+                Process[] glosSITargets = Process.GetProcessesByName("GlosSITarget");
+                // It is assumed that there is no reason for the user to ever want to have multiple GlosSITargets
+                // running simultaneously. As such, they are all closed.
+                foreach (Process proc in glosSITargets)
+                {
+                    proc.CloseMainWindow();
+                }
+                foreach (Process proc in glosSITargets)
+                {
+                    if (!proc.WaitForExit(10000))
+                    {
+                        API.Notifications.Add($"{Id}-CloseGlosSITargets",
+                            $"GlosSI Integration failed to close the Steam Overlay in time.",
+                            NotificationType.Error);
+                    }
+                    proc.Close();
+                }
+            }
+            catch (InvalidOperationException) { }
+            catch (PlatformNotSupportedException e)
+            {
+                API.Notifications.Add($"{Id}-CloseGlosSITargets", 
+                    $"GlosSI Integration failed to close the Steam Shortcut:\n{e}", 
+                    NotificationType.Error);
             }
         }
 
@@ -171,6 +202,10 @@ namespace GlosSIIntegration
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
             // Add code to be executed when Playnite is initialized.
+
+            // TODO: Verify settings.
+            // Use a non-serialized variable in settings to keep track of if the settings are valid?
+            // Check that the settings have been verified before reacting to any event.
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)

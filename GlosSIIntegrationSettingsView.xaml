@@ -8,8 +8,14 @@
              d:DesignHeight="400" d:DesignWidth="600">
     <StackPanel Margin="20">
         <CheckBox IsChecked="{Binding Settings.IntegrationEnabled}" Content="Use GlosSI Integration" Margin="0,0,0,10"/>
+        <CheckBox IsChecked="{Binding Settings.UsePlayniteOverlay}" Content="Use Playnite Steam overlay" Margin="0,0,0,10" Checked="UsePlayniteOverlay_Checked" Unchecked="UsePlayniteOverlay_Unchecked"/>
+        <DockPanel Margin="0,0,0,10" Name="PlayniteOverlayNamePanel">
+            <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+            <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
+            <TextBox Margin="10,0,0,0" Text="{Binding Settings.PlayniteOverlayName}" />
+        </DockPanel>
         <CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}" Content="When the overlay is closed, also close the game." Margin="0,0,0,10"/>
-        <Button Content="Edit Default GlosSI Target Configuration" Click="Button_Click" HorizontalAlignment="Left"/>
+        <Button Content="Edit default GlosSI target configuration" Click="EditDefaultGlosSITarget_Click" HorizontalAlignment="Left"/>
         <StackPanel Margin="0,10,0,0">
             <Label Content="Path Settings" Margin="0,0,0,5"/>
             <Separator Margin="0,0,0,5" />
