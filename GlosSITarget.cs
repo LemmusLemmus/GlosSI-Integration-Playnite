@@ -130,6 +130,17 @@ namespace GlosSIIntegration
         /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
         private void SaveToSteamShortcuts()
         {
+            SaveToSteamShortcuts(jsonFileName);
+        }
+
+        /// <summary>
+        /// Saves a GlosSITarget profile to Steam. 
+        /// A restart of Steam is required for these changes to take effect.
+        /// </summary>
+        /// <param name="jsonFileName">The file name of the .json target file to be added to Steam.</param>
+        /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
+        public static void SaveToSteamShortcuts(string jsonFileName)
+        {
             // When adding, GlosSI takes the game name without illegal file name characters.
             RunGlosSIConfigWithArguments("add", "\"" + jsonFileName + "\"");
         }
@@ -156,7 +167,7 @@ namespace GlosSIIntegration
             return "\"" + Regex.Replace(str, @"(\\+)$", @"$1$1") + "\"";
         }
 
-        private void RunGlosSIConfigWithArguments(string initialArgument, string gameArgument)
+        private static void RunGlosSIConfigWithArguments(string initialArgument, string gameArgument)
         {
             Process glosSIConfig = Process.Start(Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSIConfig.exe"), 
                 $"{initialArgument} {gameArgument} \"{GlosSIIntegration.GetSettings().SteamShortcutsPath}\"");

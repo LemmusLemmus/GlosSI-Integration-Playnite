@@ -179,6 +179,12 @@ namespace GlosSIIntegration
             return true;
         }
 
+        /// <summary>
+        /// Verifies the Playnite overlay name.
+        /// The <c>GlosSITargetsPath</c> and <c>SteamShortcutsPath</c> should be verified before running this method.
+        /// </summary>
+        /// <param name="errors">The list of errors to which potential errors are added as descriptive messages.</param>
+        /// <returns>true if the Playnite overlay name is valid; false otherwise.</returns>
         private bool VerifyPlayniteOverlayName(ref List<string> errors)
         {
             string targetName = Settings.PlayniteOverlayName;
@@ -190,26 +196,80 @@ namespace GlosSIIntegration
                 return false;
             }
 
-            // Verify that the corresponding .json file actually exists:
-            if (!File.Exists(GlosSITarget.GetJsonFilePath(fileName)))
+            string jsonString;
+            try
+            {
+                jsonString = File.ReadAllText(GlosSITarget.GetJsonFilePath(fileName));
+            }
+            catch (FileNotFoundException) // Verify that the corresponding .json file actually exists
             {
                 errors.Add("The target file referenced by the Playnite overlay name could not be found.");
                 return false;
             }
-
-            // If there is a mismatch between the entered name and the name stored in the .json file,
-            // use the name in the .json file instead.
-            string jsonString = File.ReadAllText(GlosSITarget.GetJsonFilePath(fileName));
+            catch (Exception e)
+            {
+                errors.Add($"Something went wrong when attempting to read the target file referenced by the Playnite overlay name: {e}");
+                return false;
+            }
+            
             JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
             string actualName = jObject.GetValue("name")?.ToString();
-            if(actualName != targetName)
+
+            if(string.IsNullOrEmpty(actualName))
             {
+                errors.Add($"Something is wrong with the file referenced by the Playnite overlay name. " +
+                    $"The name property in the target .json file in %appdata%/GlosSI/Targets could not be found or has not been set.");
+                return false;
+            }
+            else if (actualName != targetName)
+            {
+                // If there is a mismatch between the entered name and the name stored in the .json file,
+                // use the name in the .json file instead.
                 Settings.PlayniteOverlayName = actualName;
             }
 
-            // TODO: Verify that the shortcut has actually been added to Steam (i.e. the shortcuts.vdf file)?
+            // Verify that the shortcut has actually been added to Steam (i.e. the shortcuts.vdf file)
+            try
+            {
+                if (!ShortcutsContainsTarget(fileName))
+                {
+
+                    GlosSIIntegration.API.Dialogs.ShowMessage("The GlosSI target referenced by the Playnite overlay has not been added to Steam. Press OK to automatically add it. " +
+                        "Steam has to be restarted afterwards for the changes to take effect.", "GlosSI Integration");
+                    try
+                    {
+                        GlosSITarget.SaveToSteamShortcuts(fileName);
+                    }
+                    catch (Exception e)
+                    {
+                        errors.Add($"The Playnite overlay could not be added automatically to Steam: {e}");
+                        return false;
+                    }
+
+                    if (!ShortcutsContainsTarget(fileName))
+                    {
+                        errors.Add($"The Playnite overlay could not be added automatically to Steam: shortcuts.vdf file was not successfully updated.");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                errors.Add($"Something went wrong when trying to read the shortcuts.vdf file: {e}");
+                return false;
+            }
 
             return true;
+        }
+
+        /// <summary>
+        /// Checks if the shortcuts.vdf file is <i>likely</i> to contain the target.
+        /// </summary>
+        /// <param name="fileName">The filename of the .json file, excluding the extension.</param>
+        /// <returns>true if the shortcut likely contains the target; false if it definitely does not.</returns>
+        private bool ShortcutsContainsTarget(string fileName)
+        {
+            return File.ReadAllText(Settings.SteamShortcutsPath).Contains($"{fileName}.json");
         }
     }
 }
