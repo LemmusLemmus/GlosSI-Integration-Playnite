@@ -8,27 +8,32 @@
              d:DesignHeight="400" d:DesignWidth="600">
     <StackPanel Margin="20">
         <CheckBox IsChecked="{Binding Settings.IntegrationEnabled}" Content="Enable GlosSI Integration when Playnite is started" Margin="0,0,0,10"/>
-        <CheckBox IsChecked="{Binding Settings.UsePlayniteOverlay}" Content="Use the Playnite Steam overlay (in fullscreen mode)" Margin="0,0,0,10" Checked="UsePlayniteOverlay_Checked" Unchecked="UsePlayniteOverlay_Unchecked"/>
-        <DockPanel Margin="0,0,0,10" Name="PlayniteOverlayNamePanel">
-            <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-            <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
-            <TextBox Margin="10,0,0,0" Text="{Binding Settings.PlayniteOverlayName}" />
-        </DockPanel>
         <CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}" Content="When the game overlay is closed, also close the game" Margin="0,0,0,10"/>
         <Button Content="Edit default GlosSI target configuration" Click="EditDefaultGlosSITarget_Click" HorizontalAlignment="Left"/>
         <StackPanel Margin="0,10,0,0">
-            <Label Content="Path Settings" Margin="0,0,0,5"/>
-            <Separator Margin="0,0,0,5" />
+            <Label Content="Fullscreen Settings" Margin="0,0,0,5"/>
+            <Separator Margin="0,0,0,5"/>
+            <CheckBox Content="Always use GlosSI Integration in fullscreen mode" Margin="0,0,0,10"/>
+            <CheckBox IsChecked="{Binding Settings.UsePlayniteOverlay}" Content="Use the Playnite Steam overlay" Margin="0,0,0,10" Checked="UsePlayniteOverlay_Checked" Unchecked="UsePlayniteOverlay_Unchecked"/>
+            <DockPanel Margin="0,0,0,10" Name="PlayniteOverlayNamePanel">
+                <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
+                <TextBox Margin="10,0,0,0" Text="{Binding Settings.PlayniteOverlayName}"/>
+            </DockPanel>
+        </StackPanel>
+        <StackPanel Margin="0,10,0,0">
+            <Label Content="Path Settings (required)" Margin="0,0,0,5"/>
+            <Separator Margin="0,0,0,5"/>
             <DockPanel Margin="0,0,0,10">
                 <TextBlock Text="Steam shortcuts path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseSteamShortcutsFile}" />
-                <TextBox Margin="10,0,0,0" Text="{Binding Settings.SteamShortcutsPath}" />
+                <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseSteamShortcutsFile}"/>
+                <TextBox Margin="10,0,0,0" Text="{Binding Settings.SteamShortcutsPath}"/>
             </DockPanel>
             <DockPanel Margin="0,0,0,10">
                 <TextBlock Text="GlosSI folder path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseGlosSIFolder}" />
-                <TextBox Margin="10,0,0,0" Text="{Binding Settings.GlosSIPath}" />
-        </DockPanel>
+                <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseGlosSIFolder}"/>
+                <TextBox Margin="10,0,0,0" Text="{Binding Settings.GlosSIPath}"/>
+            </DockPanel>
         </StackPanel>
     </StackPanel>
 </UserControl>
