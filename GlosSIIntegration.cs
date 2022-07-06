@@ -5,11 +5,12 @@ using Playnite.SDK.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Media;
+using System.Windows;
+using System.Threading;
 
 namespace GlosSIIntegration
 {
@@ -24,6 +25,9 @@ namespace GlosSIIntegration
 
         public override Guid Id { get; } = Guid.Parse("6b0297da-75e5-4330-bb2d-b64bff22c315");
 
+        private readonly TopPanelItem topPanel;
+        private readonly TextBlock topPanelTextBlock;
+
         public GlosSIIntegration(IPlayniteAPI api) : base(api)
         {
             settingsViewModel = new GlosSIIntegrationSettingsViewModel(this, api);
@@ -33,6 +37,32 @@ namespace GlosSIIntegration
             };
             API = api;
             Instance = this;
+
+            topPanelTextBlock = GetInitialTopPanelTextBlock();
+            topPanel = GetInitialTopPanel();
+            UpdateTopPanel();
+            InitializeTopPanelColor();
+        }
+
+        private TextBlock GetInitialTopPanelTextBlock()
+        {
+            return new TextBlock()
+            {
+                FontSize = 20,
+                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily,
+                Text = char.ConvertFromUtf32(0xed71),
+                Foreground = GetGlyphBrush()
+            };
+        }
+
+        private TopPanelItem GetInitialTopPanel()
+        {
+            TopPanelItem topPanel = new TopPanelItem
+            {
+                Activated = () => TopPanelPressed()
+            };
+            topPanel.Icon = topPanelTextBlock;
+            return topPanel;
         }
 
         public static GlosSIIntegrationSettings GetSettings()
@@ -140,7 +170,8 @@ namespace GlosSIIntegration
             if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
                 CloseGlosSITargets();
-                RunPlayniteOverlay();
+                // TODO: Run below method only if in fullscreen mode.
+                // RunPlayniteOverlay();
             }
         }
 
@@ -205,12 +236,13 @@ namespace GlosSIIntegration
 
             // TODO: Verify settings.
             // Use a non-serialized variable in settings to keep track of if the settings are valid?
-            // Check that the settings have been verified before reacting to any event.
+            // Check that the settings have been verified before reacting to any event & the topPanel.
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
         {
             // Add code to be executed when Playnite is shutting down.
+            CloseGlosSITargets();
         }
 
         public override void OnLibraryUpdated(OnLibraryUpdatedEventArgs args)
@@ -239,7 +271,7 @@ namespace GlosSIIntegration
 
             return newGameMenuItems;
         }
-
+        // TODO: https://playnite.link/docs/devel/tutorials/extensions/library.html?tabs=csharp#bulk-updates
         private void AddGames(GameMenuItemActionArgs args)
         {
             int addedGames = 0;
@@ -287,7 +319,7 @@ namespace GlosSIIntegration
                 $"This could be due to the games being Steam games, already having been added or having the ignored tag.", "GlosSI Integration");
             }
         }
-
+        // TODO: https://playnite.link/docs/devel/tutorials/extensions/library.html?tabs=csharp#bulk-updates
         private void RemoveGames(GameMenuItemActionArgs args)
         {
             // TODO: Ask the user for confirmation.
@@ -337,6 +369,96 @@ namespace GlosSIIntegration
         public override UserControl GetSettingsView(bool firstRunSettings)
         {
             return new GlosSIIntegrationSettingsView();
+        }
+
+        public override IEnumerable<TopPanelItem> GetTopPanelItems()
+        {
+            yield return topPanel;
+        }
+
+        private void TopPanelPressed()
+        {
+            GetSettings().IntegrationEnabled = !GetSettings().IntegrationEnabled;
+            CloseGlosSITargets();
+            UpdateTopPanel();
+
+            // TODO: If IntegrationEnabled, check if the user is in-game, and if so start the game specific overlay.
+        }
+
+        private void UpdateTopPanel()
+        {
+            if (GetSettings().IntegrationEnabled)
+            {
+                topPanel.Title = "Disable GlosSI Integration";
+                topPanelTextBlock.Foreground = GetGlyphBrush();
+            }
+            else
+            {
+                topPanel.Title = "Enable GlosSI Integration";
+                topPanelTextBlock.ClearValue(Control.ForegroundProperty);
+            }
+        }
+
+        private Brush GetGlyphBrush()
+        {
+            return (Brush)PlayniteApi.Resources.GetResource("GlyphBrush");
+        }
+
+        // Commented out due to the method probably being overkill.
+        // If the user changes the constants, a simple restart or toggling of the button will update the color used.
+        // There are probably better ways to do this.
+        /*
+        /// <summary>
+        /// Creates a FileSystemWatcher that updates the color of the TopPanelTextBox if 
+        /// the brush used is potentially changed by Lacro59's plugin ThemeModifier.
+        /// </summary>
+        private FileSystemWatcher CreateThemeModifierWatcher()
+        {
+            FileSystemWatcher watcher = null;
+            try
+            {
+                watcher = new FileSystemWatcher
+                {
+                    Path = Path.GetFullPath(Path.Combine(GetPluginUserDataPath(), "..", "ec2f4013-17e6-428a-b8a9-5e34a3b80009")),
+                    NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite,
+                    Filter = "config.json",
+                    EnableRaisingEvents = true
+                };
+                watcher.Changed += new FileSystemEventHandler(OnThemeModifierChanged);
+            }
+            catch { }
+            return watcher;
+        }
+
+        private void OnThemeModifierChanged(object source, FileSystemEventArgs e)
+        {
+            UpdateTopPanelGlyphBrush();
+        }*/
+
+        /// <summary>
+        /// Updates <c>topPanelTextBlock.Foreground</c> after all plugins (hopefully) have finished initializing, if necessary.
+        /// </summary>
+        private void InitializeTopPanelColor()
+        {
+            if (GetSettings().IntegrationEnabled)
+            {
+                new Thread(() =>
+                {
+                    Thread.CurrentThread.IsBackground = true;
+                    Thread.Sleep(2000);
+                    UpdateTopPanelGlyphBrush();
+                }).Start();
+            }
+        }
+        private void UpdateTopPanelGlyphBrush()
+        {
+            if (GetSettings().IntegrationEnabled)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    topPanelTextBlock.Foreground = GetGlyphBrush();
+                });
+            }
         }
     }
 }
