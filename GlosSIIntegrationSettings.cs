@@ -4,6 +4,7 @@ using Playnite.SDK.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace GlosSIIntegration
@@ -69,7 +70,7 @@ namespace GlosSIIntegration
                 Settings = new GlosSIIntegrationSettings();
             }
 
-            if(Settings.SteamShortcutsPath == null)
+            if(string.IsNullOrEmpty(Settings.SteamShortcutsPath))
             {
                 string newSteamShortcutsPath = GetSteamShortcutsPath();
                 if(newSteamShortcutsPath != null)
@@ -83,35 +84,81 @@ namespace GlosSIIntegration
         private string GetSteamShortcutsPath()
         {
             // Get the Steam userdata folder.
-            string curPath = "%programfiles(x86)%\\Steam\\userdata";
+            string curPath = Environment.ExpandEnvironmentVariables(@"%programfiles(x86)%\Steam\userdata");
             if (!Directory.Exists(curPath))
             {
-                curPath = "%programfiles%\\Steam\\userdata";
+                curPath = Environment.ExpandEnvironmentVariables(@"%programfiles%\Steam\userdata");
                 if (!Directory.Exists(curPath))
                 {
-                    // The user has to manually input a path.
+                    // TODO: Check all running processes, and if one of them is Steam use the directory associated with it.
                     return null;
                 }
             }
 
             // Find the path that leads to shortcuts.vdf
             string[] dirs = Directory.GetDirectories(curPath);
-            curPath = null;
-            foreach(string dir in dirs)
-            {
-                string newPath = Path.Combine(dir, "\\config\\shortcuts.vdf");
-                if(File.Exists(newPath))
-                {
-                    if(curPath != null)
-                    {
-                        // TODO: Let the user choose which directory is the correct one?
-                        return null;
-                    }
-                    curPath = newPath;
-                }
-            }
+            List<string> validPaths = new List<string>();
 
-            return curPath;
+            foreach (string dir in dirs)
+            {
+                string newPath = Path.Combine(dir, @"config\shortcuts.vdf");
+                if (File.Exists(newPath)) validPaths.Add(newPath);
+            }
+            if (validPaths.Count == 0)
+            {
+                return null;
+            }
+            else if (validPaths.Count == 1)
+            {
+                return validPaths[0];
+            }
+            else
+            {
+                return SelectSteamShortcutsPath(validPaths);
+            }
+        }
+
+        private string SelectSteamShortcutsPath(List<string> validPaths)
+        {
+            List<GenericItemOption> items = new List<GenericItemOption>();
+
+            foreach (string path in validPaths)
+            {
+                items.Add(new GenericItemOption(GetSteamPersona(path), path));
+            }
+            return playniteApi.Dialogs.ChooseItemWithSearch(items,
+                (str) => string.IsNullOrWhiteSpace(str) ? items : items.Where(item => item.Name.Contains(str)).ToList(),
+                null,
+                "Which of these Steam accounts should the GlosSI integration use? The plugin needs the path to shortcuts.vdf.")
+                ?.Description;
+        }
+
+        /// <summary>
+        /// Tries to find the persona/username corresponding to a shortcuts.vdf path.
+        /// </summary>
+        /// <param name="shortcutsPath">The path to shortcuts.vdf</param>
+        /// <returns>The persona as a string. 
+        /// If no persona was found, a descriptive text with the Friend Code (i.e. the ID of the folder) is returned.</returns>
+        private string GetSteamPersona(string shortcutsPath)
+        {
+            try
+            {
+                string fileText = File.ReadAllText(Path.GetFullPath(Path.Combine(shortcutsPath, "..", "localconfig.vdf")));
+                int startIndex = fileText.IndexOf("\"PersonaName\"");
+
+                if (startIndex != -1)
+                {
+                    startIndex = fileText.IndexOf('\"', startIndex + "\"PersonaName\"".Length) + 1;
+                    int endIndex = fileText.IndexOf('\n', startIndex, 40) - 1;
+                    if (endIndex != -1)
+                    {
+                        return fileText.Substring(startIndex, endIndex - startIndex);
+                    }
+                }
+            } 
+            catch { }
+
+            return $"User with Friend Code: \"{Path.GetFileName(Path.GetFullPath(Path.Combine(shortcutsPath, @"..\..")))}\"";
         }
 
         public void BeginEdit()
