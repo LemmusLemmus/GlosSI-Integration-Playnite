@@ -258,106 +258,145 @@ namespace GlosSIIntegration
                 {
                     Description = "Add Integration",
                     MenuSection = "GlosSI Integration",
-                    Action = (arg) => AddGames(arg)
+                    Action = (arg) => AddGames(arg.Games)
                 },
 
                 new GameMenuItem
                 {
                     Description = "Remove Integration",
                     MenuSection = "GlosSI Integration",
-                    Action = (arg) => RemoveGames(arg)
+                    Action = (arg) => RemoveGames(arg.Games)
                 }
             };
 
             return newGameMenuItems;
         }
-        // TODO: https://playnite.link/docs/devel/tutorials/extensions/library.html?tabs=csharp#bulk-updates
-        private void AddGames(GameMenuItemActionArgs args)
+
+        private void AddGames(List<Game> games)
         {
-            int addedGames = 0;
+            int gamesAdded = 0;
 
-            foreach (Game game in args.Games)
-            {
-                try
+            API.Dialogs.ActivateGlobalProgress((progressBar) => AddGamesProcess(games, progressBar, out gamesAdded),
+                new GlobalProgressOptions("Adding GlosSI integration to games...", true)
                 {
-                    if ((new GlosSITarget(game)).Create())
-                    {
-                        addedGames++;
-                    }
-                }
-                catch(FileNotFoundException)
-                {
-                    API.Notifications.Add($"{Id}-AddGamesFileMissing", 
-                        "The DefaultTarget.json file was not found. The adding process was aborted.", 
-                        NotificationType.Error);
-                    return;
-                }
-                catch (DirectoryNotFoundException)
-                {
-                    API.Notifications.Add($"{Id}-AddGamesDirMissing",
-                        "The GlosSI Target Path directory could not be found. The adding process was aborted.",
-                        NotificationType.Error);
-                    return;
-                }
-                catch (Exception e)
-                {
-                    API.Notifications.Add($"{Id}-GeneralAddGames", $"GlosSI Integration failed to add the GlosSI Target " +
-                        $"Configuration file for {game.Name}, the adding process was aborted:\n" +
-                        $"{e}", NotificationType.Error);
-                    return;
-                }
-            }
+                    IsIndeterminate = false
+                });
 
-            if (addedGames > 0)
-            {
-                API.Dialogs.ShowMessage($"{addedGames}/{args.Games.Count} games were successfully added as GlosSI Steam Shortcuts. " +
-                $"Steam has to be restarted for the changes to take effect!", "GlosSI Integration");
-            }
-            else
+            if (gamesAdded == 0)
             {
                 API.Dialogs.ShowMessage($"No games were added as GlosSI Steam Shortcuts. " +
                 $"This could be due to the games being Steam games, already having been added or having the ignored tag.", "GlosSI Integration");
             }
+            if (gamesAdded == 1)
+            {
+                API.Dialogs.ShowMessage($"The game was successfully added as GlosSI Steam Shortcut. " +
+                $"Steam has to be restarted for the changes to take effect!", "GlosSI Integration");
+            }
+            else
+            {
+                int gamesSkipped = games.Count - gamesAdded;
+                API.Dialogs.ShowMessage($"{gamesAdded} games were successfully added as GlosSI Steam Shortcuts{(gamesSkipped > 0 ? $" ({gamesSkipped} games were skipped)" : "")}. " +
+                $"Steam has to be restarted for the changes to take effect!", "GlosSI Integration");
+            }
         }
-        // TODO: https://playnite.link/docs/devel/tutorials/extensions/library.html?tabs=csharp#bulk-updates
-        private void RemoveGames(GameMenuItemActionArgs args)
+
+        private void AddGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesAdded)
+        {
+            gamesAdded = 0;
+            progressBar.ProgressMaxValue = games.Count();
+
+            using (API.Database.BufferedUpdate())
+            {
+                foreach (Game game in games)
+                {
+                    try
+                    {
+                        if ((new GlosSITarget(game)).Create())
+                        {
+                            gamesAdded++;
+                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        API.Notifications.Add($"{Id}-AddGamesFileMissing",
+                            "The DefaultTarget.json file was not found. The adding process was aborted.",
+                            NotificationType.Error);
+                        return;
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                        API.Notifications.Add($"{Id}-AddGamesDirMissing",
+                            "The GlosSI Target Path directory could not be found. The adding process was aborted.",
+                            NotificationType.Error);
+                        return;
+                    }
+                    catch (Exception e)
+                    {
+                        API.Notifications.Add($"{Id}-GeneralAddGames", $"GlosSI Integration failed to add the GlosSI Target " +
+                            $"Configuration file for {game.Name}, the adding process was aborted:\n" +
+                            $"{e}", NotificationType.Error);
+                        return;
+                    }
+                    if (progressBar.CancelToken.IsCancellationRequested) return;
+                }
+            }
+        }
+
+        private void RemoveGames(List<Game> games)
         {
             // TODO: Ask the user for confirmation.
 
             int gamesRemoved = 0;
 
-            foreach (Game game in args.Games)
-            {
-                try
+            API.Dialogs.ActivateGlobalProgress((progressBar) => RemoveGamesProcess(games, progressBar, out gamesRemoved), 
+                new GlobalProgressOptions("Removing GlosSI integration from games...", true)
                 {
-                    if((new GlosSITarget(game)).Remove())
-                    {
-                        gamesRemoved++;
-                    }
-                }
-                catch (Exception e)
-                {
-                    API.Notifications.Add($"{Id}-RemoveGames", $"GlosSI Integration failed to remove the GlosSI Target " +
-                        $"Configuration file for {game.Name}, the removal process was aborted:\n" +
-                        $"{e}", NotificationType.Error);
-                    return;
-                }
-            }
+                    IsIndeterminate = false
+                });
 
-            if(gamesRemoved == 0)
+            if (gamesRemoved == 0)
             {
                 API.Dialogs.ShowMessage("No GlosSI/Steam integrations were removed.",
                     "GlosSI Integration");
             }
-            else if(gamesRemoved == 1)
+            else if (gamesRemoved == 1)
             {
-                API.Dialogs.ShowMessage($"The GlosSI/Steam integration of the game \"{args.Games[0].Name}\" was removed!",
+                API.Dialogs.ShowMessage($"The GlosSI/Steam integration of the game \"{games[0].Name}\" was removed!",
                     "GlosSI Integration");
             }
             else
             {
                 API.Dialogs.ShowMessage($"The GlosSI/Steam integration of {gamesRemoved} games were removed!", 
                     "GlosSI Integration");
+            }
+        }
+
+        private void RemoveGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesRemoved)
+        {
+            gamesRemoved = 0;
+            progressBar.ProgressMaxValue = games.Count();
+
+            using (API.Database.BufferedUpdate())
+            {
+                foreach (Game game in games)
+                {
+                    try
+                    {
+                        if ((new GlosSITarget(game)).Remove())
+                        {
+                            gamesRemoved++;
+                        }
+                        progressBar.CurrentProgressValue++;
+                    }
+                    catch (Exception e)
+                    {
+                        API.Notifications.Add($"{Id}-RemoveGames", $"GlosSI Integration failed to remove the GlosSI Target " +
+                            $"Configuration file for {game.Name}, the removal process was aborted:\n" +
+                            $"{e}", NotificationType.Error);
+                        return;
+                    }
+                    if (progressBar.CancelToken.IsCancellationRequested) return;
+                }
             }
         }
 
