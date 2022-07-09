@@ -237,6 +237,8 @@ namespace GlosSIIntegration
             // TODO: Verify settings.
             // Use a non-serialized variable in settings to keep track of if the settings are valid?
             // Check that the settings have been verified before reacting to any event & the topPanel.
+
+            API.Database.Tags.Add(IGNORED_TAG);
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
