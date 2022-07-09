@@ -9,7 +9,7 @@ namespace GlosSIIntegration
 {
     class GlosSITarget
     {
-        private static readonly string STEAM_SOURCE = "Steam";
+        private static readonly string STEAM_SOURCE = "steam";
 
         private readonly Game playniteGame;
         // The filname of the .json GlosSITarget profile, without the extension.
@@ -68,14 +68,20 @@ namespace GlosSIIntegration
             File.WriteAllText(GetJsonFilePath(), jsonString);
         }
 
+        /// <summary>
+        /// Gets the path to the icon of the Playnite game.
+        /// </summary>
+        /// <returns>The absolute path to the icon of the Playnite game, or <c>null</c> if it has no icon.</returns>
         private string GetGameIconPath()
         {
+            if (string.IsNullOrEmpty(playniteGame.Icon)) return null;
+
             return Path.Combine(GlosSIIntegration.API.Paths.ConfigurationPath, @"library\files\", playniteGame.Icon);
         }
 
         private bool IsSteamGame()
         {
-            return (playniteGame.Source != null && playniteGame.Source.Name == STEAM_SOURCE) || 
+            return (playniteGame.Source != null && playniteGame.Source.Name.ToLower() == STEAM_SOURCE) || 
                 (playniteGame.InstallDirectory != null && 
                 Path.GetFullPath(playniteGame.InstallDirectory).Contains(@"Steam\steamapps\common"));
         }

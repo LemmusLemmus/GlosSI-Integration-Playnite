@@ -16,7 +16,7 @@ namespace GlosSIIntegration
         private string glosSITargetsPath = Environment.ExpandEnvironmentVariables("%appdata%/GlosSI/Targets");
         private string steamShortcutsPath = null;
         private string defaultTargetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-            "DefaultTarget.json");
+            "DefaultTarget.json"); // TODO: Use ExtensionsData folder instead.
         private string playniteOverlayName = null;
         private bool usePlayniteOverlay = false;
 
@@ -234,7 +234,7 @@ namespace GlosSIIntegration
                 if (!ShortcutsContainsTarget(fileName))
                 {
 
-                    GlosSIIntegration.API.Dialogs.ShowMessage("The GlosSI target referenced by the Playnite overlay has not been added to Steam. Press OK to automatically add it. " +
+                    playniteApi.Dialogs.ShowMessage("The GlosSI target referenced by the Playnite overlay has not been added to Steam. Press OK to automatically add it. " +
                         "Steam has to be restarted afterwards for the changes to take effect.", "GlosSI Integration");
                     try
                     {
