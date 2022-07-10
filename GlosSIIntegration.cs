@@ -170,8 +170,7 @@ namespace GlosSIIntegration
             if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
                 CloseGlosSITargets();
-                // TODO: Run below method only if in fullscreen mode.
-                // RunPlayniteOverlay();
+                if (API.ApplicationInfo.Mode == ApplicationMode.Fullscreen) RunPlayniteOverlay();
             }
         }
 

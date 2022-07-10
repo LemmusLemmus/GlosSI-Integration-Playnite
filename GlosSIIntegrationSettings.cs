@@ -20,14 +20,19 @@ namespace GlosSIIntegration
             "DefaultTarget.json"); // TODO: Use ExtensionsData folder instead.
         private string playniteOverlayName = null;
         private bool usePlayniteOverlay = false;
+        private bool useIntegrationFullscreen = true;
+        private bool defaultUseIntegrationDesktop = false;
 
-        public bool IntegrationEnabled { get => integrationEnabled; set => SetValue(ref integrationEnabled, value); }
         public bool CloseGameWhenOverlayIsClosed { get => closeGameWhenOverlayIsClosed; set => SetValue(ref closeGameWhenOverlayIsClosed, value); }
         public string GlosSIPath { get => glosSIPath; set => SetValue(ref glosSIPath, value); }
         public string SteamShortcutsPath { get => steamShortcutsPath; set => SetValue(ref steamShortcutsPath, value); }
         public string PlayniteOverlayName { get => playniteOverlayName; set => SetValue(ref playniteOverlayName, value); }
         public bool UsePlayniteOverlay { get => usePlayniteOverlay; set => SetValue(ref usePlayniteOverlay, value); }
+        public bool UseIntegrationFullscreen { get => useIntegrationFullscreen; set => SetValue(ref useIntegrationFullscreen, value); }
+        public bool DefaultUseIntegrationDesktop { get => defaultUseIntegrationDesktop; set => SetValue(ref defaultUseIntegrationDesktop, value); }
 
+        [DontSerialize]
+        public bool IntegrationEnabled { get => integrationEnabled; set => SetValue(ref integrationEnabled, value); }
         [DontSerialize]
         public string GlosSITargetsPath { get => glosSITargetsPath; }
         [DontSerialize]
@@ -68,6 +73,15 @@ namespace GlosSIIntegration
             else
             {
                 Settings = new GlosSIIntegrationSettings();
+            }
+
+            if (playniteApi.ApplicationInfo.Mode == ApplicationMode.Desktop)
+            {
+                Settings.IntegrationEnabled = Settings.DefaultUseIntegrationDesktop;
+            }
+            else
+            {
+                Settings.IntegrationEnabled = Settings.UseIntegrationFullscreen;
             }
         }
 
@@ -221,7 +235,8 @@ namespace GlosSIIntegration
             // Executed before EndEdit is called and EndEdit is not called if false is returned.
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
-            return VerifySteamShortcutsPath(ref errors) && VerifyGlosSIPath(ref errors) && (!Settings.UsePlayniteOverlay || VerifyPlayniteOverlayName(ref errors));
+            return VerifySteamShortcutsPath(ref errors) && VerifyGlosSIPath(ref errors) && 
+                (!Settings.UseIntegrationFullscreen || !Settings.UsePlayniteOverlay || VerifyPlayniteOverlayName(ref errors));
         }
 
         public RelayCommand<object> BrowseSteamShortcutsFile

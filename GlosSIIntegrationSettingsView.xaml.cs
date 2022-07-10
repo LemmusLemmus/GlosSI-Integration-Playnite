@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GlosSIIntegration
 {
@@ -20,10 +8,7 @@ namespace GlosSIIntegration
         public GlosSIIntegrationSettingsView()
         {
             InitializeComponent();
-            if(!GlosSIIntegration.GetSettings().UsePlayniteOverlay)
-            {
-                PlayniteOverlayNamePanel.IsEnabled = false;
-            }
+            UpdateIsEnabled();
         }
 
         private void EditDefaultGlosSITarget_Click(object sender, RoutedEventArgs e)
@@ -32,14 +17,16 @@ namespace GlosSIIntegration
             System.Diagnostics.Process.Start(GlosSIIntegration.GetSettings().DefaultTargetPath);
         }
 
-        private void UsePlayniteOverlay_Checked(object sender, RoutedEventArgs e)
+        private void UpdateIsEnabled(object sender, RoutedEventArgs e)
         {
-            PlayniteOverlayNamePanel.IsEnabled = true;
+            UpdateIsEnabled();
         }
 
-        private void UsePlayniteOverlay_Unchecked(object sender, RoutedEventArgs e)
+        private void UpdateIsEnabled()
         {
-            PlayniteOverlayNamePanel.IsEnabled = false;
+            // "?? true" should not be reachable.
+            UsePlayniteOverlayCheckBox.IsEnabled = UseIntegrationFullscreenCheckBox.IsChecked ?? true;
+            PlayniteOverlayNamePanel.IsEnabled = UsePlayniteOverlayCheckBox.IsEnabled && (UsePlayniteOverlayCheckBox.IsChecked ?? true);
         }
     }
 }
