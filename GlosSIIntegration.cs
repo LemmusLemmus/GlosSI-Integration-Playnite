@@ -129,11 +129,11 @@ namespace GlosSIIntegration
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
+            if (GameHasIgnoredTag(args.Game)) return;
+
             // TODO: The user might not necessarily always want the previous overlay to be closed when a new game is started.
             CloseGlosSITargets();
 
-            if (GameHasIgnoredTag(args.Game)) return;
-            
             if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
                 if (!(new GlosSITarget(args.Game)).HasJsonFile())
@@ -167,10 +167,13 @@ namespace GlosSIIntegration
         {
             if (GameHasIgnoredTag(args.Game)) return;
 
-            if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
+            if (GetSettings().IntegrationEnabled)
             {
                 CloseGlosSITargets();
-                if (API.ApplicationInfo.Mode == ApplicationMode.Fullscreen) RunPlayniteOverlay();
+                if (API.ApplicationInfo.Mode == ApplicationMode.Fullscreen)
+                {
+                    RunPlayniteOverlay();
+                }
             }
         }
 
@@ -233,6 +236,10 @@ namespace GlosSIIntegration
         {
             settingsViewModel.InitialVerification();
             API.Database.Tags.Add(IGNORED_TAG);
+            if(API.ApplicationInfo.Mode == ApplicationMode.Fullscreen && GetSettings().IntegrationEnabled)
+            {
+                RunPlayniteOverlay();
+            }
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
