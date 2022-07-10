@@ -232,12 +232,7 @@ namespace GlosSIIntegration
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
-            // Add code to be executed when Playnite is initialized.
-
-            // TODO: Verify settings.
-            // Use a non-serialized variable in settings to keep track of if the settings are valid?
-            // Check that the settings have been verified before reacting to any event & the topPanel.
-
+            settingsViewModel.InitialVerification();
             API.Database.Tags.Add(IGNORED_TAG);
         }
 
@@ -276,6 +271,8 @@ namespace GlosSIIntegration
 
         private void AddGames(List<Game> games)
         {
+            if (!settingsViewModel.InitialVerification()) return;
+
             int gamesAdded = 0;
 
             API.Dialogs.ActivateGlobalProgress((progressBar) => AddGamesProcess(games, progressBar, out gamesAdded),
@@ -347,6 +344,8 @@ namespace GlosSIIntegration
         private void RemoveGames(List<Game> games)
         {
             // TODO: Ask the user for confirmation.
+
+            if (!settingsViewModel.InitialVerification()) return;
 
             int gamesRemoved = 0;
 

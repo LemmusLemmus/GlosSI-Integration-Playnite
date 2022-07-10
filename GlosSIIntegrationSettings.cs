@@ -14,7 +14,7 @@ namespace GlosSIIntegration
         private bool integrationEnabled = false;
         private bool closeGameWhenOverlayIsClosed = true;
         private string glosSIPath = null;
-        private string glosSITargetsPath = Environment.ExpandEnvironmentVariables("%appdata%/GlosSI/Targets");
+        private string glosSITargetsPath = Environment.ExpandEnvironmentVariables(@"%appdata%\GlosSI\Targets");
         private string steamShortcutsPath = null;
         private string defaultTargetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
             "DefaultTarget.json"); // TODO: Use ExtensionsData folder instead.
@@ -69,11 +69,44 @@ namespace GlosSIIntegration
             {
                 Settings = new GlosSIIntegrationSettings();
             }
+        }
 
-            if(string.IsNullOrEmpty(Settings.SteamShortcutsPath))
+        /// <summary>
+        /// Checks if the settings are OK. If not, a dialog informs the user.
+        /// </summary>
+        /// <returns>True if the settings were OK; otherwise false.</returns>
+        public bool InitialVerification()
+        {
+            if (VerifySettings(out _)) return true;
+
+            if (playniteApi.ApplicationInfo.Mode == ApplicationMode.Desktop)
+            {
+                List<MessageBoxOption> options = new List<MessageBoxOption>
+                {
+                    new MessageBoxOption("OK", true, false),
+                    new MessageBoxOption("Not now", false, true)
+                };
+
+                if (playniteApi.Dialogs.ShowMessage("Requried settings are missing/incorrect. Go to the settings menu?",
+                    "GlosSI Integration", System.Windows.MessageBoxImage.Error, options).Equals(options[0]))
+                {
+                    plugin.OpenSettingsView();
+                }
+            }
+            else
+            {
+                playniteApi.Dialogs.ShowErrorMessage("Requried settings are missing/incorrect. Please visit the settings menu in desktop mode.", "GlosSI Integration");
+            }
+
+            return false;
+        }
+
+        private void AutoSetSteamShortcutsPath()
+        {
+            if (string.IsNullOrEmpty(Settings.SteamShortcutsPath))
             {
                 string newSteamShortcutsPath = GetSteamShortcutsPath();
-                if(newSteamShortcutsPath != null)
+                if (newSteamShortcutsPath != null)
                 {
                     Settings.SteamShortcutsPath = newSteamShortcutsPath;
                     plugin.SavePluginSettings(Settings);
@@ -165,6 +198,7 @@ namespace GlosSIIntegration
         {
             // Code executed when settings view is opened and user starts editing values.
             editingClone = Serialization.GetClone(Settings);
+            AutoSetSteamShortcutsPath();
         }
 
         public void CancelEdit()
@@ -187,13 +221,7 @@ namespace GlosSIIntegration
             // Executed before EndEdit is called and EndEdit is not called if false is returned.
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
-
-            if(Settings.UsePlayniteOverlay && !VerifyPlayniteOverlayName(ref errors))
-            {
-                return false;
-            }
-
-            return true;
+            return VerifySteamShortcutsPath(ref errors) && VerifyGlosSIPath(ref errors) && (!Settings.UsePlayniteOverlay || VerifyPlayniteOverlayName(ref errors));
         }
 
         public RelayCommand<object> BrowseSteamShortcutsFile
@@ -214,15 +242,79 @@ namespace GlosSIIntegration
             });
         }
 
-        private bool VerifySteamShortcutsPath(string path)
+        private bool VerifySteamShortcutsPath(ref List<string> errors)
         {
-            // TODO: Check that path contains steam/userdata and config/shortcuts.vdf.
+            string path = Settings.SteamShortcutsPath;
+
+            if (string.IsNullOrEmpty(path))
+            {
+                errors.Add("The path to shortcuts.vdf has not been set.");
+                return false;
+            }
+
+            try
+            {
+                Settings.SteamShortcutsPath = Environment.ExpandEnvironmentVariables(path);
+                path = Settings.SteamShortcutsPath;
+                Path.GetFullPath(path); // This should throw an exception if the path is incorrectly formatted.
+            }
+            catch
+            {
+                errors.Add("The shortcuts.vdf path is incorrectly formatted.");
+                return false;
+            }
+
+            if (Path.GetFileName(path) != "shortcuts.vdf")
+            {
+                errors.Add("The shortcuts.vdf path does not lead to a file called \"shortcuts.vdf\".");
+                return false;
+            }
+            else if (!File.Exists(path))
+            {
+                errors.Add("The shortcuts.vdf file could not be found.");
+                return false;
+            }
+            else if (!path.Contains(@"Steam\userdata") || !path.Contains(@"config\shortcuts.vdf"))
+            {
+                errors.Add("The shortcuts.vdf file location is incorrect. " +
+                    "The file should be located inside the \"config\" folder in the Steam installation folder.");
+                return false;
+            }
             return true;
         }
 
-        private bool VerifyGlosSIPath(string path)
+        private bool VerifyGlosSIPath(ref List<string> errors)
         {
-            // TODO: Check that the folder contains the two executables.
+            string path = Settings.GlosSIPath;
+
+            if (string.IsNullOrEmpty(path))
+            {
+                errors.Add("The path to the GlosSI folder has not been set.");
+                return false;
+            }
+
+            try
+            {
+                Settings.GlosSIPath = Environment.ExpandEnvironmentVariables(path);
+                path = Settings.GlosSIPath;
+                Path.GetFullPath(path); // This should throw an exception if the path is incorrectly formatted.
+            }
+            catch
+            {
+                errors.Add("The GlosSI folder path is incorrectly formatted.");
+                return false;
+            }
+
+            if (!Directory.Exists(path))
+            {
+                errors.Add("The GlosSI folder location could not be found.");
+                return false;
+            }
+            else if (!File.Exists(Path.Combine(path, "GlosSIConfig.exe")) || !File.Exists(Path.Combine(path, "GlosSITarget.exe")))
+            {
+                errors.Add("The GlosSI folder location is incorrect: the GlosSI executables could not be found.");
+                return false;
+            }
             return true;
         }
 
