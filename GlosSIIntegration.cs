@@ -131,17 +131,17 @@ namespace GlosSIIntegration
         {
             if (GameHasIgnoredTag(args.Game)) return;
 
-            // TODO: The user might not necessarily always want the previous overlay to be closed when a new game is started.
             CloseGlosSITargets();
 
             if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
             {
                 if (!(new GlosSITarget(args.Game)).HasJsonFile())
                 {
+                    // TODO: Make the notification more helpful.
+                    // A currently probable reason for this happening is due to a name change. 
                     API.Notifications.Add($"{Id}-OnGameStarted-NoJsonFile",
                         $"GlosSI Integration failed to run the Steam Shortcut: The .json target file is missing.",
                         NotificationType.Error);
-                    // TODO: Remove the GlosSI Integrated tag?
                     return;
                 }
 
@@ -159,6 +159,8 @@ namespace GlosSIIntegration
                 if (GetSettings().CloseGameWhenOverlayIsClosed)
                 {
                     // TODO: Set up a thread that closes the application when the overlay is closed via the overlay itself (i.e. forcefully closed).
+                    // Alternatively start this thread in OnGameStarted().
+                    // The GlosSITarget log can be checked to determine if the application was forcefully closed or not.
                 }
             }
         }
@@ -195,7 +197,9 @@ namespace GlosSIIntegration
                     NotificationType.Error);
             }
         }
-
+        /// <summary>
+        /// Closes all currently running GlosSITarget processes.
+        /// </summary>
         private void CloseGlosSITargets()
         {
             try
@@ -244,7 +248,6 @@ namespace GlosSIIntegration
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
         {
-            // Add code to be executed when Playnite is shutting down.
             CloseGlosSITargets();
         }
 

@@ -88,7 +88,7 @@ namespace GlosSIIntegration
         /// <summary>
         /// Checks if the settings are OK. If not, a dialog informs the user.
         /// </summary>
-        /// <returns>True if the settings were OK; otherwise false.</returns>
+        /// <returns>true if the settings were OK; false otherwise.</returns>
         public bool InitialVerification()
         {
             if (VerifySettings(out _)) return true;
@@ -115,6 +115,9 @@ namespace GlosSIIntegration
             return false;
         }
 
+        /// <summary>
+        /// Attempts to automatically find and set the <c>SteamShortcutsPath</c> if it has not already been set.
+        /// </summary>
         private void AutoSetSteamShortcutsPath()
         {
             if (string.IsNullOrEmpty(Settings.SteamShortcutsPath))
@@ -128,6 +131,10 @@ namespace GlosSIIntegration
             }
         }
 
+        /// <summary>
+        /// Attempts to automatically find the <c>SteamShortcutsPath</c>.
+        /// </summary>
+        /// <returns>If found, the <c>SteamShortcutsPath</c>; <c>null</c> otherwise.</returns>
         private string GetSteamShortcutsPath()
         {
             // Get the Steam userdata folder.
@@ -165,6 +172,11 @@ namespace GlosSIIntegration
             }
         }
 
+        /// <summary>
+        /// Presents the user with a list of found <c>shortcuts.vdf</c> paths corresponding to Steam accounts.
+        /// </summary>
+        /// <param name="validPaths">The list of <c>shortcuts.vdf</c> paths for the user to choose from.</param>
+        /// <returns>The chosen <c>shortcuts.vdf</c> path. Returns <c>null</c> if the dialog was canceled.</returns>
         private string SelectSteamShortcutsPath(List<string> validPaths)
         {
             List<GenericItemOption> items = new List<GenericItemOption>();
@@ -257,6 +269,11 @@ namespace GlosSIIntegration
             });
         }
 
+        /// <summary>
+        /// Verifies the <c>shortcuts.vdf</c> path. Also expands any environment variables in the path.
+        /// </summary>
+        /// <param name="errors">The list of errors to which potential errors are added as descriptive messages.</param>
+        /// <returns>true if the <c>shortcuts.vdf</c> path is valid; false otherwise.</returns>
         private bool VerifySteamShortcutsPath(ref List<string> errors)
         {
             string path = Settings.SteamShortcutsPath;
@@ -298,6 +315,11 @@ namespace GlosSIIntegration
             return true;
         }
 
+        /// <summary>
+        /// Verifies the GlosSI folder path. Also expands any environment variables in the path.
+        /// </summary>
+        /// <param name="errors">The list of errors to which potential errors are added as descriptive messages.</param>
+        /// <returns>true if the GlosSI folder path is valid; false otherwise.</returns>
         private bool VerifyGlosSIPath(ref List<string> errors)
         {
             string path = Settings.GlosSIPath;

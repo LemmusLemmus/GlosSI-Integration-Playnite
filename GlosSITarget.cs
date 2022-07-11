@@ -62,8 +62,9 @@ namespace GlosSIIntegration
 
             jsonString = jObject.ToString();
 
-            // TODO: Send a warning message if there already exists a .json file with the same path but with a name.
+            // TODO: Send a warning message if there already exists a .json file with the same filename.
             // There is a risk that two different games with different game names have the same filename after illegal characters are removed.
+            // There is also a risk that the user already made a GlosSI profile for a game without using this plugin.
 
             File.WriteAllText(GetJsonFilePath(), jsonString);
         }
@@ -79,6 +80,10 @@ namespace GlosSIIntegration
             return Path.Combine(GlosSIIntegration.API.Paths.ConfigurationPath, @"library\files\", playniteGame.Icon);
         }
 
+        /// <summary>
+        /// Checks if the Playnite game is a Steam game.
+        /// </summary>
+        /// <returns>true if it is a Steam game; false otherwise.</returns>
         private bool IsSteamGame()
         {
             return (playniteGame.Source != null && playniteGame.Source.Name.ToLower() == STEAM_SOURCE) || 
@@ -86,6 +91,11 @@ namespace GlosSIIntegration
                 Path.GetFullPath(playniteGame.InstallDirectory).Contains(@"Steam\steamapps\common"));
         }
 
+        /// <summary>
+        /// Gets the path to the .json with the supplied name.
+        /// </summary>
+        /// <param name="jsonFileName">The name of the .json file.</param>
+        /// <returns>The path to the .json file.</returns>
         public static string GetJsonFilePath(string jsonFileName)
         {
             return Path.Combine(GlosSIIntegration.GetSettings().GlosSITargetsPath, jsonFileName + ".json");
@@ -96,6 +106,10 @@ namespace GlosSIIntegration
             return GetJsonFilePath(jsonFileName);
         }
 
+        /// <summary>
+        /// Checks if this GlosSITarget has a corresponding .json file.
+        /// </summary>
+        /// <returns>true if the target has a corresponding .json file; false otherwise.</returns>
         public bool HasJsonFile()
         {
             return File.Exists(GetJsonFilePath());
@@ -121,6 +135,9 @@ namespace GlosSIIntegration
             }
         }
 
+        /// <summary>
+        /// Removes the corresponding .json file of the GlosSITarget, if it has any.
+        /// </summary>
         private void RemoveJsonFile()
         {
             if(HasJsonFile())
