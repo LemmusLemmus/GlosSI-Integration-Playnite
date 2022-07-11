@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace GlosSIIntegration
 {
@@ -43,7 +42,9 @@ namespace GlosSIIntegration
             {
                 if (!File.Exists(defaultTargetPath))
                 {
+                    LogManager.GetLogger().Trace("Creating DefaultTarget file...");
                     File.WriteAllText(defaultTargetPath, Properties.Resources.DefaultTarget);
+                    LogManager.GetLogger().Info("DefaultTarget file created.");
                 }
             }
             catch (Exception e)
@@ -59,6 +60,7 @@ namespace GlosSIIntegration
     {
         private readonly GlosSIIntegration plugin;
         private readonly IPlayniteAPI playniteApi;
+        private static readonly ILogger logger = LogManager.GetLogger();
         private GlosSIIntegrationSettings editingClone { get; set; }
 
         private GlosSIIntegrationSettings settings;
@@ -207,6 +209,8 @@ namespace GlosSIIntegration
         /// <returns>The chosen <c>shortcuts.vdf</c> path. Returns <c>null</c> if the dialog was canceled.</returns>
         private string SelectSteamShortcutsPath(List<string> validPaths)
         {
+            logger.Trace("Select Steam shortcuts from options menu opened.");
+
             List<GenericItemOption> items = new List<GenericItemOption>();
 
             foreach (string path in validPaths)
@@ -412,7 +416,8 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                errors.Add($"Something went wrong when attempting to read the target file referenced by the Playnite overlay name: {e}");
+                errors.Add($"Something went wrong when attempting to read the target file referenced by the Playnite overlay name: {e.Message}");
+                logger.Error($"Something went wrong when attempting to read the target file referenced by the Playnite overlay name: {e}");
                 return false;
             }
             
@@ -440,13 +445,15 @@ namespace GlosSIIntegration
 
                     playniteApi.Dialogs.ShowMessage("The GlosSI target referenced by the Playnite overlay has not been added to Steam. Press OK to automatically add it. " +
                         "Steam has to be restarted afterwards for the changes to take effect.", "GlosSI Integration");
+                    logger.Trace($"Adding the Playnite overlay {actualName} to Steam...");
                     try
                     {
                         GlosSITarget.SaveToSteamShortcuts(fileName);
                     }
                     catch (Exception e)
                     {
-                        errors.Add($"The Playnite overlay could not be added automatically to Steam: {e}");
+                        errors.Add($"The Playnite overlay could not be added automatically to Steam: {e.Message}");
+                        logger.Error($"The Playnite overlay could not be added automatically to Steam: {e}");
                         return false;
                     }
 
@@ -455,11 +462,14 @@ namespace GlosSIIntegration
                         errors.Add($"The Playnite overlay could not be added automatically to Steam: shortcuts.vdf file was not successfully updated.");
                         return false;
                     }
+
+                    logger.Info("The Playnite overlay was added to Steam as a shortcut.");
                 }
             }
             catch (Exception e)
             {
-                errors.Add($"Something went wrong when trying to read the shortcuts.vdf file: {e}");
+                errors.Add($"Something went wrong when trying to read the shortcuts.vdf file: {e.Message}");
+                logger.Error($"Something went wrong when trying to read the shortcuts.vdf file: {e}");
                 return false;
             }
 

@@ -161,10 +161,17 @@ namespace GlosSIIntegration
                     // TODO: Set up a thread that closes the application when the overlay is closed via the overlay itself (i.e. forcefully closed).
                     // Alternatively start this thread in OnGameStarted().
                     // The GlosSITarget log can be checked to determine if the application was forcefully closed or not.
+                    //logger.Trace("GlosSI watcher thread started...");
                 }
             }
         }
 
+        /// <summary>
+        /// Displays an error as a Playnite notification and logs it.
+        /// </summary>
+        /// <param name="source">The source of the error.</param>
+        /// <param name="message">The user-readable error message.</param>
+        /// <param name="fullError">The full error message, if one exists.</param>
         public void DisplayError(string source, string message, string fullError = null)
         {
             logger.Error($"{message}{(fullError != null ? $"\t{fullError}" : "")}");
@@ -280,6 +287,8 @@ namespace GlosSIIntegration
 
         private void AddGames(List<Game> games)
         {
+            logger.Trace("Add integration clicked.");
+
             if (!settingsViewModel.InitialVerification()) return;
 
             int gamesAdded = 0;
@@ -289,6 +298,8 @@ namespace GlosSIIntegration
                 {
                     IsIndeterminate = false
                 });
+
+            logger.Info($"{gamesAdded}/{games.Count} games added.");
 
             if (gamesAdded == 0)
             {
@@ -340,6 +351,8 @@ namespace GlosSIIntegration
         {
             // TODO: Ask the user for confirmation.
 
+            logger.Trace("Remove integration clicked.");
+
             if (!settingsViewModel.InitialVerification()) return;
 
             int gamesRemoved = 0;
@@ -349,6 +362,8 @@ namespace GlosSIIntegration
                 {
                     IsIndeterminate = false
                 });
+
+            logger.Info($"{gamesRemoved}/{games.Count} games removed.");
 
             if (gamesRemoved == 0)
             {
@@ -413,6 +428,7 @@ namespace GlosSIIntegration
 
         private void TopPanelPressed()
         {
+            logger.Trace("Top panel item pressed.");
             GetSettings().IntegrationEnabled = !GetSettings().IntegrationEnabled;
             CloseGlosSITargets();
             UpdateTopPanel();
