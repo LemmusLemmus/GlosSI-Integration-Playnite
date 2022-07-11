@@ -16,8 +16,7 @@ namespace GlosSIIntegration
         private string glosSIPath = null;
         private string glosSITargetsPath = Environment.ExpandEnvironmentVariables(@"%appdata%\GlosSI\Targets");
         private string steamShortcutsPath = null;
-        private string defaultTargetPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-            "DefaultTarget.json"); // TODO: Use ExtensionsData folder instead.
+        private string defaultTargetPath = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(), "DefaultTarget.json");
         private string playniteOverlayName = null;
         private bool usePlayniteOverlay = false;
         private bool useIntegrationFullscreen = true;
@@ -36,7 +35,24 @@ namespace GlosSIIntegration
         [DontSerialize]
         public string GlosSITargetsPath { get => glosSITargetsPath; }
         [DontSerialize]
-        public string DefaultTargetPath { get => defaultTargetPath; }
+        public string DefaultTargetPath { get => GetDefaultTargetPath(); set => SetValue(ref defaultTargetPath, value); }
+        private string GetDefaultTargetPath()
+        {
+            // This can potentially fail.
+            try
+            {
+                if (!File.Exists(defaultTargetPath))
+                {
+                    File.WriteAllText(defaultTargetPath, Properties.Resources.DefaultTarget);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Failed to access or create the default target file: {e.Message}");
+            }
+
+            return defaultTargetPath;
+        }
     }
 
     public class GlosSIIntegrationSettingsViewModel : ObservableObject, ISettings
@@ -74,6 +90,18 @@ namespace GlosSIIntegration
             {
                 Settings = new GlosSIIntegrationSettings();
             }
+
+            // This will ensure that the the default target file is created initially,
+            // so that it may be modified by the user before they add any games.
+            try
+            {
+                _ = Settings.DefaultTargetPath;
+            }
+            catch (Exception e)
+            {
+                GlosSIIntegration.Instance.DisplayError("DefaultTargetPathSettings", e.Message, e.ToString());
+            }
+            
 
             if (playniteApi.ApplicationInfo.Mode == ApplicationMode.Desktop)
             {

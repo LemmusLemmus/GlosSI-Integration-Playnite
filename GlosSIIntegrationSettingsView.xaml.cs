@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace GlosSIIntegration
@@ -14,7 +15,15 @@ namespace GlosSIIntegration
         private void EditDefaultGlosSITarget_Click(object sender, RoutedEventArgs e)
         {
             // TODO: This would be better done via the GlosSI GUI, perphaps by implementing a command line argument.
-            System.Diagnostics.Process.Start(GlosSIIntegration.GetSettings().DefaultTargetPath);
+            try
+            {
+                System.Diagnostics.Process.Start(GlosSIIntegration.GetSettings().DefaultTargetPath);
+            }
+            catch (Exception ex)
+            {
+                GlosSIIntegration.API.Dialogs.ShowErrorMessage($"Failed to open the default target file: {ex.Message}", "GlosSI Integration");
+            }
+            
         }
 
         private void UpdateIsEnabled(object sender, RoutedEventArgs e)
