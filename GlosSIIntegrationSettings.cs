@@ -116,11 +116,13 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Checks if the settings are OK. If not, a dialog informs the user.
+        /// Checks if the GlosSITargetsPath and settings are OK. If not, a dialog informs the user.
         /// </summary>
         /// <returns>true if the settings were OK; false otherwise.</returns>
         public bool InitialVerification()
         {
+            if (!VerifyGlosSITargetsPath()) return false;
+
             if (VerifySettings(out _)) return true;
 
             if (playniteApi.ApplicationInfo.Mode == ApplicationMode.Desktop)
@@ -388,6 +390,25 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
+        /// Verifies the GlosSI targets path (not set by the user). 
+        /// This also verifies that GlosSI has been run at some point.
+        /// </summary>
+        /// <returns>true if the GlosSI targets path points to an existing directory; false otherwise.</returns>
+        public bool VerifyGlosSITargetsPath()
+        {
+            if (!Directory.Exists(Settings.GlosSITargetsPath))
+            {
+                logger.Error("The GlosSI Targets folder does not exist.");
+                playniteApi.Dialogs.ShowErrorMessage("The GlosSI Targets folder could not be found. " +
+                    "GlosSI must be installed and have run at least once before the GlosSI Integration extension can be used.",
+                    "GlosSI Integration");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Verifies the Playnite overlay name.
         /// The <c>GlosSITargetsPath</c> and <c>SteamShortcutsPath</c> should be verified before running this method.
         /// </summary>
@@ -427,7 +448,7 @@ namespace GlosSIIntegration
             if(string.IsNullOrEmpty(actualName))
             {
                 errors.Add($"Something is wrong with the file referenced by the Playnite overlay name. " +
-                    $"The name property in the target .json file in %appdata%/GlosSI/Targets could not be found or has not been set.");
+                    $"The name property in the target .json file in %appdata%\\GlosSI\\Targets could not be found or has not been set.");
                 return false;
             }
             else if (actualName != targetName)
