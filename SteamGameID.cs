@@ -2,7 +2,9 @@
 // from their "Steam Shortcut Manager" at https://github.com/CorporalQuesadilla/Steam-Shortcut-Manager.
 // Corporal Quesadilla's getURL() function is licensed under the MIT License, copyright (c) Corporal Quesadilla 2018.
 
+using Playnite.SDK;
 using Playnite.SDK.Models;
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -41,9 +43,24 @@ namespace GlosSIIntegration
             return top32;
         }
 
+        /// <summary>
+        /// Runs the Steam game associated with the ID.
+        /// </summary>
+        /// <returns>The started process; <c>null</c> if starting the process failed.</returns>
         public Process Run()
         {
-            return Process.Start("steam://rungameid/" + GetSteamGameID());
+            try
+            {
+                return Process.Start("steam://rungameid/" + GetSteamGameID());
+            }
+            catch (Exception e)
+            {
+                string message = $"GlosSI Integration failed to run the Steam Shortcut:\n{e.Message}";
+                LogManager.GetLogger().Error($"{message}\t{e}");
+                GlosSIIntegration.API.Notifications.Add("GlosSIIntegration-SteamGameID-Run", 
+                    message, NotificationType.Error);
+                return null;
+            }
         }
     }
 }

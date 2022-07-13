@@ -27,6 +27,7 @@ namespace GlosSIIntegration
 
         private readonly TopPanelItem topPanel;
         private readonly TextBlock topPanelTextBlock;
+        private SteamGameID runningGameOverlay;
 
         public GlosSIIntegration(IPlayniteAPI api) : base(api)
         {
@@ -39,6 +40,7 @@ namespace GlosSIIntegration
                 HasSettings = true
             };
 
+            runningGameOverlay = null;
             topPanelTextBlock = GetInitialTopPanelTextBlock();
             topPanel = GetInitialTopPanel();
             UpdateTopPanel();
@@ -134,7 +136,11 @@ namespace GlosSIIntegration
 
             CloseGlosSITargets();
 
-            if (GetSettings().IntegrationEnabled && GameHasIntegratedTag(args.Game))
+            if (!GameHasIntegratedTag(args.Game)) return;
+            
+            runningGameOverlay = new SteamGameID(args.Game);
+
+            if (GetSettings().IntegrationEnabled)
             {
                 if (!(new GlosSITarget(args.Game)).HasJsonFile())
                 {
@@ -145,16 +151,7 @@ namespace GlosSIIntegration
                     return;
                 }
 
-                try
-                {
-                    new SteamGameID(args.Game).Run();
-                }
-                catch (Exception e)
-                {
-                    DisplayError("OnGameStarted-OverlayOpened", 
-                        $"GlosSI Integration failed to run the Steam Shortcut:\n{e.Message}", 
-                        e.ToString());
-                }
+                runningGameOverlay.Run();
 
                 if (GetSettings().CloseGameWhenOverlayIsClosed)
                 {
@@ -184,6 +181,7 @@ namespace GlosSIIntegration
 
             if (GetSettings().IntegrationEnabled)
             {
+                runningGameOverlay = null;
                 CloseGlosSITargets();
                 if (API.ApplicationInfo.Mode == ApplicationMode.Fullscreen)
                 {
@@ -430,10 +428,15 @@ namespace GlosSIIntegration
         {
             logger.Trace("Top panel item pressed.");
             GetSettings().IntegrationEnabled = !GetSettings().IntegrationEnabled;
-            CloseGlosSITargets();
             UpdateTopPanel();
+            CloseGlosSITargets();
 
-            // TODO: If IntegrationEnabled, check if the user is in-game, and if so start the game specific overlay.
+            // If the user is currently in-game, launch the game specific overlay.
+            if (runningGameOverlay != null && GetSettings().IntegrationEnabled)
+            {
+                logger.Trace("Steam Overlay launched whilst in-game.");
+                runningGameOverlay.Run();
+            }
         }
 
         private void UpdateTopPanel()
