@@ -281,7 +281,7 @@ namespace GlosSIIntegration
             // Executed before EndEdit is called and EndEdit is not called if false is returned.
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
-            return VerifySteamShortcutsPath(ref errors) && VerifyGlosSIPath(ref errors) && 
+            return VerifySteamShortcutsPath(ref errors) & VerifyGlosSIPath(ref errors) & 
                 (!Settings.UseIntegrationFullscreen || !Settings.UsePlayniteOverlay || VerifyPlayniteOverlayName(ref errors));
         }
 
