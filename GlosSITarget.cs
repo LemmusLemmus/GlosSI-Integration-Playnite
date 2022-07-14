@@ -77,7 +77,7 @@ namespace GlosSIIntegration
         {
             if (string.IsNullOrEmpty(playniteGame.Icon)) return null;
 
-            return Path.Combine(GlosSIIntegration.API.Paths.ConfigurationPath, @"library\files\", playniteGame.Icon);
+            return Path.Combine(GlosSIIntegration.Api.Paths.ConfigurationPath, @"library\files\", playniteGame.Icon);
         }
 
         /// <summary>

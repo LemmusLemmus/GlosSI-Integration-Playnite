@@ -21,7 +21,7 @@ namespace GlosSIIntegration
             }
             catch (Exception ex)
             {
-                GlosSIIntegration.API.Dialogs.ShowErrorMessage($"Failed to open the default target file: {ex.Message}", "GlosSI Integration");
+                GlosSIIntegration.Api.Dialogs.ShowErrorMessage($"Failed to open the default target file: {ex.Message}", "GlosSI Integration");
             }
             
         }

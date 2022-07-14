@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 using System.Diagnostics;
-using System.IO;
 using System.Windows.Media;
 using System.Windows;
 using System.Threading;
@@ -18,8 +17,8 @@ namespace GlosSIIntegration
     {
         private static readonly ILogger logger = LogManager.GetLogger();
 
-        private GlosSIIntegrationSettingsViewModel settingsViewModel { get; set; }
-        internal static IPlayniteAPI API { get; private set; }
+        private GlosSIIntegrationSettingsViewModel SettingsViewModel { get; set; }
+        internal static IPlayniteAPI Api { get; private set; }
         public static readonly string INTEGRATED_TAG = "[GI] Integrated", IGNORED_TAG = "[GI] Ignored";
         public static GlosSIIntegration Instance { get; private set; }
 
@@ -32,9 +31,9 @@ namespace GlosSIIntegration
         public GlosSIIntegration(IPlayniteAPI api) : base(api)
         {
             Instance = this;
-            API = api;
+            Api = api;
 
-            settingsViewModel = new GlosSIIntegrationSettingsViewModel(this, api);
+            SettingsViewModel = new GlosSIIntegrationSettingsViewModel(this, api);
             Properties = new GenericPluginProperties
             {
                 HasSettings = true
@@ -70,24 +69,24 @@ namespace GlosSIIntegration
 
         public static GlosSIIntegrationSettings GetSettings()
         {
-            return Instance.settingsViewModel.Settings;
+            return Instance.SettingsViewModel.Settings;
         }
 
         // Method code heavily inspired by https://github.com/darklinkpower's PlayniteUtilites AddTagToGame method
         // from their PlayniteExtensionsCollection repository.
         public static void AddTagToGame(string tagName, Game game)
         {
-            Tag tag = API.Database.Tags.Add(tagName);
+            Tag tag = Api.Database.Tags.Add(tagName);
 
             if(game.Tags == null)
             {
                 game.TagIds = new List<Guid> { tag.Id };
-                API.Database.Games.Update(game);
+                Api.Database.Games.Update(game);
             }
             else if (!game.TagIds.Contains(tag.Id))
             {
                 game.TagIds.Add(tag.Id);
-                API.Database.Games.Update(game);
+                Api.Database.Games.Update(game);
             }
         }
 
@@ -101,7 +100,7 @@ namespace GlosSIIntegration
             if (tag != null)
             {
                 game.TagIds.Remove(tag.Id);
-                API.Database.Games.Update(game);
+                Api.Database.Games.Update(game);
             }
         }
 
@@ -172,7 +171,7 @@ namespace GlosSIIntegration
         public void DisplayError(string source, string message, string fullError = null)
         {
             logger.Error($"{message}{(fullError != null ? $"\t{fullError}" : "")}");
-            API.Notifications.Add($"{Id}-{source}", message, NotificationType.Error);
+            Api.Notifications.Add($"{Id}-{source}", message, NotificationType.Error);
         }
 
         public override void OnGameStopped(OnGameStoppedEventArgs args)
@@ -183,7 +182,7 @@ namespace GlosSIIntegration
             {
                 runningGameOverlay = null;
                 CloseGlosSITargets();
-                if (API.ApplicationInfo.Mode == ApplicationMode.Fullscreen)
+                if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen)
                 {
                     RunPlayniteOverlay();
                 }
@@ -243,9 +242,9 @@ namespace GlosSIIntegration
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
-            settingsViewModel.InitialVerification();
-            API.Database.Tags.Add(IGNORED_TAG);
-            if(API.ApplicationInfo.Mode == ApplicationMode.Fullscreen && GetSettings().IntegrationEnabled)
+            SettingsViewModel.InitialVerification();
+            Api.Database.Tags.Add(IGNORED_TAG);
+            if(Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen && GetSettings().IntegrationEnabled)
             {
                 RunPlayniteOverlay();
             }
@@ -287,11 +286,11 @@ namespace GlosSIIntegration
         {
             logger.Trace("Add integration clicked.");
 
-            if (!settingsViewModel.InitialVerification()) return;
+            if (!SettingsViewModel.InitialVerification()) return;
 
             int gamesAdded = 0;
 
-            API.Dialogs.ActivateGlobalProgress((progressBar) => AddGamesProcess(games, progressBar, out gamesAdded),
+            Api.Dialogs.ActivateGlobalProgress((progressBar) => AddGamesProcess(games, progressBar, out gamesAdded),
                 new GlobalProgressOptions("Adding GlosSI integration to games...", true)
                 {
                     IsIndeterminate = false
@@ -301,18 +300,18 @@ namespace GlosSIIntegration
 
             if (gamesAdded == 0)
             {
-                API.Dialogs.ShowMessage($"No games were added as GlosSI Steam Shortcuts. " +
+                Api.Dialogs.ShowMessage($"No games were added as GlosSI Steam Shortcuts. " +
                 $"This could be due to the games being Steam games, already having been added or having the ignored tag.", "GlosSI Integration");
             }
             if (gamesAdded == 1)
             {
-                API.Dialogs.ShowMessage($"The game was successfully added as GlosSI Steam Shortcut. " +
+                Api.Dialogs.ShowMessage($"The game was successfully added as GlosSI Steam Shortcut. " +
                 $"Steam has to be restarted for the changes to take effect!", "GlosSI Integration");
             }
             else
             {
                 int gamesSkipped = games.Count - gamesAdded;
-                API.Dialogs.ShowMessage($"{gamesAdded} games were successfully added as GlosSI Steam Shortcuts{(gamesSkipped > 0 ? $" ({gamesSkipped} games were skipped)" : "")}. " +
+                Api.Dialogs.ShowMessage($"{gamesAdded} games were successfully added as GlosSI Steam Shortcuts{(gamesSkipped > 0 ? $" ({gamesSkipped} games were skipped)" : "")}. " +
                 $"Steam has to be restarted for the changes to take effect!", "GlosSI Integration");
             }
         }
@@ -322,7 +321,7 @@ namespace GlosSIIntegration
             gamesAdded = 0;
             progressBar.ProgressMaxValue = games.Count();
 
-            using (API.Database.BufferedUpdate())
+            using (Api.Database.BufferedUpdate())
             {
                 foreach (Game game in games)
                 {
@@ -351,11 +350,11 @@ namespace GlosSIIntegration
 
             logger.Trace("Remove integration clicked.");
 
-            if (!settingsViewModel.InitialVerification()) return;
+            if (!SettingsViewModel.InitialVerification()) return;
 
             int gamesRemoved = 0;
 
-            API.Dialogs.ActivateGlobalProgress((progressBar) => RemoveGamesProcess(games, progressBar, out gamesRemoved), 
+            Api.Dialogs.ActivateGlobalProgress((progressBar) => RemoveGamesProcess(games, progressBar, out gamesRemoved), 
                 new GlobalProgressOptions("Removing GlosSI integration from games...", true)
                 {
                     IsIndeterminate = false
@@ -365,17 +364,17 @@ namespace GlosSIIntegration
 
             if (gamesRemoved == 0)
             {
-                API.Dialogs.ShowMessage("No GlosSI/Steam integrations were removed.",
+                Api.Dialogs.ShowMessage("No GlosSI/Steam integrations were removed.",
                     "GlosSI Integration");
             }
             else if (gamesRemoved == 1)
             {
-                API.Dialogs.ShowMessage($"The GlosSI/Steam integration of the game \"{games[0].Name}\" was removed!",
+                Api.Dialogs.ShowMessage($"The GlosSI/Steam integration of the game \"{games[0].Name}\" was removed!",
                     "GlosSI Integration");
             }
             else
             {
-                API.Dialogs.ShowMessage($"The GlosSI/Steam integration of {gamesRemoved} games were removed!", 
+                Api.Dialogs.ShowMessage($"The GlosSI/Steam integration of {gamesRemoved} games were removed!", 
                     "GlosSI Integration");
             }
         }
@@ -385,7 +384,7 @@ namespace GlosSIIntegration
             gamesRemoved = 0;
             progressBar.ProgressMaxValue = games.Count();
 
-            using (API.Database.BufferedUpdate())
+            using (Api.Database.BufferedUpdate())
             {
                 foreach (Game game in games)
                 {
@@ -411,7 +410,7 @@ namespace GlosSIIntegration
 
         public override ISettings GetSettings(bool firstRunSettings)
         {
-            return settingsViewModel;
+            return SettingsViewModel;
         }
 
         public override UserControl GetSettingsView(bool firstRunSettings)

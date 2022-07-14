@@ -13,7 +13,7 @@ namespace GlosSIIntegration
         private bool integrationEnabled = false;
         private bool closeGameWhenOverlayIsClosed = true;
         private string glosSIPath = null;
-        private string glosSITargetsPath = Environment.ExpandEnvironmentVariables(@"%appdata%\GlosSI\Targets");
+        private readonly string glosSITargetsPath = Environment.ExpandEnvironmentVariables(@"%appdata%\GlosSI\Targets");
         private string steamShortcutsPath = null;
         private string defaultTargetPath = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(), "DefaultTarget.json");
         private string playniteOverlayName = null;
@@ -61,7 +61,7 @@ namespace GlosSIIntegration
         private readonly GlosSIIntegration plugin;
         private readonly IPlayniteAPI playniteApi;
         private static readonly ILogger logger = LogManager.GetLogger();
-        private GlosSIIntegrationSettings editingClone { get; set; }
+        private GlosSIIntegrationSettings EditingClone { get; set; }
 
         private GlosSIIntegrationSettings settings;
         public GlosSIIntegrationSettings Settings
@@ -257,7 +257,7 @@ namespace GlosSIIntegration
         public void BeginEdit()
         {
             // Code executed when settings view is opened and user starts editing values.
-            editingClone = Serialization.GetClone(Settings);
+            EditingClone = Serialization.GetClone(Settings);
             AutoSetSteamShortcutsPath();
         }
 
@@ -265,7 +265,7 @@ namespace GlosSIIntegration
         {
             // Code executed when user decides to cancel any changes made since BeginEdit was called.
             // This method should revert any changes made to Option1 and Option2.
-            Settings = editingClone;
+            Settings = EditingClone;
         }
 
         public void EndEdit()
