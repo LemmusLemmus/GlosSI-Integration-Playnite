@@ -36,7 +36,7 @@ If you have a controller connected, you may want to use Steam's big-picture over
 
 ## Usage:
 ### Adding integration:
-For Steam overlays to be launched for games, they have to be added via the right-click menu. Select one or more games, right-click, go to "GlosSI Integration" and click add. The games should now be added (unless they are Steam games, since most Steam games natively support the Steam overlay). If Steam is already running, it must be restarted for the changes to take effect.
+For Steam overlays to be launched for games, they have to be added via the right-click menu. Select one or more games, right-click, go to "GlosSI Integration" and click add. The games should now be added (unless they are Steam games, since most Steam games natively support the Steam overlay). If Steam is already running, it must be restarted for the changes to take effect. Games are added irrespective of their installation status.
 
 ### Removing integration:
 To remove the Steam overlay for games, click on "Remove Integration" instead of "Add Integration".
@@ -50,18 +50,19 @@ Toggle whether Steam shortcuts should be launched when starting games. The butto
 ### Starting/Closing games:
 Depending on your settings, when launching a game that has been added (i.e. has the "[GI] Integrated" tag) any currently running GlosSI Steam shortcuts will be closed and the overlay specific to the game will be opened. When closing the game, the game specific overlay will be closed, and if Playnite is running in fullscreen mode with a [Playnite Steam Overlay configured](####Fullscreen-Mode-Settings), that overlay will be launched.
 
-### Restrictions:
+### Limitations:
 - If the name of a game in Playnite that has been integrated is changed, the overlay will no longer be able to launch. Simply removing and re-adding the integration should fix this issue.
 - If the icon of a game in Playnite that has been integrated is changed, the overlay might no longer be able to find the icon. There are two ways to solve this: remove and re-add the integration, or update the path to the icon in Steam.
 - Steam shortcuts will be added to Steam, as such they will be present in your Steam library. Removing them will break the integration, as such it is preferable to simply hide the games in Steam via right-click → Manage → Hide.
 - Game names containing UTF-16 characters are currently not supported. This will hopefully be fixed soon.
+- Game names that are identical (when illegal file name characters have been removed) will overwrite and use the same `.json` configuration file. This should generally not be a problem.
 
 ## Planned features:
 - Localization
 - Close the game when the shortcut is closed via the overlay.
 - Add a default Steam shortcut to use with games that have not been added.
+- Automatic creation of GlosSI Target `.json` file for the Playnite overlay (and the planned default Steam shortcut).
 - UTF-16 character game name support.
-- Game names that are identical (when illegal file name characters have been removed) will overwrite and use the same `.json` configuration file. This should generally not be a problem.
 
 ## Acknowledgements:
 This extension would not have been possible without JosefNemec and Alia5's amazing work on Playnite and GlosSI respectively! Code from Thomas Pircher and darklinkpower's various extensions was also extremely useful!
