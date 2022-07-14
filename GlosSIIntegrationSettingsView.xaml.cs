@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Playnite.SDK;
+using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -17,13 +19,30 @@ namespace GlosSIIntegration
             // TODO: This would be better done via the GlosSI GUI, perphaps by implementing a command line argument.
             try
             {
-                System.Diagnostics.Process.Start(GlosSIIntegration.GetSettings().DefaultTargetPath);
+                Process.Start(GlosSIIntegration.GetSettings().DefaultTargetPath);
             }
             catch (Exception ex)
             {
-                GlosSIIntegration.Api.Dialogs.ShowErrorMessage($"Failed to open the default target file: {ex.Message}", "GlosSI Integration");
+                LogManager.GetLogger().Error("Failed to open the default target file: " + ex);
+                GlosSIIntegration.Api.Dialogs.ShowErrorMessage($"Failed to open the default target file: {ex.Message}",
+                    "GlosSI Integration");
             }
             
+        }
+
+        private void Help_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start("https://github.com/LemmusLemmus/GlosSI-Integration-Playnite#readme");
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger().Error("Failed to open the help link: " + ex);
+                GlosSIIntegration.Api.Dialogs.ShowErrorMessage("Failed to open the help link " +
+                    $"\"https://github.com/LemmusLemmus/GlosSI-Integration-Playnite#readme\": {ex.Message}",
+                    "GlosSI Integration");
+            }
         }
 
         private void UpdateIsEnabled(object sender, RoutedEventArgs e)
