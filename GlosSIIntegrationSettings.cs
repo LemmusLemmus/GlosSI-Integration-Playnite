@@ -123,7 +123,11 @@ namespace GlosSIIntegration
         {
             if (!VerifyGlosSITargetsPath()) return false;
 
-            if (VerifySettings(out _)) return true;
+            if (VerifySettings(out _))
+            {
+                InitialBackup();
+                return true;
+            }
 
             if (playniteApi.ApplicationInfo.Mode == ApplicationMode.Desktop)
             {
@@ -145,6 +149,101 @@ namespace GlosSIIntegration
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Attempts to back up the important configuration files, if they have not already been backed up. 
+        /// Displays a progress bar.
+        /// This method assumes that the settings have been verified.
+        /// </summary>
+        private void InitialBackup()
+        {
+            string destTargetsDir = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(), @"Backup\Targets");
+
+            if (!Directory.Exists(destTargetsDir))
+            {
+                string[] srcTargetFiles = Directory.GetFiles(Settings.GlosSITargetsPath, "*.json", SearchOption.TopDirectoryOnly);
+
+                GlosSIIntegration.Api.Dialogs.ActivateGlobalProgress((progressBar) => BackupFiles(srcTargetFiles, destTargetsDir, progressBar),
+                    new GlobalProgressOptions("Backing up GlosSI configuration files...", false)
+                    {
+                        IsIndeterminate = false
+                    });
+            }
+            else
+            {
+                BackupShortcutsFile();
+            }
+        }
+
+        /// <summary>
+        /// Backs up the GlosSI targets and the <c>shortcuts.vdf</c> file, if they have not already been backed up.
+        /// This method assumes that the settings have been verified.
+        /// </summary>
+        /// <param name="targetFiles"></param>
+        /// <param name="shortcutsFile"></param>
+        /// <param name="progressBar"></param>
+        private void BackupFiles(string[] targetFiles, string destTargetsDir, GlobalProgressActionArgs progressBar)
+        {
+            progressBar.ProgressMaxValue = targetFiles.Length + 1;
+
+            try
+            {
+                CopyFilesToDirectory(targetFiles, destTargetsDir, progressBar);
+            }
+            catch (Exception e)
+            {
+                plugin.DisplayError("BackupTargetFiles", $"Failed to backup the GlosSI configuration files: {e.Message}", e.ToString());
+            }
+            
+            progressBar.Text = "Backing up Steam shortcuts file...";
+            BackupShortcutsFile();
+            progressBar.CurrentProgressValue++;
+        }
+
+        /// <summary>
+        /// Backs up the <c>shortcuts.vdf</c> file, if it has not already been backed up.
+        /// Displays any potential exception as a notification.
+        /// This method assumes that the <c>SteamShortcutsPath</c> setting has been verified.
+        /// </summary>
+        private void BackupShortcutsFile()
+        {
+            try
+            {
+                string destShortcutsFile = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(), 
+                    @"Backup", GetIDFromShortcutsPath(Settings.SteamShortcutsPath), @"shortcuts.vdf");
+
+                if (!File.Exists(destShortcutsFile))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(destShortcutsFile));
+                    File.Copy(Settings.SteamShortcutsPath, destShortcutsFile);
+                    logger.Info($"Shortcuts.vdf file was copied to \"{destShortcutsFile}\"");
+                }
+            }
+            catch (Exception e)
+            {
+                plugin.DisplayError("BackupShortcutsFile", $"Failed to backup the Shortcuts.vdf file: {e.Message}", e.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Copies files to a directory and updates a progress bar.
+        /// The destination directory is created if it does not already exist.
+        /// </summary>
+        /// <param name="files">The paths to the files that should be copied.</param>
+        /// <param name="destDir">The directory to copy the files to.</param>
+        /// <param name="progressBar">The progress bar to be updated.</param>
+        private void CopyFilesToDirectory(string[] files, string destDir, GlobalProgressActionArgs progressBar)
+        {
+            Directory.CreateDirectory(destDir);
+
+            foreach (string file in files)
+            {
+                File.Copy(file, Path.Combine(destDir, Path.GetFileName(file)));
+                progressBar.CurrentProgressValue++;
+            }
+
+            logger.Info($"Files were copied to \"{destDir}\"");
         }
 
         /// <summary>
@@ -251,7 +350,17 @@ namespace GlosSIIntegration
             } 
             catch { }
 
-            return $"User with Friend Code: \"{Path.GetFileName(Path.GetFullPath(Path.Combine(shortcutsPath, @"..\..")))}\"";
+            return $"User with Friend Code: \"{GetIDFromShortcutsPath(shortcutsPath)}\"";
+        }
+
+        /// <summary>
+        /// Gets the Friend Code (i.e. the ID of the folder) corresponding to the <c>shortcuts.vdf</c> path.
+        /// </summary>
+        /// <param name="shortcutsPath">The <c>shortcuts.vdf</c> file path.</param>
+        /// <returns>The Friend Code (i.e. the ID of the folder).</returns>
+        private string GetIDFromShortcutsPath(string shortcutsPath)
+        {
+            return Path.GetFileName(Path.GetFullPath(Path.Combine(shortcutsPath, @"..\..")));
         }
 
         public void BeginEdit()
