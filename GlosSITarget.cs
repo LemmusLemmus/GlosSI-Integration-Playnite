@@ -7,6 +7,9 @@ using System.Text.RegularExpressions;
 
 namespace GlosSIIntegration
 {
+    /// <summary>
+    /// Represents a GlosSI target file.
+    /// </summary>
     class GlosSITarget
     {
         private static readonly string STEAM_SOURCE = "steam";
@@ -125,24 +128,16 @@ namespace GlosSIIntegration
             if(GlosSIIntegration.GameHasIntegratedTag(playniteGame))
             {
                 GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
-                RemoveFromSteamShortcuts();
-                RemoveJsonFile();
+                if (HasJsonFile())
+                {
+                    RemoveFromSteamShortcuts();
+                    File.Delete(GetJsonFilePath());
+                }
                 return true;
             }
             else
             {
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Removes the corresponding .json file of the GlosSITarget, if it has any.
-        /// </summary>
-        private void RemoveJsonFile()
-        {
-            if(HasJsonFile())
-            {
-                File.Delete(GetJsonFilePath());
             }
         }
 

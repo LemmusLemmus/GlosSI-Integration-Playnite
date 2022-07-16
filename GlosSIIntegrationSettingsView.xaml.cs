@@ -14,6 +14,9 @@ namespace GlosSIIntegration
             UpdateIsEnabled();
         }
 
+        /// <summary>
+        /// Opens the default target .json file for the user to view/edit.
+        /// </summary>
         private void EditDefaultGlosSITarget_Click(object sender, RoutedEventArgs e)
         {
             // TODO: This would be better done via the GlosSI GUI, perphaps by implementing a command line argument.
@@ -27,9 +30,11 @@ namespace GlosSIIntegration
                 GlosSIIntegration.Api.Dialogs.ShowErrorMessage($"Failed to open the default target file: {ex.Message}",
                     "GlosSI Integration");
             }
-            
         }
 
+        /// <summary>
+        /// Opens a link to the GitHub readme.
+        /// </summary>
         private void Help_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -45,11 +50,17 @@ namespace GlosSIIntegration
             }
         }
 
+        /// <summary>
+        /// Updates the <c>IsEnabled</c> property of relevant elements to match the current settings.
+        /// </summary>
         private void UpdateIsEnabled(object sender, RoutedEventArgs e)
         {
             UpdateIsEnabled();
         }
 
+        /// <summary>
+        /// Updates the <c>IsEnabled</c> property of relevant elements to match the current settings.
+        /// </summary>
         private void UpdateIsEnabled()
         {
             // "?? true" should not be reachable.

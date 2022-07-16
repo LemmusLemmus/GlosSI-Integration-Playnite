@@ -10,6 +10,9 @@ using System.IO;
 
 namespace GlosSIIntegration
 {
+    /// <summary>
+    /// Represents a Steam Game/App ID. This ID is used to run the Steam game.
+    /// </summary>
     class SteamGameID
     {
         private readonly uint top32;

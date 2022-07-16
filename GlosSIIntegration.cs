@@ -202,9 +202,10 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                DisplayError("RunPlayniteOverlay", $"GlosSI Integration failed to run the Playnite Overlay Steam Shortcut: \n{e}", e.ToString());
+                DisplayError("RunPlayniteOverlay", $"GlosSI Integration failed to run the Playnite Overlay Steam Shortcut: \n{e.Message}", e.ToString());
             }
         }
+
         /// <summary>
         /// Closes all currently running GlosSITarget processes.
         /// </summary>
@@ -282,6 +283,11 @@ namespace GlosSIIntegration
             return newGameMenuItems;
         }
 
+        /// <summary>
+        /// Attempts to integrate the games with GlosSI.
+        /// Displays a progress bar and a result message.
+        /// </summary>
+        /// <param name="games">The games to add the GlosSI integration to.</param>
         private void AddGames(List<Game> games)
         {
             logger.Trace("Add integration clicked.");
@@ -344,6 +350,11 @@ namespace GlosSIIntegration
             }
         }
 
+        /// <summary>
+        /// Attempts to remove the GlosSI integration of the games.
+        /// Displays a progress bar and a result message.
+        /// </summary>
+        /// <param name="games">The games to remove the GlosSI integration from.</param>
         private void RemoveGames(List<Game> games)
         {
             // TODO: Ask the user for confirmation.
