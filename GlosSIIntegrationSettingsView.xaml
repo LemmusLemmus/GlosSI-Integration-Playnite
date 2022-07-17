@@ -8,12 +8,22 @@
              d:DesignHeight="400" d:DesignWidth="600">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="20">
-            <!--<CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}" Content="When the game overlay is closed, also close the game" Margin="0,0,0,10"/>-->
-            <Button Content="Edit default GlosSI target configuration" Click="EditDefaultGlosSITarget_Click" HorizontalAlignment="Left"/>
+            <TextBlock><Hyperlink Click="EditDefaultGlosSITarget_Click">Edit the GlosSI configuration used when creating new shortcuts.</Hyperlink></TextBlock>
             <StackPanel Margin="0,10,0,0">
-                <Label Content="Desktop Mode Settings" Margin="0,0,0,5"/>
+                <Label Content="General Settings" Margin="0,0,0,5"/>
                 <Separator Margin="0,0,0,5"/>
-                <CheckBox IsChecked="{Binding Settings.DefaultUseIntegrationDesktop}" Content="Enable GlosSI Integration by default in desktop mode" Margin="0,0,0,10"/>
+                <!--<CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}" Content="When the game overlay is closed, also close the game" Margin="0,0,0,10"/>-->
+                <CheckBox IsChecked="{Binding Settings.UseDefaultOverlay}" Content="Use a Default Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UseDefaultOverlayCheckBox"/>
+                <DockPanel Margin="0,0,0,10" Name="DefaultOverlayNamePanel">
+                    <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                    <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
+                    <TextBox Margin="10,0,0,0" Text="{Binding Settings.DefaultOverlayName}"/>
+                </DockPanel>
+                <StackPanel Margin="0,10,0,0">
+                    <Label Content="Desktop Mode Settings" Margin="0,0,0,5"/>
+                    <Separator Margin="0,0,0,5"/>
+                    <CheckBox IsChecked="{Binding Settings.DefaultUseIntegrationDesktop}" Content="Enable GlosSI Integration by default in desktop mode" Margin="0,0,0,10"/>
+                </StackPanel>
             </StackPanel>
             <StackPanel Margin="0,10,0,0">
                 <Label Content="Fullscreen Mode Settings" Margin="0,0,0,5"/>

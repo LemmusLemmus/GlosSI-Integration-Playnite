@@ -111,11 +111,23 @@ namespace GlosSIIntegration
 
         /// <summary>
         /// Checks if this GlosSITarget has a corresponding .json file.
+        /// The actual name stored inside the .json file is not compared.
         /// </summary>
         /// <returns>true if the target has a corresponding .json file; false otherwise.</returns>
-        public bool HasJsonFile()
+        private bool HasJsonFile()
         {
             return File.Exists(GetJsonFilePath());
+        }
+
+        /// <summary>
+        /// Checks if there exists a .json file that corresponds to the enterned name 
+        /// when illegal file name characters have been removed.
+        /// The actual name stored inside the .json file is not compared.
+        /// </summary>
+        /// <returns>true if the name has a corresponding .json file; false otherwise.</returns>
+        public static bool HasJsonFile(string gameName)
+        {
+            return File.Exists(GetJsonFilePath(RemoveIllegalFileNameChars(gameName)));
         }
 
         /// <summary>

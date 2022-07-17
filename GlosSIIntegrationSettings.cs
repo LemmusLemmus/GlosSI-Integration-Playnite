@@ -20,6 +20,8 @@ namespace GlosSIIntegration
         private bool usePlayniteOverlay = false;
         private bool useIntegrationFullscreen = true;
         private bool defaultUseIntegrationDesktop = false;
+        private bool useDefaultOverlay = false;
+        private string defaultOverlayName = null;
 
         public bool CloseGameWhenOverlayIsClosed { get => closeGameWhenOverlayIsClosed; set => SetValue(ref closeGameWhenOverlayIsClosed, value); }
         public string GlosSIPath { get => glosSIPath; set => SetValue(ref glosSIPath, value); }
@@ -28,6 +30,8 @@ namespace GlosSIIntegration
         public bool UsePlayniteOverlay { get => usePlayniteOverlay; set => SetValue(ref usePlayniteOverlay, value); }
         public bool UseIntegrationFullscreen { get => useIntegrationFullscreen; set => SetValue(ref useIntegrationFullscreen, value); }
         public bool DefaultUseIntegrationDesktop { get => defaultUseIntegrationDesktop; set => SetValue(ref defaultUseIntegrationDesktop, value); }
+        public bool UseDefaultOverlay { get => useDefaultOverlay; set => SetValue(ref useDefaultOverlay, value); }
+        public string DefaultOverlayName { get => defaultOverlayName; set => SetValue(ref defaultOverlayName, value); }
 
         [DontSerialize]
         public bool IntegrationEnabled { get => integrationEnabled; set => SetValue(ref integrationEnabled, value); }
@@ -386,12 +390,13 @@ namespace GlosSIIntegration
 
         public bool VerifySettings(out List<string> errors)
         {
-            // Code execute when user decides to confirm changes made since BeginEdit was called.
+            // Code executed when user decides to confirm changes made since BeginEdit was called.
             // Executed before EndEdit is called and EndEdit is not called if false is returned.
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
             return VerifySteamShortcutsPath(ref errors) & VerifyGlosSIPath(ref errors) & 
-                (!Settings.UseIntegrationFullscreen || !Settings.UsePlayniteOverlay || VerifyPlayniteOverlayName(ref errors));
+                (!Settings.UseIntegrationFullscreen || !Settings.UsePlayniteOverlay || VerifyPlayniteOverlayName(ref errors)) &
+                (!Settings.UseDefaultOverlay || VerifyDefaultOverlayName(ref errors));
         }
 
         public RelayCommand<object> BrowseSteamShortcutsFile
@@ -525,46 +530,76 @@ namespace GlosSIIntegration
         /// <returns>true if the Playnite overlay name is valid; false otherwise.</returns>
         private bool VerifyPlayniteOverlayName(ref List<string> errors)
         {
-            string targetName = Settings.PlayniteOverlayName;
-            string fileName = GlosSITarget.RemoveIllegalFileNameChars(targetName);
+            return VerifyOverlayName(Settings.PlayniteOverlayName, "Playnite", ref errors);
+        }
 
-            if (string.IsNullOrEmpty(targetName))
+        /// <summary>
+        /// Verifies the default overlay name.
+        /// The <c>GlosSITargetsPath</c> and <c>SteamShortcutsPath</c> should be verified before running this method.
+        /// </summary>
+        /// <param name="errors">The list of errors to which potential errors are added as descriptive messages.</param>
+        /// <returns>true if the Playnite overlay name is valid; false otherwise.</returns>
+        private bool VerifyDefaultOverlayName(ref List<string> errors)
+        {
+            return VerifyOverlayName(Settings.DefaultOverlayName, "default", ref errors);
+        }
+
+        /// <summary>
+        /// Verifies an overlay name.
+        /// The <c>GlosSITargetsPath</c> and <c>SteamShortcutsPath</c> should be verified before running this method.
+        /// </summary>
+        /// <param name="overlayName">The name of the overlay.</param>
+        /// <param name="overlayType">The type of the overlay. This is used for error messages and logging.</param>
+        /// <param name="errors">The list of errors to which potential errors are added as descriptive messages.</param>
+        /// <returns>true if the overlay name is valid; false otherwise.</returns>
+        private bool VerifyOverlayName(string overlayName, string overlayType, ref List<string> errors)
+        {
+            if (string.IsNullOrEmpty(overlayName))
             {
-                errors.Add("The name of the Playnite overlay has not been set.");
+                errors.Add($"The name of the {overlayType} overlay has not been set.");
                 return false;
             }
 
+            string fileName = GlosSITarget.RemoveIllegalFileNameChars(overlayName);
             string jsonString;
+
             try
             {
                 jsonString = File.ReadAllText(GlosSITarget.GetJsonFilePath(fileName));
             }
             catch (FileNotFoundException) // Verify that the corresponding .json file actually exists
             {
-                errors.Add("The target file referenced by the Playnite overlay name could not be found.");
+                errors.Add($"The target file referenced by the {overlayType} overlay name could not be found.");
                 return false;
             }
             catch (Exception e)
             {
-                errors.Add($"Something went wrong when attempting to read the target file referenced by the Playnite overlay name: {e.Message}");
-                logger.Error($"Something went wrong when attempting to read the target file referenced by the Playnite overlay name: {e}");
+                errors.Add($"Something went wrong when attempting to read the target file referenced by the {overlayType} overlay name: {e.Message}");
+                logger.Error($"Something went wrong when attempting to read the target file referenced by the {overlayType} overlay name: {e}");
                 return false;
             }
-            
+
             JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
             string actualName = jObject.GetValue("name")?.ToString();
 
-            if(string.IsNullOrEmpty(actualName))
+            if (string.IsNullOrEmpty(actualName))
             {
-                errors.Add($"Something is wrong with the file referenced by the Playnite overlay name. " +
+                errors.Add($"Something is wrong with the file referenced by the {overlayType} overlay name. " +
                     $"The name property in the target .json file in %appdata%\\GlosSI\\Targets could not be found or has not been set.");
                 return false;
             }
-            else if (actualName != targetName)
+            else if (actualName != overlayName)
             {
                 // If there is a mismatch between the entered name and the name stored in the .json file,
                 // use the name in the .json file instead.
-                Settings.PlayniteOverlayName = actualName;
+                if (overlayType == "Playnite")
+                {
+                    Settings.PlayniteOverlayName = actualName;
+                }
+                else if (overlayType == "default")
+                {
+                    Settings.DefaultOverlayName = actualName;
+                }
             }
 
             // Verify that the shortcut has actually been added to Steam (i.e. the shortcuts.vdf file)
@@ -572,28 +607,28 @@ namespace GlosSIIntegration
             {
                 if (!ShortcutsContainsTarget(fileName))
                 {
-
-                    playniteApi.Dialogs.ShowMessage("The GlosSI target referenced by the Playnite overlay has not been added to Steam. Press OK to automatically add it. " +
+                    playniteApi.Dialogs.ShowMessage($"The GlosSI target referenced by the {overlayType} overlay has not been added to Steam. Press OK to automatically add it. " +
                         "Steam has to be restarted afterwards for the changes to take effect.", "GlosSI Integration");
-                    logger.Trace($"Adding the Playnite overlay {actualName} to Steam...");
+                    logger.Trace($"Adding the {overlayType} overlay \"{actualName}\" to Steam...");
+
                     try
                     {
                         GlosSITarget.SaveToSteamShortcuts(fileName);
                     }
                     catch (Exception e)
                     {
-                        errors.Add($"The Playnite overlay could not be added automatically to Steam: {e.Message}");
-                        logger.Error($"The Playnite overlay could not be added automatically to Steam: {e}");
+                        errors.Add($"The {overlayType} overlay could not be added automatically to Steam: {e.Message}");
+                        logger.Error($"The {overlayType} overlay could not be added automatically to Steam: {e}");
                         return false;
                     }
 
                     if (!ShortcutsContainsTarget(fileName))
                     {
-                        errors.Add($"The Playnite overlay could not be added automatically to Steam: shortcuts.vdf file was not successfully updated.");
+                        errors.Add($"The {overlayType} overlay could not be added automatically to Steam: shortcuts.vdf file was not successfully updated.");
                         return false;
                     }
 
-                    logger.Info("The Playnite overlay was added to Steam as a shortcut.");
+                    logger.Info($"The {overlayType} overlay was added to Steam as a shortcut.");
                 }
             }
             catch (Exception e)

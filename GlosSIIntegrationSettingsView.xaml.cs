@@ -66,6 +66,8 @@ namespace GlosSIIntegration
             // "?? true" should not be reachable.
             UsePlayniteOverlayCheckBox.IsEnabled = UseIntegrationFullscreenCheckBox.IsChecked ?? true;
             PlayniteOverlayNamePanel.IsEnabled = UsePlayniteOverlayCheckBox.IsEnabled && (UsePlayniteOverlayCheckBox.IsChecked ?? true);
+
+            DefaultOverlayNamePanel.IsEnabled = UseDefaultOverlayCheckBox.IsEnabled && (UseDefaultOverlayCheckBox.IsChecked ?? true);
         }
     }
 }

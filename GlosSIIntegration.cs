@@ -135,18 +135,31 @@ namespace GlosSIIntegration
 
             CloseGlosSITargets();
 
-            if (!GameHasIntegratedTag(args.Game)) return;
+            string overlayName;
             
-            runningGameOverlay = new SteamGameID(args.Game);
+            if (GameHasIntegratedTag(args.Game))
+            {
+                overlayName = args.Game.Name;
+                runningGameOverlay = new SteamGameID(args.Game);
+            }
+            else if (GetSettings().UseDefaultOverlay)
+            {
+                overlayName = GetSettings().DefaultOverlayName;
+                runningGameOverlay = new SteamGameID(overlayName);
+            }
+            else
+            {
+                return;
+            }
 
             if (GetSettings().IntegrationEnabled)
             {
-                if (!(new GlosSITarget(args.Game)).HasJsonFile())
+                if (!GlosSITarget.HasJsonFile(overlayName))
                 {
                     // TODO: Make the notification more helpful.
                     // A currently probable reason for this happening is due to a name change.
                     DisplayError("OnGameStarted-NoJsonFile", 
-                        "GlosSI Integration failed to run the Steam Shortcut: The .json target file is missing.");
+                        "GlosSI Integration failed to run the Steam Shortcut: The .json target file could not be found.");
                     return;
                 }
 
