@@ -137,7 +137,7 @@ namespace GlosSIIntegration
         /// <returns>true if the integration was removed; false if it was nonexistent to begin with.</returns>
         public bool Remove()
         {
-            if(GlosSIIntegration.GameHasIntegratedTag(playniteGame))
+            if (GlosSIIntegration.GameHasIntegratedTag(playniteGame))
             {
                 GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
                 if (HasJsonFile())
@@ -197,10 +197,16 @@ namespace GlosSIIntegration
             return "\"" + Regex.Replace(str, @"(\\+)$", @"$1$1") + "\"";
         }
 
-        private static void RunGlosSIConfigWithArguments(string initialArgument, string gameArgument)
+        /// <summary>
+        /// Runs GlosSIConfig with the provided command line arguments and waits for the process to finish.
+        /// The last argument is always the path to the Steam <c>shortcuts.vdf</c> file.
+        /// </summary>
+        /// <param name="initialArgument">The first argument.</param>
+        /// <param name="targetArgument">The second argument, corresponding to a GlosSI target .json file.</param>
+        private static void RunGlosSIConfigWithArguments(string initialArgument, string targetArgument)
         {
             Process glosSIConfig = Process.Start(Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSIConfig.exe"), 
-                $"{initialArgument} {gameArgument} \"{GlosSIIntegration.GetSettings().SteamShortcutsPath}\"");
+                $"{initialArgument} {targetArgument} \"{GlosSIIntegration.GetSettings().SteamShortcutsPath}\"");
             glosSIConfig.WaitForExit();
         }
     }
