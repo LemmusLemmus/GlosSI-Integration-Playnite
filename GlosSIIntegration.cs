@@ -15,18 +15,23 @@ namespace GlosSIIntegration
 {
     public class GlosSIIntegration : GenericPlugin
     {
-        private static readonly ILogger logger = LogManager.GetLogger();
-
-        private GlosSIIntegrationSettingsViewModel SettingsViewModel { get; set; }
-        internal static IPlayniteAPI Api { get; private set; }
         public static readonly string INTEGRATED_TAG = "[GI] Integrated", IGNORED_TAG = "[GI] Ignored";
-        public static GlosSIIntegration Instance { get; private set; }
-
-        public override Guid Id { get; } = Guid.Parse("6b0297da-75e5-4330-bb2d-b64bff22c315");
-
+        private static readonly ILogger logger = LogManager.GetLogger();
         private readonly TopPanelItem topPanel;
         private readonly TextBlock topPanelTextBlock;
         private SteamGameID runningGameOverlay;
+
+        private bool integrationEnabled;
+        public bool IntegrationEnabled
+        {
+            get { return integrationEnabled; }
+            set { integrationEnabled = value; UpdateTopPanel(); }
+        }
+
+        public override Guid Id { get; } = Guid.Parse("6b0297da-75e5-4330-bb2d-b64bff22c315");
+        public static IPlayniteAPI Api { get; private set; }
+        public static GlosSIIntegration Instance { get; private set; }
+        private GlosSIIntegrationSettingsViewModel SettingsViewModel { get; set; }
 
         public GlosSIIntegration(IPlayniteAPI api) : base(api)
         {
@@ -42,8 +47,20 @@ namespace GlosSIIntegration
             runningGameOverlay = null;
             topPanelTextBlock = GetInitialTopPanelTextBlock();
             topPanel = GetInitialTopPanel();
-            UpdateTopPanel();
+            InitializeIntegrationEnabled();
             InitializeTopPanelColor();
+        }
+
+        private void InitializeIntegrationEnabled()
+        {
+            if (Api.ApplicationInfo.Mode == ApplicationMode.Desktop)
+            {
+                IntegrationEnabled = GetSettings().DefaultUseIntegrationDesktop;
+            }
+            else
+            {
+                IntegrationEnabled = GetSettings().UseIntegrationFullscreen;
+            }
         }
 
         private TextBlock GetInitialTopPanelTextBlock()
@@ -78,7 +95,7 @@ namespace GlosSIIntegration
         {
             Tag tag = Api.Database.Tags.Add(tagName);
 
-            if(game.Tags == null)
+            if (game.Tags == null)
             {
                 game.TagIds = new List<Guid> { tag.Id };
                 Api.Database.Games.Update(game);
@@ -152,7 +169,7 @@ namespace GlosSIIntegration
                 return;
             }
 
-            if (GetSettings().IntegrationEnabled)
+            if (IntegrationEnabled)
             {
                 if (!GlosSITarget.HasJsonFile(overlayName))
                 {
@@ -193,7 +210,7 @@ namespace GlosSIIntegration
 
             runningGameOverlay = null;
 
-            if (GetSettings().IntegrationEnabled)
+            if (IntegrationEnabled)
             {
                 CloseGlosSITargets();
                 if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen)
@@ -259,7 +276,7 @@ namespace GlosSIIntegration
         {
             SettingsViewModel.InitialVerification();
             Api.Database.Tags.Add(IGNORED_TAG);
-            if(Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen && GetSettings().IntegrationEnabled)
+            if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen && IntegrationEnabled)
             {
                 RunPlayniteOverlay();
             }
@@ -451,12 +468,11 @@ namespace GlosSIIntegration
         private void TopPanelPressed()
         {
             logger.Trace("Top panel item pressed.");
-            GetSettings().IntegrationEnabled = !GetSettings().IntegrationEnabled;
-            UpdateTopPanel();
+            IntegrationEnabled = !IntegrationEnabled;
             CloseGlosSITargets();
 
             // If the user is currently in-game, launch the game specific overlay.
-            if (runningGameOverlay != null && GetSettings().IntegrationEnabled)
+            if (runningGameOverlay != null && IntegrationEnabled)
             {
                 logger.Trace("Steam Overlay launched whilst in-game.");
                 runningGameOverlay.Run();
@@ -465,7 +481,7 @@ namespace GlosSIIntegration
 
         private void UpdateTopPanel()
         {
-            if (GetSettings().IntegrationEnabled)
+            if (IntegrationEnabled)
             {
                 topPanel.Title = "Disable GlosSI Integration";
                 topPanelTextBlock.Foreground = GetGlyphBrush();
@@ -518,7 +534,7 @@ namespace GlosSIIntegration
         /// </summary>
         private void InitializeTopPanelColor()
         {
-            if (GetSettings().IntegrationEnabled)
+            if (IntegrationEnabled)
             {
                 new Thread(() =>
                 {
@@ -528,9 +544,10 @@ namespace GlosSIIntegration
                 }).Start();
             }
         }
+
         private void UpdateTopPanelGlyphBrush()
         {
-            if (GetSettings().IntegrationEnabled)
+            if (IntegrationEnabled)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {

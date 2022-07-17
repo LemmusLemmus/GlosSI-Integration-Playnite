@@ -10,7 +10,6 @@ namespace GlosSIIntegration
 {
     public class GlosSIIntegrationSettings : ObservableObject
     {
-        private bool integrationEnabled = false;
         private bool closeGameWhenOverlayIsClosed = true;
         private string glosSIPath = null;
         private readonly string glosSITargetsPath = Environment.ExpandEnvironmentVariables(@"%appdata%\GlosSI\Targets");
@@ -34,11 +33,10 @@ namespace GlosSIIntegration
         public string DefaultOverlayName { get => defaultOverlayName; set => SetValue(ref defaultOverlayName, value); }
 
         [DontSerialize]
-        public bool IntegrationEnabled { get => integrationEnabled; set => SetValue(ref integrationEnabled, value); }
-        [DontSerialize]
         public string GlosSITargetsPath { get => glosSITargetsPath; }
         [DontSerialize]
         public string DefaultTargetPath { get => GetDefaultTargetPath(); set => SetValue(ref defaultTargetPath, value); }
+
         private string GetDefaultTargetPath()
         {
             // This can potentially fail.
@@ -106,16 +104,6 @@ namespace GlosSIIntegration
             catch (Exception e)
             {
                 GlosSIIntegration.Instance.DisplayError("DefaultTargetPathSettings", e.Message, e.ToString());
-            }
-            
-
-            if (playniteApi.ApplicationInfo.Mode == ApplicationMode.Desktop)
-            {
-                Settings.IntegrationEnabled = Settings.DefaultUseIntegrationDesktop;
-            }
-            else
-            {
-                Settings.IntegrationEnabled = Settings.UseIntegrationFullscreen;
             }
         }
 
