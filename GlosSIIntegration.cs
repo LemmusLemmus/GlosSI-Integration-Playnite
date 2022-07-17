@@ -191,9 +191,10 @@ namespace GlosSIIntegration
         {
             if (GameHasIgnoredTag(args.Game)) return;
 
+            runningGameOverlay = null;
+
             if (GetSettings().IntegrationEnabled)
             {
-                runningGameOverlay = null;
                 CloseGlosSITargets();
                 if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen)
                 {
