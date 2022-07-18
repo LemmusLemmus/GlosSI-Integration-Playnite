@@ -6,51 +6,59 @@
              xmlns:glossiintegration="clr-namespace:GlosSIIntegration" d:DataContext="{d:DesignInstance Type=glossiintegration:GlosSIIntegrationSettingsViewModel}"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="20">
-            <TextBlock><Hyperlink Click="EditDefaultGlosSITarget_Click">Edit the GlosSI configuration used when creating new shortcuts.</Hyperlink></TextBlock>
-            <StackPanel Margin="0,10,0,0">
-                <Label Content="General Settings" Margin="0,0,0,5"/>
-                <Separator Margin="0,0,0,5"/>
-                <!--<CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}" Content="When the game overlay is closed, also close the game" Margin="0,0,0,10"/>-->
-                <CheckBox IsChecked="{Binding Settings.UseDefaultOverlay}" Content="Use a Default Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UseDefaultOverlayCheckBox"/>
-                <DockPanel Margin="0,0,0,10" Name="DefaultOverlayNamePanel">
-                    <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                    <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
-                    <TextBox Margin="10,0,0,0" Text="{Binding Settings.DefaultOverlayName}"/>
-                </DockPanel>
-                <StackPanel Margin="0,10,0,0">
-                    <Label Content="Desktop Mode Settings" Margin="0,0,0,5"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Column="0" Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20">
+                <StackPanel Margin="0,-4,0,0">
+                    <Label Content="General Settings" Margin="0,0,0,5"/>
                     <Separator Margin="0,0,0,5"/>
-                    <CheckBox IsChecked="{Binding Settings.DefaultUseIntegrationDesktop}" Content="Enable GlosSI Integration by default in desktop mode" Margin="0,0,0,10"/>
+                    <TextBlock Margin="0,0,0,10"><Hyperlink Click="EditDefaultGlosSITarget_Click">Edit the GlosSI configuration used when creating new shortcuts.</Hyperlink></TextBlock>
+                    <!--<CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}" Content="When the game overlay is closed, also close the game" Margin="0,0,0,10"/>-->
+                    <CheckBox IsChecked="{Binding Settings.UseDefaultOverlay}" Content="Use a Default Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UseDefaultOverlayCheckBox"/>
+                    <DockPanel Margin="0,0,0,10" Name="DefaultOverlayNamePanel">
+                        <TextBlock Text="Default overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
+                        <TextBox Margin="10,0,0,0" Text="{Binding Settings.DefaultOverlayName}"/>
+                    </DockPanel>
+                    <StackPanel Margin="0,10,0,0">
+                        <Label Content="Desktop Mode Settings" Margin="0,0,0,5"/>
+                        <Separator Margin="0,0,0,5"/>
+                        <CheckBox IsChecked="{Binding Settings.DefaultUseIntegrationDesktop}" Content="Enable GlosSI Integration by default in desktop mode" Margin="0,0,0,10"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Margin="0,10,0,0">
+                    <Label Content="Fullscreen Mode Settings" Margin="0,0,0,5"/>
+                    <Separator Margin="0,0,0,5"/>
+                    <CheckBox IsChecked="{Binding Settings.UseIntegrationFullscreen}" Content="Use GlosSI Integration in fullscreen mode" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled"  Name="UseIntegrationFullscreenCheckBox"/>
+                    <CheckBox IsChecked="{Binding Settings.UsePlayniteOverlay}" Content="Use a Playnite Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UsePlayniteOverlayCheckBox"/>
+                    <DockPanel Margin="0,0,0,10" Name="PlayniteOverlayNamePanel">
+                        <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
+                        <TextBox Margin="10,0,0,0" Text="{Binding Settings.PlayniteOverlayName}"/>
+                    </DockPanel>
+                </StackPanel>
+                <StackPanel Margin="0,10,0,0">
+                    <Label Content="Path Settings (required)" Margin="0,0,0,5"/>
+                    <Separator Margin="0,0,0,5"/>
+                    <DockPanel Margin="0,0,0,10">
+                        <TextBlock Text="Steam shortcuts path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseSteamShortcutsFile}"/>
+                        <TextBox Margin="10,0,0,0" Text="{Binding Settings.SteamShortcutsPath}"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,0,0,10">
+                        <TextBlock Text="GlosSI folder path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseGlosSIFolder}"/>
+                        <TextBox Margin="10,0,0,0" Text="{Binding Settings.GlosSIPath}"/>
+                    </DockPanel>
                 </StackPanel>
             </StackPanel>
-            <StackPanel Margin="0,10,0,0">
-                <Label Content="Fullscreen Mode Settings" Margin="0,0,0,5"/>
-                <Separator Margin="0,0,0,5"/>
-                <CheckBox IsChecked="{Binding Settings.UseIntegrationFullscreen}" Content="Use GlosSI Integration in fullscreen mode" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled"  Name="UseIntegrationFullscreenCheckBox"/>
-                <CheckBox IsChecked="{Binding Settings.UsePlayniteOverlay}" Content="Use a Playnite Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UsePlayniteOverlayCheckBox"/>
-                <DockPanel Margin="0,0,0,10" Name="PlayniteOverlayNamePanel">
-                    <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                    <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
-                    <TextBox Margin="10,0,0,0" Text="{Binding Settings.PlayniteOverlayName}"/>
-                </DockPanel>
-            </StackPanel>
-            <StackPanel Margin="0,10,0,0">
-                <Label Content="Path Settings (required)" Margin="0,0,0,5"/>
-                <Separator Margin="0,0,0,5"/>
-                <DockPanel Margin="0,0,0,10">
-                    <TextBlock Text="Steam shortcuts path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                    <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseSteamShortcutsFile}"/>
-                    <TextBox Margin="10,0,0,0" Text="{Binding Settings.SteamShortcutsPath}"/>
-                </DockPanel>
-                <DockPanel Margin="0,0,0,10">
-                    <TextBlock Text="GlosSI folder path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                    <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseGlosSIFolder}"/>
-                    <TextBox Margin="10,0,0,0" Text="{Binding Settings.GlosSIPath}"/>
-                </DockPanel>
-            </StackPanel>
-            <Button Content="Help" Click="Help_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-        </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+        <DockPanel Grid.Column="0" Grid.Row="1" Margin="20, 10, 20, 20">
+            <Button Content="Help" Click="Help_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" DockPanel.Dock="Left" Padding="15,5,15,5" MinWidth="80"/>
+        </DockPanel>
+    </Grid>
 </UserControl>
