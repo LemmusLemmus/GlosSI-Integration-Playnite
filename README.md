@@ -7,11 +7,5 @@ Apart from all the features that GlosSI offers on its own, this extension makes 
 ## More information
 Check out the [wiki](https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki) for information about getting started and general usage of the extension!
 
-## Planned features
-- Localization
-- Close the game when the shortcut is closed via the overlay.
-- Automatic creation of GlosSI Target `.json` file for the Playnite & default overlay.
-- UTF-16 character game name support.
-
 ## Acknowledgements
 This extension would not have been possible without JosefNemec and Alia5's amazing work on Playnite and GlosSI respectively! Code from Thomas Pircher and darklinkpower's various extensions was also extremely useful!
