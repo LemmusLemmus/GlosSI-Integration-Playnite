@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows;
 using System.Threading;
+using System.IO;
 
 namespace GlosSIIntegration
 {
@@ -325,9 +326,28 @@ namespace GlosSIIntegration
 
             if (!SettingsViewModel.InitialVerification()) return;
 
+            bool skipSteamGames = true;
+
+            if (games.TrueForAll((game) => IsSteamGame(game)))
+            {
+                List<MessageBoxOption> options = new List<MessageBoxOption>
+                {
+                    new MessageBoxOption("Yes", false, false),
+                    new MessageBoxOption("Cancel", true, true)
+                };
+                if (Api.Dialogs.ShowMessage(games.Count == 1 ? $"The selected game \"{games[0]}\" is a Steam game and " +
+                    "should already support the Steam overlay/input. Are you sure you want to add the game?" :
+                    "All of the selected games are Steam games and should already support the Steam overlay/input. " +
+                    "Are you sure you want to add the games?",
+                    "GlosSI Integration", MessageBoxImage.Warning, options).Equals(options[1])) return;
+
+                logger.Trace("Adding GlosSI integration to Steam games...");
+                skipSteamGames = false;
+            }
+
             int gamesAdded = 0;
 
-            Api.Dialogs.ActivateGlobalProgress((progressBar) => AddGamesProcess(games, progressBar, out gamesAdded),
+            Api.Dialogs.ActivateGlobalProgress((progressBar) => AddGamesProcess(games, progressBar, out gamesAdded, skipSteamGames),
                 new GlobalProgressOptions("Adding GlosSI integration to games...", true)
                 {
                     IsIndeterminate = false
@@ -338,11 +358,11 @@ namespace GlosSIIntegration
             if (gamesAdded == 0)
             {
                 Api.Dialogs.ShowMessage($"No games were added as GlosSI Steam Shortcuts. " +
-                $"This could be due to the games being Steam games, already having been added or having the ignored tag.", "GlosSI Integration");
+                $"This could be due to the games already having been added or having the ignored tag.", "GlosSI Integration");
             }
-            if (gamesAdded == 1)
+            else if (gamesAdded == 1)
             {
-                Api.Dialogs.ShowMessage($"The game was successfully added as GlosSI Steam Shortcut. " +
+                Api.Dialogs.ShowMessage($"One game was successfully added as GlosSI Steam Shortcut. " +
                 $"Steam has to be restarted for the changes to take effect!", "GlosSI Integration");
             }
             else
@@ -353,7 +373,7 @@ namespace GlosSIIntegration
             }
         }
 
-        private void AddGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesAdded)
+        private void AddGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesAdded, bool avoidSteamGames)
         {
             gamesAdded = 0;
             progressBar.ProgressMaxValue = games.Count();
@@ -364,10 +384,9 @@ namespace GlosSIIntegration
                 {
                     try
                     {
-                        if ((new GlosSITarget(game)).Create())
-                        {
-                            gamesAdded++;
-                        }
+                        if (avoidSteamGames && IsSteamGame(game)) continue;
+
+                        if (new GlosSITarget(game).Create()) gamesAdded++;
                     }
                     catch (Exception e)
                     {
@@ -376,6 +395,7 @@ namespace GlosSIIntegration
                             $"{e.Message}", e.ToString());
                         return;
                     }
+
                     if (progressBar.CancelToken.IsCancellationRequested) return;
                 }
             }
@@ -448,6 +468,17 @@ namespace GlosSIIntegration
                     if (progressBar.CancelToken.IsCancellationRequested) return;
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks if a Playnite game is a Steam game.
+        /// </summary>
+        /// <returns>true if it is a Steam game; false otherwise.</returns>
+        public static bool IsSteamGame(Game playniteGame)
+        {
+            return (playniteGame.Source != null && playniteGame.Source.Name.ToLower() == "steam") ||
+                (playniteGame.InstallDirectory != null &&
+                Path.GetFullPath(playniteGame.InstallDirectory).Contains(@"Steam\steamapps\common"));
         }
 
         public override ISettings GetSettings(bool firstRunSettings)

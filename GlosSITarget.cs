@@ -12,8 +12,6 @@ namespace GlosSIIntegration
     /// </summary>
     class GlosSITarget
     {
-        private static readonly string STEAM_SOURCE = "steam";
-
         private readonly Game playniteGame;
         // The filname of the .json GlosSITarget profile, without the extension.
         private readonly string jsonFileName;
@@ -30,16 +28,15 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Creates a GlosSITarget for a game, using the default .json structure. 
-        /// Steam games, already integrated games and games tagged for ignoring are ignored.
+        /// Creates a GlosSITarget for a game, using the default .json structure.
+        /// Already integrated games and games tagged for ignoring are ignored.
         /// </summary>
         /// <returns>true if the GlosSITarget was created; false if the game was ignored.</returns>
         /// <exception cref="FileNotFoundException">If the default target json-file could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">If the glosSITargetsPath directory could not be found.</exception>
         public bool Create()
         {
-            if (IsSteamGame() || 
-                GlosSIIntegration.GameHasIgnoredTag(playniteGame) || 
+            if (GlosSIIntegration.GameHasIgnoredTag(playniteGame) || 
                 GlosSIIntegration.GameHasIntegratedTag(playniteGame)) return false;
 
             SaveAsJsonTarget();
@@ -81,17 +78,6 @@ namespace GlosSIIntegration
             if (string.IsNullOrEmpty(playniteGame.Icon)) return null;
 
             return Path.Combine(GlosSIIntegration.Api.Paths.ConfigurationPath, @"library\files\", playniteGame.Icon);
-        }
-
-        /// <summary>
-        /// Checks if the Playnite game is a Steam game.
-        /// </summary>
-        /// <returns>true if it is a Steam game; false otherwise.</returns>
-        private bool IsSteamGame()
-        {
-            return (playniteGame.Source != null && playniteGame.Source.Name.ToLower() == STEAM_SOURCE) || 
-                (playniteGame.InstallDirectory != null && 
-                Path.GetFullPath(playniteGame.InstallDirectory).Contains(@"Steam\steamapps\common"));
         }
 
         /// <summary>
