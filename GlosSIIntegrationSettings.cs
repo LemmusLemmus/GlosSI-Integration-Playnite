@@ -225,7 +225,7 @@ namespace GlosSIIntegration
         /// <param name="files">The paths to the files that should be copied.</param>
         /// <param name="destDir">The directory to copy the files to.</param>
         /// <param name="progressBar">The progress bar to be updated.</param>
-        private void CopyFilesToDirectory(string[] files, string destDir, GlobalProgressActionArgs progressBar)
+        private static void CopyFilesToDirectory(string[] files, string destDir, GlobalProgressActionArgs progressBar)
         {
             Directory.CreateDirectory(destDir);
 
@@ -246,10 +246,19 @@ namespace GlosSIIntegration
             if (string.IsNullOrEmpty(Settings.SteamShortcutsPath))
             {
                 string newSteamShortcutsPath = GetSteamShortcutsPath();
+
                 if (newSteamShortcutsPath != null)
                 {
-                    Settings.SteamShortcutsPath = newSteamShortcutsPath;
-                    plugin.SavePluginSettings(Settings);
+                    try
+                    {
+                        // GetFullPath is only used for appearance, by converting any '/' to '\'.
+                        Settings.SteamShortcutsPath = Path.GetFullPath(newSteamShortcutsPath);
+                        plugin.SavePluginSettings(Settings);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.Error($"Failed to assign the automatically found Steam shortcuts path: {e.Message}");
+                    }
                 }
             }
         }
@@ -260,27 +269,21 @@ namespace GlosSIIntegration
         /// <returns>If found, the <c>SteamShortcutsPath</c>; <c>null</c> otherwise.</returns>
         private string GetSteamShortcutsPath()
         {
-            // Get the Steam userdata folder.
-            string curPath = Environment.ExpandEnvironmentVariables(@"%programfiles(x86)%\Steam\userdata");
-            if (!Directory.Exists(curPath))
-            {
-                curPath = Environment.ExpandEnvironmentVariables(@"%programfiles%\Steam\userdata");
-                if (!Directory.Exists(curPath))
-                {
-                    // TODO: Check all running processes, and if one of them is Steam use the directory associated with it.
-                    return null;
-                }
-            }
+            string userdataPath = GetSteamUserdataPath();
+
+            if (string.IsNullOrEmpty(userdataPath)) return null;
+            logger.Trace("Found the Steam userdata path.");
 
             // Find the path that leads to shortcuts.vdf
-            string[] dirs = Directory.GetDirectories(curPath);
+            string[] dirs = Directory.GetDirectories(userdataPath);
             List<string> validPaths = new List<string>();
 
             foreach (string dir in dirs)
             {
-                string newPath = Path.Combine(dir, @"config\shortcuts.vdf");
-                if (File.Exists(newPath)) validPaths.Add(newPath);
+                string foundPath = Path.Combine(dir, @"config\shortcuts.vdf");
+                if (File.Exists(foundPath)) validPaths.Add(foundPath);
             }
+
             if (validPaths.Count == 0)
             {
                 return null;
@@ -293,6 +296,36 @@ namespace GlosSIIntegration
             {
                 return SelectSteamShortcutsPath(validPaths);
             }
+        }
+
+        /// <summary>
+        /// Attempts to automatically find the Steam userdata path.
+        /// </summary>
+        /// <returns>If found, the Steam userdata path; <c>null</c> otherwise.</returns>
+        private string GetSteamUserdataPath()
+        {
+            string path;
+
+            // Check the registry.
+            try
+            {
+                path = (string) Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Valve\Steam", "SteamPath", null);
+                path = Path.Combine(path, "userdata");
+                if (Directory.Exists(path)) return path;
+            }
+            catch (Exception e)
+            {
+                logger.Warn($"Could not read the Steam userdata path from the registry: {e.Message}");
+            }
+
+            // Check two common locations.
+            path = Environment.ExpandEnvironmentVariables(@"%programfiles(x86)%\Steam\userdata");
+            if (Directory.Exists(path)) return path;
+
+            path = Environment.ExpandEnvironmentVariables(@"%programfiles%\Steam\userdata");
+            if (Directory.Exists(path)) return path;
+
+            return null;
         }
 
         /// <summary>
@@ -313,7 +346,7 @@ namespace GlosSIIntegration
             return playniteApi.Dialogs.ChooseItemWithSearch(items,
                 (str) => string.IsNullOrWhiteSpace(str) ? items : items.Where(item => item.Name.Contains(str)).ToList(),
                 null,
-                "Which of these Steam accounts should the GlosSI integration use? The plugin needs the path to shortcuts.vdf.")
+                "Which of these Steam accounts should the GlosSI integration add shortcuts to? The plugin needs the path to shortcuts.vdf.")
                 ?.Description;
         }
 
@@ -382,7 +415,7 @@ namespace GlosSIIntegration
             // Executed before EndEdit is called and EndEdit is not called if false is returned.
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
-            return VerifySteamShortcutsPath(ref errors) & VerifyGlosSIPath(ref errors) & 
+            return VerifySteamShortcutsPath(ref errors) & VerifyGlosSIPath(ref errors) && 
                 (!Settings.UseIntegrationFullscreen || !Settings.UsePlayniteOverlay || VerifyPlayniteOverlayName(ref errors)) &
                 (!Settings.UseDefaultOverlay || VerifyDefaultOverlayName(ref errors));
         }
@@ -437,12 +470,16 @@ namespace GlosSIIntegration
                 errors.Add("The shortcuts.vdf path does not lead to a file called \"shortcuts.vdf\".");
                 return false;
             }
-            else if (!File.Exists(path))
+            
+            if (!File.Exists(path))
             {
                 errors.Add("The shortcuts.vdf file could not be found.");
                 return false;
             }
-            else if (!path.Contains(@"Steam\userdata") || !path.Contains(@"config\shortcuts.vdf"))
+
+            path = path.ToLower();
+
+            if (!path.Contains(@"steam\userdata") || !path.Contains(@"config\shortcuts.vdf"))
             {
                 errors.Add("The shortcuts.vdf file location is incorrect. " +
                     "The file should be located inside the \"config\" folder in the Steam installation folder.");
