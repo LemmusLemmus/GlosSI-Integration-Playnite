@@ -684,55 +684,7 @@ namespace GlosSIIntegration
                 }
             }
 
-            // Verify that the shortcut has actually been added to Steam (i.e. the shortcuts.vdf file)
-            try
-            {
-                if (!ShortcutsContainsTarget(fileName))
-                {
-                    playniteApi.Dialogs.ShowMessage($"The GlosSI target referenced by the {overlayType} overlay has not been added to Steam. Press OK to automatically add it. " +
-                        "Steam has to be restarted afterwards for the changes to take effect.", "GlosSI Integration");
-                    logger.Trace($"Adding the {overlayType} overlay \"{actualName}\" to Steam...");
-
-                    try
-                    {
-                        GlosSITarget.SaveToSteamShortcuts(fileName);
-                    }
-                    catch (Exception e)
-                    {
-                        errors.Add($"The {overlayType} overlay could not be added automatically to Steam: {e.Message}");
-                        logger.Error($"The {overlayType} overlay could not be added automatically to Steam: {e}");
-                        return false;
-                    }
-
-                    if (!ShortcutsContainsTarget(fileName))
-                    {
-                        errors.Add($"The {overlayType} overlay could not be added automatically to Steam: shortcuts.vdf file was not successfully updated.");
-                        return false;
-                    }
-
-                    logger.Info($"The {overlayType} overlay was added to Steam as a shortcut.");
-                }
-            }
-            catch (Exception e)
-            {
-                errors.Add($"Something went wrong when trying to read the shortcuts.vdf file: {e.Message}");
-                logger.Error($"Something went wrong when trying to read the shortcuts.vdf file: {e}");
-                return false;
-            }
-
             return true;
-        }
-
-        // TODO: Method does not work with non-ASCII characters!
-        // Either use a .vdf parser or remove the method.
-        /// <summary>
-        /// Checks if the shortcuts.vdf file is <i>likely</i> to contain the target.
-        /// </summary>
-        /// <param name="fileName">The filename of the .json file, excluding the extension.</param>
-        /// <returns>true if the shortcut likely contains the target; false if it definitely does not.</returns>
-        private bool ShortcutsContainsTarget(string fileName)
-        {
-            return File.ReadAllText(Settings.SteamShortcutsPath).Contains($"{fileName}.json");
         }
     }
 }
