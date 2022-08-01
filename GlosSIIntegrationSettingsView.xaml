@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:glossiintegration="clr-namespace:GlosSIIntegration" d:DataContext="{d:DesignInstance Type=glossiintegration:GlosSIIntegrationSettingsViewModel}"
              mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="600">
+             d:DesignHeight="600" d:DesignWidth="600">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -21,7 +21,7 @@
                     <CheckBox IsChecked="{Binding Settings.UseDefaultOverlay}" Content="Use a Default Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UseDefaultOverlayCheckBox"/>
                     <DockPanel Margin="0,0,0,10" Name="DefaultOverlayNamePanel">
                         <TextBlock Text="Default overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xefc0;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddDefaultOverlay}" ToolTip="Add…"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.DefaultOverlayName}"/>
                     </DockPanel>
                     <StackPanel Margin="0,10,0,0">
@@ -37,7 +37,7 @@
                     <CheckBox IsChecked="{Binding Settings.UsePlayniteOverlay}" Content="Use a Playnite Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UsePlayniteOverlayCheckBox"/>
                     <DockPanel Margin="0,0,0,10" Name="PlayniteOverlayNamePanel">
                         <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Visibility="Hidden"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xefc0;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddPlayniteOverlay}" ToolTip="Add…"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.PlayniteOverlayName}"/>
                     </DockPanel>
                 </StackPanel>
@@ -46,12 +46,12 @@
                     <Separator Margin="0,0,0,5"/>
                     <DockPanel Margin="0,0,0,10">
                         <TextBlock Text="Steam shortcuts path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseSteamShortcutsFile}"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseSteamShortcutsFile}" ToolTip="Browse…"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.SteamShortcutsPath}"/>
                     </DockPanel>
                     <DockPanel Margin="0,0,0,10">
                         <TextBlock Text="GlosSI folder path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseGlosSIFolder}"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseGlosSIFolder}" ToolTip="Browse…"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.GlosSIPath}"/>
                     </DockPanel>
                 </StackPanel>

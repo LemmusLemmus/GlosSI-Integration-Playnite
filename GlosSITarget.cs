@@ -12,14 +12,32 @@ namespace GlosSIIntegration
     /// </summary>
     class GlosSITarget
     {
-        private readonly Game playniteGame;
-        // The filname of the .json GlosSITarget profile, without the extension.
+        private readonly Game game;
+        private readonly bool isPlayniteGame;
+        // The filename of the .json GlosSITarget profile, without the extension.
         private readonly string jsonFileName;
 
         public GlosSITarget(Game playniteGame)
         {
-            this.playniteGame = playniteGame;
+            game = playniteGame;
             jsonFileName = RemoveIllegalFileNameChars(playniteGame.Name);
+            isPlayniteGame = true;
+        }
+
+        /// <summary>
+        /// Creates a <c>GlosSITarget</c> object from a name and a path to an icon.
+        /// </summary>
+        /// <param name="name">The name of the shortcut.</param>
+        /// <param name="iconPath">A path to the icon of the shortcut. The path can be <c>null</c>.</param>
+        public GlosSITarget(string name, string iconPath)
+        {
+            game = new Game()
+            {
+                Name = name,
+                Icon = iconPath
+            };
+            jsonFileName = RemoveIllegalFileNameChars(name);
+            isPlayniteGame = false;
         }
 
         public static string RemoveIllegalFileNameChars(string filename)
@@ -28,7 +46,7 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Creates a GlosSITarget for a game, using the default .json structure.
+        /// Creates a GlosSITarget and Steam shortcut for a game, using the default .json structure.
         /// Already integrated games and games tagged for ignoring are ignored.
         /// </summary>
         /// <returns>true if the GlosSITarget was created; false if the game was ignored.</returns>
@@ -36,12 +54,12 @@ namespace GlosSIIntegration
         /// <exception cref="DirectoryNotFoundException">If the glosSITargetsPath directory could not be found.</exception>
         public bool Create()
         {
-            if (GlosSIIntegration.GameHasIgnoredTag(playniteGame) || 
-                GlosSIIntegration.GameHasIntegratedTag(playniteGame)) return false;
+            if (GlosSIIntegration.GameHasIgnoredTag(game) || 
+                GlosSIIntegration.GameHasIntegratedTag(game)) return false;
 
             SaveAsJsonTarget();
             SaveToSteamShortcuts();
-            GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
+            if (isPlayniteGame) GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, game);
             return true;
         }
 
@@ -52,7 +70,7 @@ namespace GlosSIIntegration
 
             try
             {
-                jObject.SelectToken("name").Replace(playniteGame.Name);
+                jObject.SelectToken("name").Replace(game.Name);
                 jObject.SelectToken("icon").Replace(GetGameIconPath());
             }
             catch (NullReferenceException)
@@ -70,14 +88,21 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Gets the path to the icon of the Playnite game.
+        /// Gets the path to the icon of the game.
         /// </summary>
-        /// <returns>The absolute path to the icon of the Playnite game, or <c>null</c> if it has no icon.</returns>
+        /// <returns>The absolute path to the icon of the game, or <c>null</c> if it has no icon.</returns>
         private string GetGameIconPath()
         {
-            if (string.IsNullOrEmpty(playniteGame.Icon)) return null;
+            if (string.IsNullOrEmpty(game.Icon)) return null;
 
-            return Path.Combine(GlosSIIntegration.Api.Paths.ConfigurationPath, @"library\files\", playniteGame.Icon);
+            if (isPlayniteGame)
+            {
+                return Path.Combine(GlosSIIntegration.Api.Paths.ConfigurationPath, @"library\files\", game.Icon);
+            }
+            else
+            {
+                return game.Icon;
+            }
         }
 
         /// <summary>
@@ -123,9 +148,12 @@ namespace GlosSIIntegration
         /// <returns>true if the integration was removed; false if it was nonexistent to begin with.</returns>
         public bool Remove()
         {
-            if (GlosSIIntegration.GameHasIntegratedTag(playniteGame))
+            if (!isPlayniteGame || GlosSIIntegration.GameHasIntegratedTag(game))
             {
-                GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.INTEGRATED_TAG, playniteGame);
+                if (isPlayniteGame)
+                {
+                    GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.INTEGRATED_TAG, game);
+                }
                 if (HasJsonFile())
                 {
                     RemoveFromSteamShortcuts();
@@ -173,7 +201,7 @@ namespace GlosSIIntegration
             // There will have to be a way to identify which json file belongs to which game though.
 
             // When removing, GlosSI takes the game name with all characters, including illegal file name characters.
-            RunGlosSIConfigWithArguments("remove", GetCommandLineArgumentSafeString(playniteGame.Name));
+            RunGlosSIConfigWithArguments("remove", GetCommandLineArgumentSafeString(game.Name));
         }
 
         private static string GetCommandLineArgumentSafeString(string str)

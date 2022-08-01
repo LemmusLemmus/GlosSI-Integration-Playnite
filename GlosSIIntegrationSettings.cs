@@ -3,8 +3,10 @@ using Playnite.SDK;
 using Playnite.SDK.Data;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows;
 
 namespace GlosSIIntegration
 {
@@ -39,7 +41,6 @@ namespace GlosSIIntegration
 
         private string GetDefaultTargetPath()
         {
-            // This can potentially fail.
             try
             {
                 if (!File.Exists(defaultTargetPath))
@@ -130,7 +131,7 @@ namespace GlosSIIntegration
                 };
 
                 if (playniteApi.Dialogs.ShowMessage("Requried settings are missing/incorrect. Go to the settings menu?",
-                    "GlosSI Integration", System.Windows.MessageBoxImage.Error, options).Equals(options[0]))
+                    "GlosSI Integration", MessageBoxImage.Error, options).Equals(options[0]))
                 {
                     plugin.OpenSettingsView();
                 }
@@ -388,6 +389,21 @@ namespace GlosSIIntegration
             return Path.GetFileName(Path.GetFullPath(Path.Combine(shortcutsPath, @"..\..")));
         }
 
+        public static void OpenLink(string link)
+        {
+            try
+            {
+                Process.Start(link);
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger().Error("Failed to open the link: " + ex);
+                GlosSIIntegration.Api.Dialogs.ShowErrorMessage("Failed to open the link " +
+                    $"\"{link}\": {ex.Message}",
+                    "GlosSI Integration");
+            }
+        }
+
         public void BeginEdit()
         {
             // Code executed when settings view is opened and user starts editing values.
@@ -436,6 +452,47 @@ namespace GlosSIIntegration
                 string filePath = playniteApi.Dialogs.SelectFolder();
                 if (!string.IsNullOrEmpty(filePath)) settings.GlosSIPath = filePath;
             });
+        }
+
+        public RelayCommand<object> AddDefaultOverlay
+        {
+            get => new RelayCommand<object>((o) =>
+            {
+                string newShortcutName = OpenShortcutCreationView(null, 
+                    Path.Combine(playniteApi.Paths.ConfigurationPath, @"Themes\Desktop\Default\Images\applogo.ico"));
+                if (newShortcutName != null) settings.DefaultOverlayName = newShortcutName;
+            });
+        }
+
+        public RelayCommand<object> AddPlayniteOverlay
+        {
+            get => new RelayCommand<object>((o) =>
+            {
+                string newShortcutName = OpenShortcutCreationView("Playnite",
+                    Path.Combine(playniteApi.Paths.ConfigurationPath, @"Themes\Fullscreen\Default\Images\applogo.ico"));
+                if (newShortcutName != null) settings.PlayniteOverlayName = newShortcutName;
+            });
+        }
+
+        /// <summary>
+        /// Verifes relevant settings before calling <see cref="ShortcutCreationView.ShowDialog(string, string)"/>.
+        /// </summary>
+        /// <param name="defaultName">The default name of the new overlay.</param>
+        /// <param name="defaultIconPath">The default icon of the new overlay.</param>
+        /// <returns>The name of the new overlay; <c>null</c> if the action was cancelled.</returns>
+        private string OpenShortcutCreationView(string defaultName, string defaultIconPath)
+        {
+            List<string> errors = new List<string>();
+
+            if (VerifyGlosSITargetsPath() && VerifyGlosSIPath(ref errors) & VerifySteamShortcutsPath(ref errors))
+            {
+                return ShortcutCreationView.ShowDialog(defaultName, defaultIconPath);
+            }
+            else
+            {
+                playniteApi.Dialogs.ShowErrorMessage($"Requried settings are missing/incorrect. \n\n{string.Join("\n", errors)}", "GlosSI Integration");
+                return null;
+            }
         }
 
         /// <summary>
@@ -666,6 +723,8 @@ namespace GlosSIIntegration
             return true;
         }
 
+        // TODO: Method does not work with non-ASCII characters!
+        // Either use a .vdf parser or remove the method.
         /// <summary>
         /// Checks if the shortcuts.vdf file is <i>likely</i> to contain the target.
         /// </summary>

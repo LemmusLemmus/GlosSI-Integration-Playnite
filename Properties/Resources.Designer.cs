@@ -61,6 +61,16 @@ namespace GlosSIIntegration.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DefaultSteamShortcutIcon {
+            get {
+                object obj = ResourceManager.GetObject("DefaultSteamShortcutIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {
         ///    &quot;controller&quot;: {
         ///        &quot;allowDesktopConfig&quot;: false,

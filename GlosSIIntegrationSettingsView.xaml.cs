@@ -37,17 +37,7 @@ namespace GlosSIIntegration
         /// </summary>
         private void Help_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                Process.Start("https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki/Getting-started#configuring-settings");
-            }
-            catch (Exception ex)
-            {
-                LogManager.GetLogger().Error("Failed to open the help link: " + ex);
-                GlosSIIntegration.Api.Dialogs.ShowErrorMessage("Failed to open the help link " +
-                    $"\"https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki/Getting-started#configuring-settings\": {ex.Message}",
-                    "GlosSI Integration");
-            }
+            GlosSIIntegrationSettingsViewModel.OpenLink("https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki/Getting-started#configuring-settings");
         }
 
         /// <summary>
