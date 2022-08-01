@@ -21,7 +21,7 @@
                     <CheckBox IsChecked="{Binding Settings.UseDefaultOverlay}" Content="Use a Default Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UseDefaultOverlayCheckBox"/>
                     <DockPanel Margin="0,0,0,10" Name="DefaultOverlayNamePanel">
                         <TextBlock Text="Default overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xefc0;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddDefaultOverlay}" ToolTip="Add…"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec3e;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddDefaultOverlay}" ToolTip="Add…"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.DefaultOverlayName}"/>
                     </DockPanel>
                     <StackPanel Margin="0,10,0,0">
@@ -37,7 +37,7 @@
                     <CheckBox IsChecked="{Binding Settings.UsePlayniteOverlay}" Content="Use a Playnite Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UsePlayniteOverlayCheckBox"/>
                     <DockPanel Margin="0,0,0,10" Name="PlayniteOverlayNamePanel">
                         <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xefc0;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddPlayniteOverlay}" ToolTip="Add…"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec3e;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddPlayniteOverlay}" ToolTip="Add…"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.PlayniteOverlayName}"/>
                     </DockPanel>
                 </StackPanel>
