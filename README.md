@@ -13,3 +13,16 @@ Check out the [wiki](https://github.com/LemmusLemmus/GlosSI-Integration-Playnite
 
 ## Acknowledgements
 This extension would not have been possible without JosefNemec and Alia5's amazing work on Playnite and GlosSI respectively! Code from Thomas Pircher and darklinkpower's various extensions was also extremely useful!
+
+## Screenshots
+Some screenshots of the add-on settings menus, using the default Playnite theme and darklinkpower's Helium theme, fittingly inspired by Steam.
+### Default Theme
+Main menu:<br>
+![Screenshot](https://user-images.githubusercontent.com/63229554/182234013-3cbaa340-824c-4ad3-af8c-eec97393c1e5.png)
+<br><br>Overlay creation menu:<br>
+![Screenshot](https://user-images.githubusercontent.com/63229554/182234020-cc6feb15-a6a3-48fa-814f-c0c7cbdc0e72.png)
+### Helium Theme
+Main menu:<br>
+![Screenshot](https://user-images.githubusercontent.com/63229554/182234051-1e70b899-1028-4ff0-ad14-16a31b4e56ec.png)
+<br><br>Overlay creation menu:<br>
+![Screenshot](https://user-images.githubusercontent.com/63229554/182234058-bf9ffcd8-88b7-423d-9e1a-9ac5e9114855.png)
