@@ -55,11 +55,11 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Opens a link to the "Configuring settings" page on the GitHub wiki.
+        /// Opens a link to the "Configuring the overlay" section on the GitHub wiki.
         /// </summary>
-        private void Help_Click(object sender, RoutedEventArgs e) // TODO: Change the link and summary.
+        private void Help_Click(object sender, RoutedEventArgs e)
         {
-            GlosSIIntegrationSettingsViewModel.OpenLink("https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki/Getting-started#configuring-settings");
+            GlosSIIntegrationSettingsViewModel.OpenLink("https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki/Getting-started#configuring-the-overlay");
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
