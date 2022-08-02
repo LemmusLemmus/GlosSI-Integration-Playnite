@@ -122,16 +122,6 @@ namespace GlosSIIntegration
             }
         }
 
-        public override void OnGameInstalled(OnGameInstalledEventArgs args)
-        {
-            // Add code to be executed when game is finished installing.
-        }
-
-        public override void OnGameStarted(OnGameStartedEventArgs args)
-        {
-
-        }
-
         public static bool GameHasIntegratedTag(Game game)
         {
             return GameHasTag(game, INTEGRATED_TAG);
@@ -275,11 +265,6 @@ namespace GlosSIIntegration
             }
         }
 
-        public override void OnGameUninstalled(OnGameUninstalledEventArgs args)
-        {
-            // Add code to be executed when game is uninstalled.
-        }
-
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
             SettingsViewModel.InitialVerification();
@@ -293,11 +278,6 @@ namespace GlosSIIntegration
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
         {
             CloseGlosSITargets();
-        }
-
-        public override void OnLibraryUpdated(OnLibraryUpdatedEventArgs args)
-        {
-            // Add code to be executed when library is updated.
         }
 
         public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
