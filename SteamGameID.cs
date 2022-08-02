@@ -59,7 +59,7 @@ namespace GlosSIIntegration
             catch (Exception e)
             {
                 string message = $"GlosSI Integration failed to run the Steam Shortcut:\n{e.Message}";
-                LogManager.GetLogger().Error($"{message}\t{e}");
+                LogManager.GetLogger().Error(e, message);
                 GlosSIIntegration.Api.Notifications.Add("GlosSIIntegration-SteamGameID-Run", 
                     message, NotificationType.Error);
                 return null;

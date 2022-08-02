@@ -198,10 +198,17 @@ namespace GlosSIIntegration
         /// </summary>
         /// <param name="source">The source of the error.</param>
         /// <param name="message">The user-readable error message.</param>
-        /// <param name="fullError">The full error message, if one exists.</param>
-        public void DisplayError(string source, string message, string fullError = null)
+        /// <param name="exception">The exception, if one exists.</param>
+        public void DisplayError(string source, string message, Exception exception = null)
         {
-            logger.Error($"{message}{(fullError != null ? $"\t{fullError}" : "")}");
+            if (exception == null)
+            {
+                logger.Error(message);
+            }
+            else
+            {
+                logger.Error(exception, message);
+            }
             Api.Notifications.Add($"{Id}-{source}", message, NotificationType.Error);
         }
 
@@ -234,7 +241,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                DisplayError("RunPlayniteOverlay", $"GlosSI Integration failed to run the Playnite Overlay Steam Shortcut: \n{e.Message}", e.ToString());
+                DisplayError("RunPlayniteOverlay", $"GlosSI Integration failed to run the Playnite Overlay Steam Shortcut: \n{e.Message}", e);
             }
         }
 
@@ -264,7 +271,7 @@ namespace GlosSIIntegration
             catch (InvalidOperationException) { }
             catch (PlatformNotSupportedException e)
             {
-                DisplayError("CloseGlosSITargets", $"GlosSI Integration failed to close the Steam Shortcut:\n{e.Message}", e.ToString());
+                DisplayError("CloseGlosSITargets", $"GlosSI Integration failed to close the Steam Shortcut:\n{e.Message}", e);
             }
         }
 
@@ -392,7 +399,7 @@ namespace GlosSIIntegration
                     {
                         DisplayError("GeneralAddGames", $"GlosSI Integration failed to add the GlosSI Target " +
                             $"Configuration file for {game.Name}, the adding process was aborted:\n" +
-                            $"{e.Message}", e.ToString());
+                            $"{e.Message}", e);
                         return;
                     }
 
@@ -462,7 +469,7 @@ namespace GlosSIIntegration
                     {
                         DisplayError("RemoveGames", $"Failed to remove the GlosSI Target " +
                             $"Configuration file for {game.Name}, the removal process was aborted:\n" +
-                            $"{e.Message}", e.ToString());
+                            $"{e.Message}", e);
                         return;
                     }
                     if (progressBar.CancelToken.IsCancellationRequested) return;

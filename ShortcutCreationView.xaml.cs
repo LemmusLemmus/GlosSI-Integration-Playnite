@@ -109,7 +109,7 @@ namespace GlosSIIntegration
                 catch (Exception e)
                 {
                     // This could lead to log spamming.
-                    LogManager.GetLogger().Error($"Failed to read \"DefaultSteamShortcutIcon.png\": {e}");
+                    LogManager.GetLogger().Error(e, "Failed to read \"DefaultSteamShortcutIcon.png\":");
                     iconPreview.Source = null;
                 }
             }
@@ -205,7 +205,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                LogManager.GetLogger().Error($"Unexpected error encountered when reading the icon path: {e.Message}\n{e}");
+                LogManager.GetLogger().Error(e, "Unexpected error encountered when reading the icon path:");
                 errors.Add($"Unexpected error encountered when reading the icon path: {e.Message}");
                 return false;
             }
@@ -233,7 +233,7 @@ namespace GlosSIIntegration
                 }
                 catch (Exception ex)
                 {
-                    LogManager.GetLogger().Error($"Something went wrong when attempting to create the Steam shortcut: {ex.Message}\n{ex}");
+                    LogManager.GetLogger().Error(ex, "Something went wrong when attempting to create the Steam shortcut:");
                     API.Instance.Dialogs.ShowErrorMessage($"Something went wrong when attempting to create the Steam shortcut: {ex.Message}",
                         "GlosSI Integration");
                 }

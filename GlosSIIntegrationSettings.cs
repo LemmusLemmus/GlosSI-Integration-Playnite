@@ -104,7 +104,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                GlosSIIntegration.Instance.DisplayError("DefaultTargetPathSettings", e.Message, e.ToString());
+                GlosSIIntegration.Instance.DisplayError("DefaultTargetPathSettings", e.Message, e);
             }
         }
 
@@ -186,7 +186,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                plugin.DisplayError("BackupTargetFiles", $"Failed to backup the GlosSI configuration files: {e.Message}", e.ToString());
+                plugin.DisplayError("BackupTargetFiles", $"Failed to backup the GlosSI configuration files: {e.Message}", e);
             }
             
             progressBar.Text = "Backing up Steam shortcuts file...";
@@ -215,7 +215,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                plugin.DisplayError("BackupShortcutsFile", $"Failed to backup the Shortcuts.vdf file: {e.Message}", e.ToString());
+                plugin.DisplayError("BackupShortcutsFile", $"Failed to backup the Shortcuts.vdf file: {e.Message}", e);
             }
         }
 
@@ -258,7 +258,7 @@ namespace GlosSIIntegration
                     }
                     catch (Exception e)
                     {
-                        logger.Error($"Failed to assign the automatically found Steam shortcuts path: {e.Message}");
+                        logger.Error(e, "Failed to assign the automatically found Steam shortcuts path:");
                     }
                 }
             }
@@ -397,7 +397,7 @@ namespace GlosSIIntegration
             }
             catch (Exception ex)
             {
-                LogManager.GetLogger().Error("Failed to open the link: " + ex);
+                LogManager.GetLogger().Error(ex, "Failed to open the link:");
                 GlosSIIntegration.Api.Dialogs.ShowErrorMessage("Failed to open the link " +
                     $"\"{link}\": {ex.Message}",
                     "GlosSI Integration");
@@ -657,7 +657,7 @@ namespace GlosSIIntegration
             catch (Exception e)
             {
                 errors.Add($"Something went wrong when attempting to read the target file referenced by the {overlayType} overlay name: {e.Message}");
-                logger.Error($"Something went wrong when attempting to read the target file referenced by the {overlayType} overlay name: {e}");
+                logger.Error(e, $"Something went wrong when attempting to read the target file referenced by the {overlayType} overlay name:");
                 return false;
             }
 
