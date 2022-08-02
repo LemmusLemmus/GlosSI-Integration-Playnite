@@ -52,6 +52,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ViewModels\GlosSIIntegrationSettingsViewModel.cs" />
     <Compile Include="Views\ShortcutCreationView.xaml.cs">
       <DependentUpon>ShortcutCreationView.xaml</DependentUpon>
     </Compile>
@@ -69,6 +70,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Models\SteamGameID.cs" />
+    <Compile Include="ViewModels\ShortcutCreationViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\DefaultTarget.txt" />
