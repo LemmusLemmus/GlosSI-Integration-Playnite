@@ -17,12 +17,12 @@ This extension would not have been possible without JosefNemec and Alia5's amazi
 ## Screenshots
 Some screenshots of the add-on settings menus, using the default Playnite theme and darklinkpower's Helium theme, fittingly inspired by Steam.
 ### Default Theme
-Extension setting menu:<br>
+Extension settings menu:<br>
 ![Screenshot](Screenshots/AddonSettingsDefault.png)
 <br><br>Overlay creation menu:<br>
 ![Screenshot](Screenshots/OverlayShortcutCreationDefault.png)
 ### Helium Theme
-Extension setting menu:<br>
+Extension settings menu:<br>
 ![Screenshot](Screenshots/AddonSettingsHelium.png)
 <br><br>Overlay creation menu:<br>
 ![Screenshot](Screenshots/OverlayShortcutCreationHelium.png)
