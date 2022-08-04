@@ -15,7 +15,7 @@
     <sys:String x:Key="LOC_GI_RemovingIntegrationFromGames">Removing GlosSI integration from games...</sys:String>
 
     <!--Adding Integration to Games-->
-    <sys:String x:Key="LOC_GI_AddGameIsSteamGame">The selected game "{0}" is a Steam game and should already support the Steam overlay/input. Are you sure you want to add the game?</sys:String>
+    <sys:String x:Key="LOC_GI_AddGameIsSteamGame">The selected game &quot;{0}&quot; is a Steam game and should already support the Steam overlay/input. Are you sure you want to add the game?</sys:String>
     <sys:String x:Key="LOC_GI_AddGamesAreSteamGames">All of the selected games are Steam games and should already support the Steam overlay/input. Are you sure you want to add the games?</sys:String>
     <sys:String x:Key="LOC_GI_NoGamesAdded">No games were added as GlosSI Steam Shortcuts. This could be due to the games already having been added or having the ignored tag.</sys:String>
     <sys:String x:Key="LOC_GI_OneGameAdded">One game was successfully added as GlosSI Steam Shortcut. {0}</sys:String>
@@ -52,7 +52,7 @@
     <sys:String x:Key="LOC_GI_SteamShortcutsPathTextBox">Steam shortcuts path:</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderPathTextBox">GlosSI folder path:</sys:String>
     <sys:String x:Key="LOC_GI_MultipleSteamUsersFound">Which of these Steam accounts should the GlosSI integration add shortcuts to? The plugin needs the path to shortcuts.vdf.</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleSteamUserCode">User with Friend Code: "{0}"</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleSteamUserCode">User with Friend Code: &quot;{0}&quot;</sys:String>
     <sys:String x:Key="LOC_GI_SelectShortcutsVDFFileType">Steam Shortcuts file</sys:String>
 
     <!--Shortcut Creation-->
@@ -69,12 +69,12 @@
     <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError">The path to the GlosSI folder has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFIncorrectFormatError">The shortcuts.vdf path is incorrectly formatted.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderIncorrectFormatError">The GlosSI folder path is incorrectly formatted.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">The shortcuts.vdf path does not lead to a file called "shortcuts.vdf".</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">The shortcuts.vdf path does not lead to a file called &quot;shortcuts.vdf&quot;.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotFoundError">The shortcuts.vdf file could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotFoundError">The GlosSI folder location could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSITargetsFolderNotFoundError">The GlosSI Targets folder could not be found. GlosSI must be installed and have run at least once before the GlosSI Integration extension can be used.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderExecutablesNotFoundError">The GlosSI folder location is incorrect: the GlosSI executables could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongLocationError">The shortcuts.vdf file location is incorrect. The file should be located inside the "config" folder in the Steam installation folder.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongLocationError">The shortcuts.vdf file location is incorrect. The file should be located inside the &quot;config&quot; folder in the Steam installation folder.</sys:String>
     <sys:String x:Key="LOC_GI_SteamShortcutNameNotSetError">The name of the Steam shortcut has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutTargetAlreadyExistsError">A GlosSI target file already exists with the chosen shortcut name.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutIconNotFoundError">The icon could not be found.</sys:String>
@@ -94,13 +94,13 @@
     <sys:String x:Key="LOC_GI_CreateDefaultTargetFileUnexpectedError">Failed to access or create the default target file: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError">Failed to backup the GlosSI configuration files: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError">Failed to backup the Shortcuts.vdf file: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError">Failed to open the link: "{0}": {1}</sys:String>
+    <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError">Failed to open the link: &quot;{0}&quot;: {1}</sys:String>
     <sys:String x:Key="LOC_GI_ReadOverlayGlosSITargetUnexpectedError">Something went wrong when attempting to read the target file referenced by the {0} overlay name: {1}</sys:String>
     <sys:String x:Key="LOC_GI_RunSteamGameUnexpectedError">GlosSI Integration failed to run the Steam shortcut: {0}</sys:String>
     <sys:String x:Key="LOC_GI_DefaultTargetItemsMissingUnexpectedError">The GlosSI default target is missing items.</sys:String>
     <sys:String x:Key="LOC_GI_CloseGlosSITargetTimelyUnexpectedError">GlosSI Integration failed to close the Steam Overlay in time.</sys:String>
     <sys:String x:Key="LOC_GI_CloseGlosSITargetUnexpectedError">GlosSI Integration failed to close the Steam Overlay: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_CreateGlosSITargetUnexpectedError">GlosSI Integration failed to add the GlosSI target configuration file and/or Steam shortcut for "{0}", the adding process was aborted: {1}</sys:String>
-    <sys:String x:Key="LOC_GI_RemoveGlosSITargetUnexpectedError">GlosSI Integration failed to remove the GlosSI target configuration file and/or Steam shortcut for "{0}", the removal process was aborted: {1}</sys:String>
+    <sys:String x:Key="LOC_GI_CreateGlosSITargetUnexpectedError">GlosSI Integration failed to add the GlosSI target configuration file and/or Steam shortcut for &quot;{0}&quot;, the adding process was aborted: {1}</sys:String>
+    <sys:String x:Key="LOC_GI_RemoveGlosSITargetUnexpectedError">GlosSI Integration failed to remove the GlosSI target configuration file and/or Steam shortcut for &quot;{0}&quot;, the removal process was aborted: {1}</sys:String>
 
 </ResourceDictionary>
