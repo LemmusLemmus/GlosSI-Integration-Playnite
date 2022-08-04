@@ -77,19 +77,20 @@ namespace GlosSIIntegration
             {
                 List<MessageBoxOption> options = new List<MessageBoxOption>
                 {
-                    new MessageBoxOption("OK", true, false),
-                    new MessageBoxOption("Not now", false, true)
+                    new MessageBoxOption(ResourceProvider.GetString("LOCOKLabel"), true, false),
+                    new MessageBoxOption(ResourceProvider.GetString("LOCCancelLabel"), false, true)
                 };
 
-                if (playniteApi.Dialogs.ShowMessage("Requried settings are missing/incorrect. Go to the settings menu?",
-                    "GlosSI Integration", MessageBoxImage.Error, options).Equals(options[0]))
+                if (playniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_RequriedSettingsIncorrectDesktopError"),
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"), MessageBoxImage.Error, options).Equals(options[0]))
                 {
                     plugin.OpenSettingsView();
                 }
             }
             else
             {
-                playniteApi.Dialogs.ShowErrorMessage("Requried settings are missing/incorrect. Please visit the settings menu in desktop mode.", "GlosSI Integration");
+                playniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOC_GI_RequriedSettingsIncorrectFullscreenError"), 
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
 
             return false;
@@ -109,7 +110,7 @@ namespace GlosSIIntegration
                 string[] srcTargetFiles = Directory.GetFiles(Settings.GlosSITargetsPath, "*.json", SearchOption.TopDirectoryOnly);
 
                 GlosSIIntegration.Api.Dialogs.ActivateGlobalProgress((progressBar) => BackupFiles(srcTargetFiles, destTargetsDir, progressBar),
-                    new GlobalProgressOptions("Backing up GlosSI configuration files...", false)
+                    new GlobalProgressOptions(ResourceProvider.GetString("LOC_GI_BackingUpGlosSIFiles"), false)
                     {
                         IsIndeterminate = false
                     });
@@ -137,10 +138,12 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                plugin.DisplayError("BackupTargetFiles", $"Failed to backup the GlosSI configuration files: {e.Message}", e);
+                plugin.DisplayError("BackupTargetFiles", 
+                    string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupGlosSIUnexpectedError"), 
+                    e.Message), e);
             }
             
-            progressBar.Text = "Backing up Steam shortcuts file...";
+            progressBar.Text = ResourceProvider.GetString("LOC_GI_BackingUpSteamFile");
             BackupShortcutsFile();
             progressBar.CurrentProgressValue++;
         }
@@ -166,7 +169,8 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                plugin.DisplayError("BackupShortcutsFile", $"Failed to backup the Shortcuts.vdf file: {e.Message}", e);
+                plugin.DisplayError("BackupShortcutsFile", 
+                    string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupSteamFileUnexpectedError"), e.Message), e);
             }
         }
 
@@ -224,7 +228,7 @@ namespace GlosSIIntegration
             string userdataPath = GetSteamUserdataPath();
 
             if (string.IsNullOrEmpty(userdataPath)) return null;
-            logger.Trace("Found the Steam userdata path.");
+            logger.Trace($"Found the Steam userdata path: \"{userdataPath}\".");
 
             // Find the path that leads to shortcuts.vdf
             string[] dirs = Directory.GetDirectories(userdataPath);
@@ -297,9 +301,7 @@ namespace GlosSIIntegration
             }
             return playniteApi.Dialogs.ChooseItemWithSearch(items,
                 (str) => string.IsNullOrWhiteSpace(str) ? items : items.Where(item => item.Name.Contains(str)).ToList(),
-                null,
-                "Which of these Steam accounts should the GlosSI integration add shortcuts to? The plugin needs the path to shortcuts.vdf.")
-                ?.Description;
+                null, ResourceProvider.GetString("LOC_GI_MultipleSteamUsersFound"))?.Description;
         }
 
         /// <summary>
@@ -327,7 +329,7 @@ namespace GlosSIIntegration
             } 
             catch { }
 
-            return $"User with Friend Code: \"{GetIDFromShortcutsPath(shortcutsPath)}\"";
+            return string.Format(ResourceProvider.GetString("LOC_GI_MultipleSteamUserCode"), GetIDFromShortcutsPath(shortcutsPath));
         }
 
         /// <summary>
@@ -348,10 +350,11 @@ namespace GlosSIIntegration
             }
             catch (Exception ex)
             {
-                LogManager.GetLogger().Error(ex, "Failed to open the link:");
-                GlosSIIntegration.Api.Dialogs.ShowErrorMessage("Failed to open the link " +
-                    $"\"{link}\": {ex.Message}",
-                    "GlosSI Integration");
+                string message = string.Format(ResourceProvider.GetString("LOC_GI_OpenLinkFailedUnexpectedError"), 
+                    link, ex.Message);
+                LogManager.GetLogger().Error(ex, message);
+                GlosSIIntegration.Api.Dialogs.ShowErrorMessage(message,
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
         }
 
@@ -391,7 +394,7 @@ namespace GlosSIIntegration
         {
             get => new RelayCommand<object>((o) =>
             {
-                string filePath = playniteApi.Dialogs.SelectFile("Steam Shortcuts file|shortcuts.vdf");
+                string filePath = playniteApi.Dialogs.SelectFile($"{ResourceProvider.GetString("LOC_GI_SelectShortcutsVDFFileType")}|shortcuts.vdf");
                 if (!string.IsNullOrEmpty(filePath)) settings.SteamShortcutsPath = filePath;
             });
         }
@@ -441,7 +444,8 @@ namespace GlosSIIntegration
             }
             else
             {
-                playniteApi.Dialogs.ShowErrorMessage($"Requried settings are missing/incorrect. \n\n{string.Join("\n", errors)}", "GlosSI Integration");
+                playniteApi.Dialogs.ShowErrorMessage($"{ResourceProvider.GetString("LOC_GI_RequriedSettingsIncorrectCreateShortcutError")}\n\n{string.Join(Environment.NewLine, errors)}", 
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
                 return null;
             }
         }
@@ -457,7 +461,7 @@ namespace GlosSIIntegration
 
             if (string.IsNullOrEmpty(path))
             {
-                errors.Add("The path to shortcuts.vdf has not been set.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFNotSetError"));
                 return false;
             }
 
@@ -469,28 +473,27 @@ namespace GlosSIIntegration
             }
             catch
             {
-                errors.Add("The shortcuts.vdf path is incorrectly formatted.");
-                return false;
-            }
-
-            if (Path.GetFileName(path) != "shortcuts.vdf")
-            {
-                errors.Add("The shortcuts.vdf path does not lead to a file called \"shortcuts.vdf\".");
-                return false;
-            }
-            
-            if (!File.Exists(path))
-            {
-                errors.Add("The shortcuts.vdf file could not be found.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFIncorrectFormatError"));
                 return false;
             }
 
             path = path.ToLower();
 
+            if (Path.GetFileName(path) != "shortcuts.vdf")
+            {
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFWrongNameError"));
+                return false;
+            }
+            
+            if (!File.Exists(path))
+            {
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFNotFoundError"));
+                return false;
+            }
+
             if (!path.Contains(@"steam\userdata") || !path.Contains(@"config\shortcuts.vdf"))
             {
-                errors.Add("The shortcuts.vdf file location is incorrect. " +
-                    "The file should be located inside the \"config\" folder in the Steam installation folder.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFWrongLocationError"));
                 return false;
             }
             return true;
@@ -507,7 +510,7 @@ namespace GlosSIIntegration
 
             if (string.IsNullOrEmpty(path))
             {
-                errors.Add("The path to the GlosSI folder has not been set.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderNotSetError"));
                 return false;
             }
 
@@ -519,18 +522,18 @@ namespace GlosSIIntegration
             }
             catch
             {
-                errors.Add("The GlosSI folder path is incorrectly formatted.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderIncorrectFormatError"));
                 return false;
             }
 
             if (!Directory.Exists(path))
             {
-                errors.Add("The GlosSI folder location could not be found.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderNotFoundError"));
                 return false;
             }
             else if (!File.Exists(Path.Combine(path, "GlosSIConfig.exe")) || !File.Exists(Path.Combine(path, "GlosSITarget.exe")))
             {
-                errors.Add("The GlosSI folder location is incorrect: the GlosSI executables could not be found.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderExecutablesNotFoundError"));
                 return false;
             }
             return true;
@@ -546,9 +549,8 @@ namespace GlosSIIntegration
             if (!Directory.Exists(Settings.GlosSITargetsPath))
             {
                 logger.Error("The GlosSI Targets folder does not exist.");
-                playniteApi.Dialogs.ShowErrorMessage("The GlosSI Targets folder could not be found. " +
-                    "GlosSI must be installed and have run at least once before the GlosSI Integration extension can be used.",
-                    "GlosSI Integration");
+                playniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOC_GI_GlosSITargetsFolderNotFoundError"),
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
                 return false;
             }
 
@@ -563,7 +565,8 @@ namespace GlosSIIntegration
         /// <returns>true if the Playnite overlay name is valid; false otherwise.</returns>
         private bool VerifyPlayniteOverlayName(ref List<string> errors)
         {
-            return VerifyOverlayName(Settings.PlayniteOverlayName, "Playnite", ref errors);
+            return VerifyOverlayName(Settings.PlayniteOverlayName, 
+                ResourceProvider.GetString("LOC_GI_PlayniteOverlayType"), ref errors);
         }
 
         /// <summary>
@@ -574,7 +577,8 @@ namespace GlosSIIntegration
         /// <returns>true if the Playnite overlay name is valid; false otherwise.</returns>
         private bool VerifyDefaultOverlayName(ref List<string> errors)
         {
-            return VerifyOverlayName(Settings.DefaultOverlayName, "default", ref errors);
+            return VerifyOverlayName(Settings.DefaultOverlayName,
+                ResourceProvider.GetString("LOC_GI_DefaultOverlayType"), ref errors);
         }
 
         /// <summary>
@@ -589,7 +593,7 @@ namespace GlosSIIntegration
         {
             if (string.IsNullOrEmpty(overlayName))
             {
-                errors.Add($"The name of the {overlayType} overlay has not been set.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_OverlayNameNotSetError"));
                 return false;
             }
 
@@ -602,13 +606,15 @@ namespace GlosSIIntegration
             }
             catch (FileNotFoundException) // Verify that the corresponding .json file actually exists
             {
-                errors.Add($"The target file referenced by the {overlayType} overlay name could not be found.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_OverlayGlosSITargetNotFoundError"));
                 return false;
             }
             catch (Exception e)
             {
-                errors.Add($"Something went wrong when attempting to read the target file referenced by the {overlayType} overlay name: {e.Message}");
-                logger.Error(e, $"Something went wrong when attempting to read the target file referenced by the {overlayType} overlay name:");
+                string message = string.Format(ResourceProvider.GetString("LOC_GI_ReadOverlayGlosSITargetUnexpectedError"), 
+                    overlayType, e.Message);
+                errors.Add(message);
+                logger.Error(e, message);
                 return false;
             }
 
@@ -617,19 +623,18 @@ namespace GlosSIIntegration
 
             if (string.IsNullOrEmpty(actualName))
             {
-                errors.Add($"Something is wrong with the file referenced by the {overlayType} overlay name. " +
-                    $"The name property in the target .json file in %appdata%\\GlosSI\\Targets could not be found or has not been set.");
+                errors.Add(string.Format(ResourceProvider.GetString("LOC_GI_OverlayGlosSITargetNoNameError"), overlayType));
                 return false;
             }
             else if (actualName != overlayName)
             {
                 // If there is a mismatch between the entered name and the name stored in the .json file,
                 // use the name in the .json file instead.
-                if (overlayType == "Playnite")
+                if (overlayType == ResourceProvider.GetString("LOC_GI_PlayniteOverlayType"))
                 {
                     Settings.PlayniteOverlayName = actualName;
                 }
-                else if (overlayType == "default")
+                else if (overlayType == ResourceProvider.GetString("LOC_GI_DefaultOverlayType"))
                 {
                     Settings.DefaultOverlayName = actualName;
                 }

@@ -26,9 +26,9 @@ namespace GlosSIIntegration
             }
             catch (Exception ex)
             {
-                LogManager.GetLogger().Error(ex, "Failed to open the default target file:");
-                GlosSIIntegration.Api.Dialogs.ShowErrorMessage($"Failed to open the default target file: {ex.Message}",
-                    "GlosSI Integration");
+                string message = string.Format(ResourceProvider.GetString("LOC_GI_ReadDefaultTargetUnexpectedError"), ex.Message);
+                LogManager.GetLogger().Error(ex, message);
+                GlosSIIntegration.Api.Dialogs.ShowErrorMessage(message, ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
         }
 

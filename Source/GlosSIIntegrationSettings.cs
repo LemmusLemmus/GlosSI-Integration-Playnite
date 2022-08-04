@@ -48,7 +48,9 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                throw new Exception($"Failed to access or create the default target file: {e.Message}");
+                string message = string.Format(ResourceProvider.GetString("LOC_GI_CreateDefaultTargetFileUnexpectedError"), e.Message);
+                LogManager.GetLogger().Error(message);
+                throw new Exception(message);
             }
 
             return defaultTargetPath;

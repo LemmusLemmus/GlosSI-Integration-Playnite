@@ -16,7 +16,10 @@ namespace GlosSIIntegration
 {
     public class GlosSIIntegration : GenericPlugin
     {
-        public static readonly string INTEGRATED_TAG = "[GI] Integrated", IGNORED_TAG = "[GI] Ignored";
+        public static readonly string LOC_INTEGRATED_TAG = ResourceProvider.GetString("LOC_GI_IntegratedTag"),
+            LOC_IGNORED_TAG = ResourceProvider.GetString("LOC_GI_IgnoredTag"),
+            SRC_INTEGRATED_TAG = "[GI] Integrated",
+            SRC_IGNORED_TAG = "[GI] Ignored";
         private static readonly ILogger logger = LogManager.GetLogger();
         private readonly TopPanelItem topPanel;
         private readonly TextBlock topPanelTextBlock;
@@ -124,12 +127,12 @@ namespace GlosSIIntegration
 
         public static bool GameHasIntegratedTag(Game game)
         {
-            return GameHasTag(game, INTEGRATED_TAG);
+            return GameHasTag(game, LOC_INTEGRATED_TAG) || GameHasTag(game, SRC_INTEGRATED_TAG);
         }
 
         public static bool GameHasIgnoredTag(Game game)
         {
-            return GameHasTag(game, IGNORED_TAG);
+            return GameHasTag(game, LOC_IGNORED_TAG) || GameHasTag(game, SRC_IGNORED_TAG);
         }
 
         private static bool GameHasTag(Game game, string tagName)
@@ -166,8 +169,9 @@ namespace GlosSIIntegration
                 {
                     // TODO: Make the notification more helpful.
                     // A currently probable reason for this happening is due to a name change.
+                    // Perhaps add a help link?
                     DisplayError("OnGameStarted-NoJsonFile", 
-                        "GlosSI Integration failed to run the Steam Shortcut: The .json target file could not be found.");
+                        ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
                     return;
                 }
 
@@ -224,15 +228,8 @@ namespace GlosSIIntegration
         private void RunPlayniteOverlay()
         {
             if (!GetSettings().UsePlayniteOverlay) return;
-
-            try
-            {
-                new SteamGameID(GetSettings().PlayniteOverlayName).Run();
-            }
-            catch (Exception e)
-            {
-                DisplayError("RunPlayniteOverlay", $"GlosSI Integration failed to run the Playnite Overlay Steam Shortcut: \n{e.Message}", e);
-            }
+            
+            new SteamGameID(GetSettings().PlayniteOverlayName).Run();
         }
 
         /// <summary>
@@ -253,7 +250,8 @@ namespace GlosSIIntegration
                 {
                     if (!proc.WaitForExit(10000))
                     {
-                        DisplayError("CloseGlosSITargets", "GlosSI Integration failed to close the Steam Overlay in time.");
+                        DisplayError("CloseGlosSITargets", 
+                            ResourceProvider.GetString("LOC_GI_CloseGlosSITargetTimelyUnexpectedError"));
                     }
                     proc.Close();
                 }
@@ -261,14 +259,15 @@ namespace GlosSIIntegration
             catch (InvalidOperationException) { }
             catch (PlatformNotSupportedException e)
             {
-                DisplayError("CloseGlosSITargets", $"GlosSI Integration failed to close the Steam Shortcut:\n{e.Message}", e);
+                DisplayError("CloseGlosSITargets", 
+                    string.Format(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetUnexpectedError"), e.Message), e);
             }
         }
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
             SettingsViewModel.InitialVerification();
-            Api.Database.Tags.Add(IGNORED_TAG);
+            Api.Database.Tags.Add(LOC_IGNORED_TAG);
             if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen && IntegrationEnabled)
             {
                 RunPlayniteOverlay();
@@ -286,15 +285,15 @@ namespace GlosSIIntegration
             {
                 new GameMenuItem
                 {
-                    Description = "Add Integration",
-                    MenuSection = "GlosSI Integration",
+                    Description = ResourceProvider.GetString("LOC_GI_GameMenuAddIntegration"),
+                    MenuSection = ResourceProvider.GetString("LOC_GI_GameMenuSection"),
                     Action = (arg) => AddGames(arg.Games)
                 },
 
                 new GameMenuItem
                 {
-                    Description = "Remove Integration",
-                    MenuSection = "GlosSI Integration",
+                    Description = ResourceProvider.GetString("LOC_GI_GameMenuRemoveIntegration"),
+                    MenuSection = ResourceProvider.GetString("LOC_GI_GameMenuSection"),
                     Action = (arg) => RemoveGames(arg.Games)
                 }
             };
@@ -319,14 +318,14 @@ namespace GlosSIIntegration
             {
                 List<MessageBoxOption> options = new List<MessageBoxOption>
                 {
-                    new MessageBoxOption("Yes", false, false),
-                    new MessageBoxOption("Cancel", true, true)
+                    new MessageBoxOption(ResourceProvider.GetString("LOCYesLabel"), false, false),
+                    new MessageBoxOption(ResourceProvider.GetString("LOCCancelLabel"), true, true)
                 };
-                if (Api.Dialogs.ShowMessage(games.Count == 1 ? $"The selected game \"{games[0]}\" is a Steam game and " +
-                    "should already support the Steam overlay/input. Are you sure you want to add the game?" :
-                    "All of the selected games are Steam games and should already support the Steam overlay/input. " +
-                    "Are you sure you want to add the games?",
-                    "GlosSI Integration", MessageBoxImage.Warning, options).Equals(options[1])) return;
+                if (Api.Dialogs.ShowMessage(games.Count == 1 ? 
+                    string.Format(ResourceProvider.GetString("LOC_GI_AddGameIsSteamGame"), games[0].Name) : 
+                    ResourceProvider.GetString("LOC_GI_AddGamesAreSteamGames"),
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"), MessageBoxImage.Warning, options)
+                    .Equals(options[1])) return;
 
                 logger.Trace("Adding GlosSI integration to Steam games...");
                 skipSteamGames = false;
@@ -335,7 +334,7 @@ namespace GlosSIIntegration
             int gamesAdded = 0;
 
             Api.Dialogs.ActivateGlobalProgress((progressBar) => AddGamesProcess(games, progressBar, out gamesAdded, skipSteamGames),
-                new GlobalProgressOptions("Adding GlosSI integration to games...", true)
+                new GlobalProgressOptions(ResourceProvider.GetString("LOC_GI_AddingIntegrationToGames"), true)
                 {
                     IsIndeterminate = false
                 });
@@ -344,19 +343,24 @@ namespace GlosSIIntegration
 
             if (gamesAdded == 0)
             {
-                Api.Dialogs.ShowMessage($"No games were added as GlosSI Steam Shortcuts. " +
-                $"This could be due to the games already having been added or having the ignored tag.", "GlosSI Integration");
+                Api.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_NoGamesAdded"), 
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
             else if (gamesAdded == 1)
             {
-                Api.Dialogs.ShowMessage($"One game was successfully added as GlosSI Steam Shortcut. " +
-                $"Steam has to be restarted for the changes to take effect!", "GlosSI Integration");
+                Api.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOC_GI_OneGameAdded"), 
+                    ResourceProvider.GetString("LOC_GI_RestartSteamReminder")), 
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
             else
             {
                 int gamesSkipped = games.Count - gamesAdded;
-                Api.Dialogs.ShowMessage($"{gamesAdded} games were successfully added as GlosSI Steam Shortcuts{(gamesSkipped > 0 ? $" ({gamesSkipped} games were skipped)" : "")}. " +
-                $"Steam has to be restarted for the changes to take effect!", "GlosSI Integration");
+                
+                Api.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOC_GI_MultipleGamesAdded"), 
+                    gamesAdded, 
+                    gamesSkipped > 0 ? string.Format(ResourceProvider.GetString("LOC_GI_GamesSkipped"), gamesSkipped) : 
+                    "", ResourceProvider.GetString("LOC_GI_RestartSteamReminder")), 
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
         }
 
@@ -377,9 +381,10 @@ namespace GlosSIIntegration
                     }
                     catch (Exception e)
                     {
-                        DisplayError("GeneralAddGames", $"GlosSI Integration failed to add the GlosSI Target " +
-                            $"Configuration file for {game.Name}, the adding process was aborted:\n" +
-                            $"{e.Message}", e);
+                        
+                        DisplayError("GeneralAddGames", 
+                            string.Format(ResourceProvider.GetString("LOC_GI_CreateGlosSITargetUnexpectedError"), 
+                            game.Name, e.Message), e);
                         return;
                     }
 
@@ -404,7 +409,7 @@ namespace GlosSIIntegration
             int gamesRemoved = 0;
 
             Api.Dialogs.ActivateGlobalProgress((progressBar) => RemoveGamesProcess(games, progressBar, out gamesRemoved), 
-                new GlobalProgressOptions("Removing GlosSI integration from games...", true)
+                new GlobalProgressOptions(ResourceProvider.GetString("LOC_GI_RemovingIntegrationFromGames"), true)
                 {
                     IsIndeterminate = false
                 });
@@ -413,18 +418,18 @@ namespace GlosSIIntegration
 
             if (gamesRemoved == 0)
             {
-                Api.Dialogs.ShowMessage("No GlosSI/Steam integrations were removed.",
-                    "GlosSI Integration");
+                Api.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_NoGamesRemoved"),
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
             else if (gamesRemoved == 1)
             {
-                Api.Dialogs.ShowMessage($"The GlosSI/Steam integration of the game \"{games[0].Name}\" was removed!",
-                    "GlosSI Integration");
+                Api.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_OneGameRemoved"),
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
             else
             {
-                Api.Dialogs.ShowMessage($"The GlosSI/Steam integration of {gamesRemoved} games were removed!", 
-                    "GlosSI Integration");
+                Api.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOC_GI_MultipleGamesRemoved"), gamesRemoved),
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
         }
 
@@ -447,9 +452,9 @@ namespace GlosSIIntegration
                     }
                     catch (Exception e)
                     {
-                        DisplayError("RemoveGames", $"Failed to remove the GlosSI Target " +
-                            $"Configuration file for {game.Name}, the removal process was aborted:\n" +
-                            $"{e.Message}", e);
+                        DisplayError("RemoveGames", 
+                            string.Format(ResourceProvider.GetString("LOC_GI_RemoveGlosSITargetUnexpectedError"),
+                            game.Name, e.Message), e);
                         return;
                     }
                     if (progressBar.CancelToken.IsCancellationRequested) return;
@@ -501,12 +506,12 @@ namespace GlosSIIntegration
         {
             if (IntegrationEnabled)
             {
-                topPanel.Title = "Disable GlosSI Integration";
+                topPanel.Title = ResourceProvider.GetString("LOC_GI_TopPanelButtonDisableTooltip");
                 topPanelTextBlock.Foreground = GetGlyphBrush();
             }
             else
             {
-                topPanel.Title = "Enable GlosSI Integration";
+                topPanel.Title = ResourceProvider.GetString("LOC_GI_TopPanelButtonEnableTooltip");
                 topPanelTextBlock.ClearValue(Control.ForegroundProperty);
             }
         }

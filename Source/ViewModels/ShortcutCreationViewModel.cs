@@ -73,7 +73,7 @@ namespace GlosSIIntegration
                 // as I am not aware of any exhaustive list of file types supported by Steam as icons.
                 // It would probably suffice to simply verify that some common image formats
                 // (i.e. primarily those supported by the Image class) work and filter those.
-                string filePath = API.Instance.Dialogs.SelectFile("Image|*.*");
+                string filePath = API.Instance.Dialogs.SelectFile($"{ResourceProvider.GetString("LOC_GI_SelectIconFileType")}|*.*");
                 if (!string.IsNullOrEmpty(filePath)) ShortcutIconPath = filePath;
             });
         }
@@ -87,15 +87,15 @@ namespace GlosSIIntegration
         {
             if (string.IsNullOrEmpty(ShortcutName))
             {
-                errors.Add("The name of the Steam shortcut has not been set.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_SteamShortcutNameNotSetError"));
                 return false;
             }
 
             if (GlosSITarget.HasJsonFile(ShortcutName))
             {
                 // TODO: Give the user the choice to use the already existing GlosSI target file instead.
-                errors.Add("A GlosSI target file already exists with the chosen shortcut name.");
-                LogManager.GetLogger().Warn("A GlosSI target file already exists with the chosen name.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutTargetAlreadyExistsError"));
+                LogManager.GetLogger().Warn(ResourceProvider.GetString("LOC_GI_ShortcutTargetAlreadyExistsError"));
                 return false;
             }
 
@@ -117,7 +117,7 @@ namespace GlosSIIntegration
 
             if (!File.Exists(ShortcutIconPath))
             {
-                errors.Add("The icon could not be found.");
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutIconNotFoundError"));
                 return false;
             }
 
@@ -125,12 +125,12 @@ namespace GlosSIIntegration
             {
                 List<MessageBoxOption> options = new List<MessageBoxOption>
                 {
-                    new MessageBoxOption("Continue", false, false),
-                    new MessageBoxOption("Cancel", true, true)
+                    new MessageBoxOption(ResourceProvider.GetString("LOCSaveLabel"), false, false),
+                    new MessageBoxOption(ResourceProvider.GetString("LOCCancelLabel"), true, true)
                 };
 
-                if (API.Instance.Dialogs.ShowMessage("The icon path leads to an executable (.exe) file. Any transparency will be lost.",
-                    "GlosSI Integration", MessageBoxImage.Warning, options).Equals(options[1]))
+                if (API.Instance.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_ShortcutExeIconWarning"),
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"), MessageBoxImage.Warning, options).Equals(options[1]))
                 {
                     return false;
                 }
@@ -142,8 +142,9 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                LogManager.GetLogger().Error(e, "Unexpected error encountered when reading the icon path:");
-                errors.Add($"Unexpected error encountered when reading the icon path: {e.Message}");
+                string message = string.Format(ResourceProvider.GetString("LOC_GI_ReadIconPathUnexpectedError"), e.Message);
+                LogManager.GetLogger().Error(e, message);
+                errors.Add(message);
                 return false;
             }
 
@@ -170,14 +171,15 @@ namespace GlosSIIntegration
                 }
                 catch (Exception ex)
                 {
-                    LogManager.GetLogger().Error(ex, "Something went wrong when attempting to create the Steam shortcut:");
-                    API.Instance.Dialogs.ShowErrorMessage($"Something went wrong when attempting to create the Steam shortcut: {ex.Message}",
-                        "GlosSI Integration");
+                    string message = string.Format(ResourceProvider.GetString("LOC_GI_CreateSteamShortcutUnexpectedError"), ex.Message);
+                    LogManager.GetLogger().Error(ex, message);
+                    API.Instance.Dialogs.ShowErrorMessage(message, ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
                 }
             }
             else if (errors.Count > 0)
             {
-                API.Instance.Dialogs.ShowErrorMessage(string.Join("\n", errors), "GlosSI Integration");
+                API.Instance.Dialogs.ShowErrorMessage(string.Join("\n", errors), 
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
 
             return false;

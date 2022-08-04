@@ -14,51 +14,51 @@
         <ScrollViewer Grid.Column="0" Grid.Row="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="20">
                 <StackPanel Margin="0,-4,0,0">
-                    <Label Content="General Settings" Margin="0,0,0,5"/>
+                    <Label Content="{DynamicResource LOC_GI_GeneralSettingsHeader}" Margin="0,0,0,5"/>
                     <Separator Margin="0,0,0,5"/>
-                    <TextBlock Margin="0,0,0,10"><Hyperlink Click="EditDefaultGlosSITarget_Click">Edit the GlosSI configuration used when creating new shortcuts.</Hyperlink></TextBlock>
+                    <TextBlock Margin="0,0,0,10"><Hyperlink Click="EditDefaultGlosSITarget_Click"><TextBlock Text="{DynamicResource LOC_GI_EditDefaultGlosSITargetLink}"></TextBlock></Hyperlink></TextBlock>
                     <!--<CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}" Content="When the game overlay is closed, also close the game" Margin="0,0,0,10"/>-->
-                    <CheckBox IsChecked="{Binding Settings.UseDefaultOverlay}" Content="Use a Default Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UseDefaultOverlayCheckBox"/>
+                    <CheckBox IsChecked="{Binding Settings.UseDefaultOverlay}" Content="{DynamicResource LOC_GI_UseDefaultOverlayCheckBox}" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UseDefaultOverlayCheckBox"/>
                     <DockPanel Margin="0,0,0,10" Name="DefaultOverlayNamePanel">
-                        <TextBlock Text="Default overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec3e;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddDefaultOverlay}" ToolTip="Add…"/>
+                        <TextBlock Text="{DynamicResource LOC_GI_DefaultOverlayNameTextBox}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec3e;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddDefaultOverlay}" ToolTip="{DynamicResource LOC_GI_AddOverlayButtonTooltip}"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.DefaultOverlayName}"/>
                     </DockPanel>
                     <StackPanel Margin="0,10,0,0">
-                        <Label Content="Desktop Mode Settings" Margin="0,0,0,5"/>
+                        <Label Content="{DynamicResource LOC_GI_DesktopModeSettingsHeader}" Margin="0,0,0,5"/>
                         <Separator Margin="0,0,0,5"/>
-                        <CheckBox IsChecked="{Binding Settings.DefaultUseIntegrationDesktop}" Content="Enable GlosSI Integration by default in desktop mode" Margin="0,0,0,10"/>
+                        <CheckBox IsChecked="{Binding Settings.DefaultUseIntegrationDesktop}" Content="{DynamicResource LOC_GI_DefaultUseIntegrationDesktopCheckBox}" Margin="0,0,0,10"/>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Margin="0,10,0,0">
-                    <Label Content="Fullscreen Mode Settings" Margin="0,0,0,5"/>
+                    <Label Content="{DynamicResource LOC_GI_FullscreenModeSettingsHeader}" Margin="0,0,0,5"/>
                     <Separator Margin="0,0,0,5"/>
-                    <CheckBox IsChecked="{Binding Settings.UseIntegrationFullscreen}" Content="Use GlosSI Integration in fullscreen mode" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled"  Name="UseIntegrationFullscreenCheckBox"/>
-                    <CheckBox IsChecked="{Binding Settings.UsePlayniteOverlay}" Content="Use a Playnite Steam overlay" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UsePlayniteOverlayCheckBox"/>
+                    <CheckBox IsChecked="{Binding Settings.UseIntegrationFullscreen}" Content="{DynamicResource LOC_GI_UseIntegrationFullscreenCheckBox}" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled"  Name="UseIntegrationFullscreenCheckBox"/>
+                    <CheckBox IsChecked="{Binding Settings.UsePlayniteOverlay}" Content="{DynamicResource LOC_GI_UsePlayniteOverlayCheckBox}" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UsePlayniteOverlayCheckBox"/>
                     <DockPanel Margin="0,0,0,10" Name="PlayniteOverlayNamePanel">
-                        <TextBlock Text="Playnite overlay name:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec3e;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddPlayniteOverlay}" ToolTip="Add…"/>
+                        <TextBlock Text="{DynamicResource LOC_GI_PlayniteOverlayNameTextBox}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec3e;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddPlayniteOverlay}" ToolTip="{DynamicResource LOC_GI_AddOverlayButtonTooltip}"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.PlayniteOverlayName}"/>
                     </DockPanel>
                 </StackPanel>
                 <StackPanel Margin="0,10,0,0">
-                    <Label Content="Path Settings (required)" Margin="0,0,0,5"/>
+                    <Label Content="{DynamicResource LOC_GI_PathSettingsHeader}" Margin="0,0,0,5"/>
                     <Separator Margin="0,0,0,5"/>
                     <DockPanel Margin="0,0,0,10">
-                        <TextBlock Text="Steam shortcuts path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseSteamShortcutsFile}" ToolTip="Browse…"/>
+                        <TextBlock Text="{DynamicResource LOC_GI_SteamShortcutsPathTextBox}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseSteamShortcutsFile}" ToolTip="{DynamicResource LOCBrowse}"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.SteamShortcutsPath}"/>
                     </DockPanel>
                     <DockPanel Margin="0,0,0,10">
-                        <TextBlock Text="GlosSI folder path:" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseGlosSIFolder}" ToolTip="Browse…"/>
+                        <TextBlock Text="{DynamicResource LOC_GI_GlosSIFolderPathTextBox}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseGlosSIFolder}" ToolTip="{DynamicResource LOCBrowse}"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.GlosSIPath}"/>
                     </DockPanel>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
         <DockPanel Grid.Column="0" Grid.Row="1" Margin="20, 10, 20, 20">
-            <Button Content="Help" Click="Help_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" DockPanel.Dock="Left" Padding="15,5,15,5" MinWidth="80"/>
+            <Button Content="{DynamicResource LOCMenuHelpTitle}" Click="Help_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" DockPanel.Dock="Left" Padding="15,5,15,5" MinWidth="80"/>
         </DockPanel>
     </Grid>
 </UserControl>

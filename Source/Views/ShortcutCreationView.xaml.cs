@@ -29,7 +29,7 @@ namespace GlosSIIntegration
             });
             ShortcutCreationView shortcutCreationView = new ShortcutCreationView(defaultName, defaultIconPath);
             dialogWindow.Content = shortcutCreationView;
-            dialogWindow.Title = "Create a new Steam shortcut";
+            dialogWindow.Title = ResourceProvider.GetString("LOC_GI_ShortcutCreationWindowTitle");
             dialogWindow.SizeToContent = SizeToContent.WidthAndHeight;
 
             if (dialogWindow.ShowDialog() == true)

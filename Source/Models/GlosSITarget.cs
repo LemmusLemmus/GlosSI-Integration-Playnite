@@ -4,6 +4,7 @@ using System.IO;
 using System.Diagnostics;
 using System;
 using System.Text.RegularExpressions;
+using Playnite.SDK;
 
 namespace GlosSIIntegration
 {
@@ -59,7 +60,7 @@ namespace GlosSIIntegration
 
             SaveAsJsonTarget();
             SaveToSteamShortcuts();
-            if (isPlayniteGame) GlosSIIntegration.AddTagToGame(GlosSIIntegration.INTEGRATED_TAG, game);
+            if (isPlayniteGame) GlosSIIntegration.AddTagToGame(GlosSIIntegration.LOC_INTEGRATED_TAG, game);
             return true;
         }
 
@@ -75,7 +76,7 @@ namespace GlosSIIntegration
             }
             catch (NullReferenceException)
             {
-                throw new NullReferenceException("The GlosSI default target is missing items.");
+                throw new NullReferenceException(ResourceProvider.GetString("LOC_GI_DefaultTargetItemsMissingUnexpectedError"));
             }
 
             jsonString = jObject.ToString();
@@ -152,7 +153,8 @@ namespace GlosSIIntegration
             {
                 if (isPlayniteGame)
                 {
-                    GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.INTEGRATED_TAG, game);
+                    GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.LOC_INTEGRATED_TAG, game);
+                    GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.SRC_INTEGRATED_TAG, game);
                 }
                 if (HasJsonFile())
                 {

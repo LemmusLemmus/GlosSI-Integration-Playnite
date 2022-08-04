@@ -1,0 +1,106 @@
+﻿<?xml version="1.0"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xml:space="preserve">
+
+    <!--General-->
+    <sys:String x:Key="LOC_GI_DefaultWindowTitle"></sys:String>
+    <sys:String x:Key="LOC_GI_RestartSteamReminder"></sys:String>
+    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError"></sys:String>
+    <sys:String x:Key="LOC_GI_TopPanelButtonDisableTooltip"></sys:String>
+    <sys:String x:Key="LOC_GI_TopPanelButtonEnableTooltip"></sys:String>
+
+    <!--Progress Bars-->
+    <sys:String x:Key="LOC_GI_BackingUpGlosSIFiles"></sys:String>
+    <sys:String x:Key="LOC_GI_BackingUpSteamFile"></sys:String>
+    <sys:String x:Key="LOC_GI_AddingIntegrationToGames"></sys:String>
+    <sys:String x:Key="LOC_GI_RemovingIntegrationFromGames"></sys:String>
+
+    <!--Adding Integration to Games-->
+    <sys:String x:Key="LOC_GI_AddGameIsSteamGame"></sys:String>
+    <sys:String x:Key="LOC_GI_AddGamesAreSteamGames"></sys:String>
+    <sys:String x:Key="LOC_GI_NoGamesAdded"></sys:String>
+    <sys:String x:Key="LOC_GI_OneGameAdded"></sys:String>
+    <sys:String x:Key="LOC_GI_MultipleGamesAdded"></sys:String>
+    <sys:String x:Key="LOC_GI_GamesSkipped"></sys:String>
+
+    <!--Removing Integration from Games-->
+    <sys:String x:Key="LOC_GI_NoGamesRemoved"></sys:String>
+    <sys:String x:Key="LOC_GI_OneGameRemoved"></sys:String>
+    <sys:String x:Key="LOC_GI_MultipleGamesRemoved"></sys:String>
+
+    <!--Tags-->
+    <sys:String x:Key="LOC_GI_IntegratedTag"></sys:String>
+    <sys:String x:Key="LOC_GI_IgnoredTag"></sys:String>
+    
+    <!--Game Menu-->
+    <sys:String x:Key="LOC_GI_GameMenuSection"></sys:String>
+    <sys:String x:Key="LOC_GI_GameMenuAddIntegration"></sys:String>
+    <sys:String x:Key="LOC_GI_GameMenuRemoveIntegration"></sys:String>
+
+    <!--Main Settings-->
+    <sys:String x:Key="LOC_GI_GeneralSettingsHeader"></sys:String>
+    <sys:String x:Key="LOC_GI_DesktopModeSettingsHeader"></sys:String>
+    <sys:String x:Key="LOC_GI_FullscreenModeSettingsHeader"></sys:String>
+    <sys:String x:Key="LOC_GI_PathSettingsHeader"></sys:String>
+    <sys:String x:Key="LOC_GI_EditDefaultGlosSITargetLink"></sys:String>
+    <sys:String x:Key="LOC_GI_UseDefaultOverlayCheckBox"></sys:String>
+    <sys:String x:Key="LOC_GI_UsePlayniteOverlayCheckBox"></sys:String>
+    <sys:String x:Key="LOC_GI_DefaultOverlayNameTextBox"></sys:String>
+    <sys:String x:Key="LOC_GI_PlayniteOverlayNameTextBox"></sys:String>
+    <sys:String x:Key="LOC_GI_AddOverlayButtonTooltip"></sys:String>
+    <sys:String x:Key="LOC_GI_DefaultUseIntegrationDesktopCheckBox"></sys:String>
+    <sys:String x:Key="LOC_GI_UseIntegrationFullscreenCheckBox"></sys:String>
+    <sys:String x:Key="LOC_GI_SteamShortcutsPathTextBox"></sys:String>
+    <sys:String x:Key="LOC_GI_GlosSIFolderPathTextBox"></sys:String>
+    <sys:String x:Key="LOC_GI_MultipleSteamUsersFound"></sys:String>
+    <sys:String x:Key="LOC_GI_MultipleSteamUserCode"></sys:String>
+    <sys:String x:Key="LOC_GI_SelectShortcutsVDFFileType"></sys:String>
+
+    <!--Shortcut Creation-->
+    <sys:String x:Key="LOC_GI_ShortcutCreationWindowTitle"></sys:String>
+    <sys:String x:Key="LOC_GI_SteamShortcutNameTextBox"></sys:String>
+    <sys:String x:Key="LOC_GI_SteamShortcutIconTextBox"></sys:String>
+    <sys:String x:Key="LOC_GI_SelectIconFileType"></sys:String>
+
+    <!--Verification Errors-->
+    <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectDesktopError"></sys:String>
+    <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectFullscreenError"></sys:String>
+    <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectCreateShortcutError"></sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFNotSetError"></sys:String>
+    <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError"></sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFIncorrectFormatError"></sys:String>
+    <sys:String x:Key="LOC_GI_GlosSIFolderIncorrectFormatError"></sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError"></sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFNotFoundError"></sys:String>
+    <sys:String x:Key="LOC_GI_GlosSIFolderNotFoundError"></sys:String>
+    <sys:String x:Key="LOC_GI_GlosSITargetsFolderNotFoundError"></sys:String>
+    <sys:String x:Key="LOC_GI_GlosSIFolderExecutablesNotFoundError"></sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongLocationError"></sys:String>
+    <sys:String x:Key="LOC_GI_SteamShortcutNameNotSetError"></sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutTargetAlreadyExistsError"></sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutIconNotFoundError"></sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutExeIconWarning"></sys:String>
+    
+    <!--Overlay Name Verification-->
+    <sys:String x:Key="LOC_GI_PlayniteOverlayType"></sys:String>
+    <sys:String x:Key="LOC_GI_DefaultOverlayType"></sys:String>
+    <sys:String x:Key="LOC_GI_OverlayNameNotSetError"></sys:String>
+    <sys:String x:Key="LOC_GI_OverlayGlosSITargetNotFoundError"></sys:String>
+    <sys:String x:Key="LOC_GI_OverlayGlosSITargetNoNameError"></sys:String>
+
+    <!--Exceptional Errors-->
+    <sys:String x:Key="LOC_GI_ReadDefaultTargetUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_ReadIconPathUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_CreateSteamShortcutUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_CreateDefaultTargetFileUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_ReadOverlayGlosSITargetUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_RunSteamGameUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_DefaultTargetItemsMissingUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_CloseGlosSITargetTimelyUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_CloseGlosSITargetUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_CreateGlosSITargetUnexpectedError"></sys:String>
+    <sys:String x:Key="LOC_GI_RemoveGlosSITargetUnexpectedError"></sys:String>
+
+</ResourceDictionary>

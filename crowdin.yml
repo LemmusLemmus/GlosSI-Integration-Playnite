@@ -1,0 +1,3 @@
+files:
+  - source: /source/Localization/loc_source.xaml
+    translation: /source/Localization/%locale_with_underscore%.xaml
