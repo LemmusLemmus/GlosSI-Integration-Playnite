@@ -46,12 +46,12 @@
                     <Separator Margin="0,0,0,5"/>
                     <DockPanel Margin="0,0,0,10">
                         <TextBlock Text="{DynamicResource LOC_GI_SteamShortcutsPathTextBox}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseSteamShortcutsFile}" ToolTip="{DynamicResource LOCBrowse}"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xef27;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseSteamShortcutsFile}" ToolTip="{DynamicResource LOCSelectFileTitle}"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.SteamShortcutsPath}"/>
                     </DockPanel>
                     <DockPanel Margin="0,0,0,10">
                         <TextBlock Text="{DynamicResource LOC_GI_GlosSIFolderPathTextBox}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseGlosSIFolder}" ToolTip="{DynamicResource LOCBrowse}"/>
+                        <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseGlosSIFolder}" ToolTip="{DynamicResource LOCSelectDirectoryTooltip}"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.GlosSIPath}"/>
                     </DockPanel>
                 </StackPanel>

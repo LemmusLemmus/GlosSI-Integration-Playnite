@@ -29,7 +29,7 @@
                             </DockPanel>
                             <DockPanel Margin="0,0,0,10">
                                 <TextBlock Text="{DynamicResource LOC_GI_SteamShortcutIconTextBox}" DockPanel.Dock="Left" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"/>
-                                <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec5b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseIcon}" ToolTip="{DynamicResource LOCBrowse}"/>
+                                <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xef4b;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding BrowseIcon}" ToolTip="{DynamicResource LOCSelectFileTitle}"/>
                                 <TextBox Margin="10,0,0,0" Text="{Binding ShortcutIconPath, UpdateSourceTrigger=PropertyChanged}"/>
                             </DockPanel>
                             <Border BorderThickness="1,1,1,1" BorderBrush="{DynamicResource WindowPanelSeparatorBrush}" Margin="0,0,0,10">
