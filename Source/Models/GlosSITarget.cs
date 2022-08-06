@@ -18,8 +18,14 @@ namespace GlosSIIntegration
         // The filename of the .json GlosSITarget profile, without the extension.
         private readonly string jsonFileName;
 
+        /// <summary>
+        /// Creates a <c>GlosSITarget</c> object from a Playnite <see cref="Game"/>.
+        /// </summary>
+        /// <param name="playniteGame">The Playnite game.</param>
         public GlosSITarget(Game playniteGame)
         {
+            if (playniteGame.Name == null) throw new ArgumentException("The name of the game is null.");
+
             game = playniteGame;
             jsonFileName = RemoveIllegalFileNameChars(playniteGame.Name);
             isPlayniteGame = true;
@@ -32,6 +38,8 @@ namespace GlosSIIntegration
         /// <param name="iconPath">A path to the icon of the shortcut. The path can be <c>null</c>.</param>
         public GlosSITarget(string name, string iconPath)
         {
+            if (name == null) throw new ArgumentNullException("name");
+
             game = new Game()
             {
                 Name = name,
