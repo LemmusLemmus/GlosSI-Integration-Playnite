@@ -74,9 +74,9 @@ namespace GlosSIIntegration
                 jObject.SelectToken("name").Replace(game.Name);
                 jObject.SelectToken("icon").Replace(GetGameIconPath());
             }
-            catch (NullReferenceException)
+            catch (NullReferenceException e)
             {
-                throw new NullReferenceException(ResourceProvider.GetString("LOC_GI_DefaultTargetItemsMissingUnexpectedError"));
+                throw new NullReferenceException(ResourceProvider.GetString("LOC_GI_DefaultTargetItemsMissingUnexpectedError"), e);
             }
 
             jsonString = jObject.ToString();

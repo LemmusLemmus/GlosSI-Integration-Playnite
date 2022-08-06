@@ -50,7 +50,7 @@ namespace GlosSIIntegration
             {
                 string message = string.Format(ResourceProvider.GetString("LOC_GI_CreateDefaultTargetFileUnexpectedError"), e.Message);
                 LogManager.GetLogger().Error(message);
-                throw new Exception(message);
+                throw new Exception(message, e);
             }
 
             return defaultTargetPath;
