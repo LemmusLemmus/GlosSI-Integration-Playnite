@@ -69,11 +69,9 @@ namespace GlosSIIntegration
         {
             get => new RelayCommand<object>((o) =>
             {
-                // TODO: All files are currently accepted,
-                // as I am not aware of any exhaustive list of file types supported by Steam as icons.
-                // It would probably suffice to simply verify that some common image formats
-                // (i.e. primarily those supported by the Image class) work and filter those.
-                string filePath = API.Instance.Dialogs.SelectFile($"{ResourceProvider.GetString("LOC_GI_SelectIconFileType")}|*.*");
+                // The filter of supported image types is not necessarily exhaustive.
+                string filterTypes = "*.PNG;*.ICO;*.JPG;*.JPEG;*.BMP;*.DIB;*.GIF;*.WEBP;*.EXE";
+                string filePath = API.Instance.Dialogs.SelectFile($"{ResourceProvider.GetString("LOC_GI_SelectIconFileType")}|{filterTypes}");
                 if (!string.IsNullOrEmpty(filePath)) ShortcutIconPath = filePath;
             });
         }
