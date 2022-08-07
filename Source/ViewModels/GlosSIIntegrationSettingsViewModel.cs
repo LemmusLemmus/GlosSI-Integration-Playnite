@@ -195,26 +195,23 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Attempts to automatically find and set the <c>SteamShortcutsPath</c> if it has not already been set.
+        /// Attempts to automatically find and set the <c>SteamShortcutsPath</c>.
         /// </summary>
         private void AutoSetSteamShortcutsPath()
         {
-            if (string.IsNullOrEmpty(Settings.SteamShortcutsPath))
-            {
-                string newSteamShortcutsPath = GetSteamShortcutsPath();
+            string newSteamShortcutsPath = GetSteamShortcutsPath();
 
-                if (newSteamShortcutsPath != null)
+            if (newSteamShortcutsPath != null)
+            {
+                try
                 {
-                    try
-                    {
-                        // GetFullPath is only used for appearance, by converting any '/' to '\'.
-                        Settings.SteamShortcutsPath = Path.GetFullPath(newSteamShortcutsPath);
-                        plugin.SavePluginSettings(Settings);
-                    }
-                    catch (Exception e)
-                    {
-                        logger.Error(e, "Failed to assign the automatically found Steam shortcuts path:");
-                    }
+                    // GetFullPath is only used for appearance, by converting any '/' to '\'.
+                    Settings.SteamShortcutsPath = Path.GetFullPath(newSteamShortcutsPath);
+                    plugin.SavePluginSettings(Settings);
+                }
+                catch (Exception e)
+                {
+                    logger.Error(e, "Failed to assign the automatically found Steam shortcuts path:");
                 }
             }
         }
@@ -362,21 +359,43 @@ namespace GlosSIIntegration
         {
             // Code executed when settings view is opened and user starts editing values.
             EditingClone = Serialization.GetClone(Settings);
-            AutoSetSteamShortcutsPath();
+
+            if (string.IsNullOrEmpty(Settings.SteamShortcutsPath))
+            {
+                AutoSetSteamShortcutsPath();
+            }
         }
 
         public void CancelEdit()
         {
             // Code executed when user decides to cancel any changes made since BeginEdit was called.
-            // This method should revert any changes made to Option1 and Option2.
             Settings = EditingClone;
         }
 
         public void EndEdit()
         {
             // Code executed when user decides to confirm changes made since BeginEdit was called.
-            // This method should save settings made to Option1 and Option2.
             plugin.SavePluginSettings(Settings);
+            CheckGlosSIVersion();
+        }
+
+        /// <summary>
+        /// Checks if the GlosSI version is up-to-date (at least for the purposes of this extension).
+        /// If not, warns the user.
+        /// <para><see cref="GlosSIIntegrationSettings.GlosSIPath"/> must be set before running this method.</para>
+        /// </summary>
+        private void CheckGlosSIVersion()
+        {
+            if (Settings.GlosSIVersion == null) return; // Should not be possible if the GlosSI path has been set.
+
+            if (Settings.GlosSIVersion < new Version("0.0.7.0"))
+            {
+                logger.Warn(ResourceProvider.GetString("LOC_GI_OldGlosSIVersionWarning") +
+                    $"\nInstalled date: {Settings.GlosSIVersion}");
+                playniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_OldGlosSIVersionWarning"), 
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"), 
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         public bool VerifySettings(out List<string> errors)

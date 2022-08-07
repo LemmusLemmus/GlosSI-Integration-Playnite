@@ -366,6 +366,7 @@ namespace GlosSIIntegration
 
         private void AddGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesAdded, bool avoidSteamGames)
         {
+            bool hasWarnedUnsupportedCharacters = false;
             gamesAdded = 0;
             progressBar.ProgressMaxValue = games.Count();
 
@@ -379,9 +380,16 @@ namespace GlosSIIntegration
 
                         if (new GlosSITarget(game).Create()) gamesAdded++;
                     }
+                    catch (GlosSITarget.UnsupportedCharacterException)
+                    {
+                        if (!hasWarnedUnsupportedCharacters)
+                        {
+                            hasWarnedUnsupportedCharacters = true;
+                            WarnGameHasUnsupportedCharacters();
+                        }
+                    }
                     catch (Exception e)
                     {
-                        
                         DisplayError("GeneralAddGames", 
                             string.Format(ResourceProvider.GetString("LOC_GI_CreateGlosSITargetUnexpectedError"), 
                             game.Name, e.Message), e);
@@ -435,6 +443,7 @@ namespace GlosSIIntegration
 
         private void RemoveGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesRemoved)
         {
+            bool hasWarnedUnsupportedCharacters = false;
             gamesRemoved = 0;
             progressBar.ProgressMaxValue = games.Count();
 
@@ -450,6 +459,14 @@ namespace GlosSIIntegration
                         }
                         progressBar.CurrentProgressValue++;
                     }
+                    catch (GlosSITarget.UnsupportedCharacterException)
+                    {
+                        if (!hasWarnedUnsupportedCharacters)
+                        {
+                            hasWarnedUnsupportedCharacters = true;
+                            WarnGameHasUnsupportedCharacters();
+                        }
+                    }
                     catch (Exception e)
                     {
                         DisplayError("RemoveGames", 
@@ -459,6 +476,28 @@ namespace GlosSIIntegration
                     }
                     if (progressBar.CancelToken.IsCancellationRequested) return;
                 }
+            }
+        }
+
+        private static void WarnGameHasUnsupportedCharacters()
+        {
+            WarnUnsupportedCharacters(ResourceProvider.GetString("LOC_GI_GameUnsupportedCharacterWarning"), 
+                MessageBoxImage.Warning);
+        }
+
+        public static void WarnUnsupportedCharacters(string message, MessageBoxImage icon)
+        {
+            logger.Warn(message);
+            List<MessageBoxOption> options = new List<MessageBoxOption>
+                        {
+                            new MessageBoxOption(ResourceProvider.GetString("LOCOKLabel"), true, true),
+                            new MessageBoxOption(ResourceProvider.GetString("LOCMenuHelpTitle"), false, false)
+                        };
+            MessageBoxOption result = Api.Dialogs.ShowMessage(message,
+                ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"), icon, options);
+            if (result == options[1])
+            {
+                GlosSIIntegrationSettingsViewModel.OpenLink("https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki/Limitations#miscellaneous");
             }
         }
 

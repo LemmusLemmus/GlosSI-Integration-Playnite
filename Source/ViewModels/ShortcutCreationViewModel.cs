@@ -121,7 +121,7 @@ namespace GlosSIIntegration
                 return false;
             }
 
-            if (Path.GetFileName(ShortcutIconPath).EndsWith(".exe"))
+            if (Path.GetFileName(ShortcutIconPath).ToLower().EndsWith(".exe"))
             {
                 List<MessageBoxOption> options = new List<MessageBoxOption>
                 {
@@ -168,6 +168,10 @@ namespace GlosSIIntegration
                     GlosSITarget target = new GlosSITarget(ShortcutName, ShortcutIconPath);
                     target.Create();
                     return true;
+                }
+                catch (GlosSITarget.UnsupportedCharacterException)
+                {
+                    GlosSIIntegration.WarnUnsupportedCharacters(ResourceProvider.GetString("LOC_GI_ShortcutUnsupportedCharacterError"), MessageBoxImage.Error);
                 }
                 catch (Exception ex)
                 {

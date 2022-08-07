@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System;
 using System.Text.RegularExpressions;
 using Playnite.SDK;
+using System.Linq;
 
 namespace GlosSIIntegration
 {
@@ -18,15 +19,17 @@ namespace GlosSIIntegration
         // The filename of the .json GlosSITarget profile, without the extension.
         private readonly string jsonFileName;
 
+        public class UnsupportedCharacterException : Exception { }
+
         /// <summary>
         /// Creates a <c>GlosSITarget</c> object from a Playnite <see cref="Game"/>.
         /// </summary>
         /// <param name="playniteGame">The Playnite game.</param>
+        /// <exception cref="ArgumentException">If the name of the game is null.</exception>
         public GlosSITarget(Game playniteGame)
         {
-            if (playniteGame.Name == null) throw new ArgumentException("The name of the game is null.");
-
             game = playniteGame;
+            if (game.Name == null) throw new ArgumentException("The name of the game is null.");
             jsonFileName = RemoveIllegalFileNameChars(playniteGame.Name);
             isPlayniteGame = true;
         }
@@ -36,6 +39,7 @@ namespace GlosSIIntegration
         /// </summary>
         /// <param name="name">The name of the shortcut.</param>
         /// <param name="iconPath">A path to the icon of the shortcut. The path can be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException">If the name is null.</exception>
         public GlosSITarget(string name, string iconPath)
         {
             if (name == null) throw new ArgumentNullException("name");
@@ -47,6 +51,35 @@ namespace GlosSIIntegration
             };
             jsonFileName = RemoveIllegalFileNameChars(name);
             isPlayniteGame = false;
+        }
+
+        /// <summary>
+        /// Verfies that the game name and icon path only contains supported characters 
+        /// for performing operations with GlosSI.
+        /// </summary>
+        /// <exception cref="UnsupportedCharacterException">If the name of the game or 
+        /// its full icon path contains unsupported characters.</exception>
+        private void VerifyGameCharacters()
+        {
+            // Non-ASCII characters are not supported if the GlosSI version is <= 0.0.7.0.
+            if ((IsNotAscii(game.Name) || IsNotAscii(GetGameIconPath())) &&
+                (GlosSIIntegration.GetSettings().GlosSIVersion == null || 
+                GlosSIIntegration.GetSettings().GlosSIVersion <= new Version("0.0.7.0")))
+            {
+                LogManager.GetLogger().Warn($"Game \"{game.Name}\" skipped due to non-ASCII characters. GlosSI version: " +
+                    GlosSIIntegration.GetSettings().GlosSIVersion);
+                throw new UnsupportedCharacterException();
+            }
+        }
+
+        /// <summary>
+        /// Checks if a string is not entirely ASCII.
+        /// </summary>
+        /// <param name="str">The string to be checked.</param>
+        /// <returns>true if the string contains a non-ASCII character; false otherwise.</returns>
+        private bool IsNotAscii(string str)
+        {
+            return str.Any(c => c > 127);
         }
 
         public static string RemoveIllegalFileNameChars(string filename)
@@ -61,11 +94,13 @@ namespace GlosSIIntegration
         /// <returns>true if the GlosSITarget was created; false if the game was ignored.</returns>
         /// <exception cref="FileNotFoundException">If the default target json-file could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">If the glosSITargetsPath directory could not be found.</exception>
+        /// <exception cref="UnsupportedCharacterException"><see cref="VerifyGameCharacters"/></exception>
         public bool Create()
         {
-            if (GlosSIIntegration.GameHasIgnoredTag(game) || 
+            if (GlosSIIntegration.GameHasIgnoredTag(game) ||
                 GlosSIIntegration.GameHasIntegratedTag(game)) return false;
 
+            VerifyGameCharacters();
             SaveAsJsonTarget();
             SaveToSteamShortcuts();
             if (isPlayniteGame) GlosSIIntegration.AddTagToGame(GlosSIIntegration.LOC_INTEGRATED_TAG, game);
@@ -155,10 +190,13 @@ namespace GlosSIIntegration
         /// This removes the game's integrated tag, GlosSITarget and entry in Steam shortcuts.vdf file.
         /// </summary>
         /// <returns>true if the integration was removed; false if it was nonexistent to begin with.</returns>
+        /// <exception cref="UnsupportedCharacterException"><see cref="VerifyGameCharacters"/></exception>
         public bool Remove()
         {
             if (!isPlayniteGame || GlosSIIntegration.GameHasIntegratedTag(game))
             {
+                VerifyGameCharacters();
+
                 if (isPlayniteGame)
                 {
                     GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.LOC_INTEGRATED_TAG, game);
