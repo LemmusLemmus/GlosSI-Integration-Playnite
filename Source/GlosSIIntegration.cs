@@ -364,10 +364,22 @@ namespace GlosSIIntegration
             }
         }
 
-        private void AddGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesAdded, bool avoidSteamGames)
+        /// <summary>
+        /// Performs an operation on each game in the game list.
+        /// </summary>
+        /// <param name="games">The list of games to perform an operation on.</param>
+        /// <param name="progressBar">A progress bar for which the progress value is incremented
+        /// every time <paramref name="proccess"/> is run.</param>
+        /// <param name="errorMessage">The error message that is shown to the user if 
+        /// <paramref name="proccess"/> throws an exception. 
+        /// The message will be formatted with the name of the game and the exception message.</param>
+        /// <param name="proccess">The proccess to run for each game.</param>
+        /// <returns>The number of games for which <paramref name="proccess"/> returned true.</returns>
+        private int ProcessGames(List<Game> games, GlobalProgressActionArgs progressBar,
+            string errorMessage, Predicate<Game> proccess)
         {
             bool hasWarnedUnsupportedCharacters = false;
-            gamesAdded = 0;
+            int gamesProccessed = 0;
             progressBar.ProgressMaxValue = games.Count();
 
             using (Api.Database.BufferedUpdate())
@@ -376,9 +388,8 @@ namespace GlosSIIntegration
                 {
                     try
                     {
-                        if (avoidSteamGames && IsSteamGame(game)) continue;
-
-                        if (new GlosSITarget(game).Create()) gamesAdded++;
+                        if (proccess(game)) gamesProccessed++;
+                        progressBar.CurrentProgressValue++;
                     }
                     catch (GlosSITarget.UnsupportedCharacterException)
                     {
@@ -390,15 +401,44 @@ namespace GlosSIIntegration
                     }
                     catch (Exception e)
                     {
-                        DisplayError("GeneralAddGames", 
-                            string.Format(ResourceProvider.GetString("LOC_GI_CreateGlosSITargetUnexpectedError"), 
+                        DisplayError("ProcessGames",
+                            string.Format(errorMessage,
                             game.Name, e.Message), e);
-                        return;
+                        break;
                     }
 
-                    if (progressBar.CancelToken.IsCancellationRequested) return;
+                    if (progressBar.CancelToken.IsCancellationRequested) break;
                 }
             }
+
+            return gamesProccessed;
+        }
+
+        private void AddGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesAdded, bool avoidSteamGames)
+        {
+            Predicate<Game> process;
+
+            if (avoidSteamGames)
+            {
+                process = (game) => !IsSteamGame(game) && new GlosSITarget(game).Create();
+            }
+            else
+            {
+                process = (game) => new GlosSITarget(game).Create();
+            }
+
+            gamesAdded = ProcessGames(games, progressBar,
+                ResourceProvider.GetString("LOC_GI_CreateGlosSITargetUnexpectedError"),
+                process);
+        }
+
+        private void RemoveGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesRemoved)
+        {
+            bool process(Game game) => new GlosSITarget(game).Remove();
+
+            gamesRemoved = ProcessGames(games, progressBar,
+                ResourceProvider.GetString("LOC_GI_RemoveGlosSITargetUnexpectedError"),
+                process);
         }
 
         /// <summary>
@@ -438,44 +478,6 @@ namespace GlosSIIntegration
             {
                 Api.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOC_GI_MultipleGamesRemoved"), gamesRemoved),
                     ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
-            }
-        }
-
-        private void RemoveGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesRemoved)
-        {
-            bool hasWarnedUnsupportedCharacters = false;
-            gamesRemoved = 0;
-            progressBar.ProgressMaxValue = games.Count();
-
-            using (Api.Database.BufferedUpdate())
-            {
-                foreach (Game game in games)
-                {
-                    try
-                    {
-                        if ((new GlosSITarget(game)).Remove())
-                        {
-                            gamesRemoved++;
-                        }
-                        progressBar.CurrentProgressValue++;
-                    }
-                    catch (GlosSITarget.UnsupportedCharacterException)
-                    {
-                        if (!hasWarnedUnsupportedCharacters)
-                        {
-                            hasWarnedUnsupportedCharacters = true;
-                            WarnGameHasUnsupportedCharacters();
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        DisplayError("RemoveGames", 
-                            string.Format(ResourceProvider.GetString("LOC_GI_RemoveGlosSITargetUnexpectedError"),
-                            game.Name, e.Message), e);
-                        return;
-                    }
-                    if (progressBar.CancelToken.IsCancellationRequested) return;
-                }
             }
         }
 
