@@ -70,8 +70,6 @@
     <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectCreateShortcutError">Required settings are missing/incorrect.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotSetError">The path to shortcuts.vdf has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError">The path to the GlosSI folder has not been set.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutsVDFIncorrectFormatError">The shortcuts.vdf path is incorrectly formatted.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSIFolderIncorrectFormatError">The GlosSI folder path is incorrectly formatted.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">The shortcuts.vdf path does not lead to a file called "shortcuts.vdf".</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotFoundError">The shortcuts.vdf file could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotFoundError">The GlosSI folder location could not be found.</sys:String>

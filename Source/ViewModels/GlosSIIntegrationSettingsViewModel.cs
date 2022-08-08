@@ -476,9 +476,7 @@ namespace GlosSIIntegration
         /// <returns>true if the <c>shortcuts.vdf</c> path is valid; false otherwise.</returns>
         private bool VerifySteamShortcutsPath(ref List<string> errors)
         {
-            string path = Settings.SteamShortcutsPath;
-
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(Settings.SteamShortcutsPath))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFNotSetError"));
                 return false;
@@ -486,35 +484,34 @@ namespace GlosSIIntegration
 
             try
             {
-                Settings.SteamShortcutsPath = Environment.ExpandEnvironmentVariables(path);
-                path = Settings.SteamShortcutsPath;
-                Path.GetFullPath(path); // This should throw an exception if the path is incorrectly formatted.
+                Settings.SteamShortcutsPath = Path.GetFullPath(Settings.SteamShortcutsPath);
             }
             catch
-            {
-                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFIncorrectFormatError"));
-                return false;
-            }
-
-            path = path.ToLower();
-
-            if (Path.GetFileName(path) != "shortcuts.vdf")
-            {
-                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFWrongNameError"));
-                return false;
-            }
-            
-            if (!File.Exists(path))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFNotFoundError"));
                 return false;
             }
 
-            if (!path.Contains(@"steam\userdata") || !path.Contains(@"config\shortcuts.vdf"))
+            if (Path.GetFileName(Settings.SteamShortcutsPath) != "shortcuts.vdf")
+            {
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFWrongNameError"));
+                return false;
+            }
+            
+            if (!File.Exists(Settings.SteamShortcutsPath))
+            {
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFNotFoundError"));
+                return false;
+            }
+
+            string lowercasePath = Settings.SteamShortcutsPath.ToLower();
+
+            if (!lowercasePath.Contains(@"steam\userdata") || !lowercasePath.Contains(@"config\shortcuts.vdf"))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFWrongLocationError"));
                 return false;
             }
+
             return true;
         }
 
@@ -525,9 +522,7 @@ namespace GlosSIIntegration
         /// <returns>true if the GlosSI folder path is valid; false otherwise.</returns>
         private bool VerifyGlosSIPath(ref List<string> errors)
         {
-            string path = Settings.GlosSIPath;
-
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(Settings.GlosSIPath))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderNotSetError"));
                 return false;
@@ -535,26 +530,26 @@ namespace GlosSIIntegration
 
             try
             {
-                Settings.GlosSIPath = Environment.ExpandEnvironmentVariables(path);
-                path = Settings.GlosSIPath;
-                Path.GetFullPath(path); // This should throw an exception if the path is incorrectly formatted.
+                Settings.GlosSIPath = Path.GetFullPath(Settings.GlosSIPath);
             }
             catch
-            {
-                errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderIncorrectFormatError"));
-                return false;
-            }
-
-            if (!Directory.Exists(path))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderNotFoundError"));
                 return false;
             }
-            else if (!File.Exists(Path.Combine(path, "GlosSIConfig.exe")) || !File.Exists(Path.Combine(path, "GlosSITarget.exe")))
+
+            if (!Directory.Exists(Settings.GlosSIPath))
+            {
+                errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderNotFoundError"));
+                return false;
+            }
+            else if (!File.Exists(Path.Combine(Settings.GlosSIPath, "GlosSIConfig.exe")) || 
+                !File.Exists(Path.Combine(Settings.GlosSIPath, "GlosSITarget.exe")))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderExecutablesNotFoundError"));
                 return false;
             }
+
             return true;
         }
 

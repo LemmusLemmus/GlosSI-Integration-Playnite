@@ -113,6 +113,16 @@ namespace GlosSIIntegration
                 return true;
             }
 
+            try
+            {
+                shortcutIconPath = Path.GetFullPath(ShortcutIconPath);
+            }
+            catch
+            {
+                errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutIconNotFoundError"));
+                return false;
+            }
+
             if (!File.Exists(ShortcutIconPath))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutIconNotFoundError"));
