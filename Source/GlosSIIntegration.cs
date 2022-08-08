@@ -396,6 +396,11 @@ namespace GlosSIIntegration
                             WarnGameHasUnsupportedCharacters();
                         }
                     }
+                    catch (GlosSITarget.UnexpectedGlosSIBehaviour)
+                    {
+                        logger.Error(string.Format(errorMessage, game.Name, "UnexpectedGlosSIBehaviour"));
+                        break;
+                    }
                     catch (Exception e)
                     {
                         DisplayError(string.Format(errorMessage, game.Name, e.Message), e);

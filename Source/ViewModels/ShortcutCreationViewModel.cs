@@ -179,7 +179,13 @@ namespace GlosSIIntegration
                 }
                 catch (GlosSITarget.UnsupportedCharacterException)
                 {
-                    GlosSIIntegration.WarnUnsupportedCharacters(ResourceProvider.GetString("LOC_GI_ShortcutUnsupportedCharacterError"), MessageBoxImage.Error);
+                    GlosSIIntegration.WarnUnsupportedCharacters(
+                        ResourceProvider.GetString("LOC_GI_ShortcutUnsupportedCharacterError"), MessageBoxImage.Error);
+                }
+                catch (GlosSITarget.UnexpectedGlosSIBehaviour)
+                {
+                    LogManager.GetLogger().Error($"Creating shortcut \"{ShortcutName}\" " +
+                        $"with icon path \"{ShortcutIconPath}\" lead to UnexpectedGlosSIBehaviour.");
                 }
                 catch (Exception ex)
                 {
