@@ -170,8 +170,7 @@ namespace GlosSIIntegration
                     // TODO: Make the notification more helpful.
                     // A currently probable reason for this happening is due to a name change.
                     // Perhaps add a help link?
-                    DisplayError("OnGameStarted-NoJsonFile", 
-                        ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
+                    DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
                     return;
                 }
 
@@ -188,12 +187,11 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Displays an error as a Playnite notification and logs it.
+        /// Displays an error message and logs it.
         /// </summary>
-        /// <param name="source">The source of the error.</param>
         /// <param name="message">The user-readable error message.</param>
         /// <param name="exception">The exception, if one exists.</param>
-        public void DisplayError(string source, string message, Exception exception = null)
+        public void DisplayError(string message, Exception exception = null)
         {
             if (exception == null)
             {
@@ -203,7 +201,7 @@ namespace GlosSIIntegration
             {
                 logger.Error(exception, message);
             }
-            Api.Notifications.Add($"{Id}-{source}", message, NotificationType.Error);
+            Api.Dialogs.ShowErrorMessage(message, ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
         }
 
         public override void OnGameStopped(OnGameStoppedEventArgs args)
@@ -250,8 +248,7 @@ namespace GlosSIIntegration
                 {
                     if (!proc.WaitForExit(10000))
                     {
-                        DisplayError("CloseGlosSITargets", 
-                            ResourceProvider.GetString("LOC_GI_CloseGlosSITargetTimelyUnexpectedError"));
+                        DisplayError(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetTimelyUnexpectedError"));
                     }
                     proc.Close();
                 }
@@ -259,8 +256,8 @@ namespace GlosSIIntegration
             catch (InvalidOperationException) { }
             catch (PlatformNotSupportedException e)
             {
-                DisplayError("CloseGlosSITargets", 
-                    string.Format(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetUnexpectedError"), e.Message), e);
+                DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetUnexpectedError"), 
+                    e.Message), e);
             }
         }
 
@@ -401,9 +398,7 @@ namespace GlosSIIntegration
                     }
                     catch (Exception e)
                     {
-                        DisplayError("ProcessGames",
-                            string.Format(errorMessage,
-                            game.Name, e.Message), e);
+                        DisplayError(string.Format(errorMessage, game.Name, e.Message), e);
                         break;
                     }
 

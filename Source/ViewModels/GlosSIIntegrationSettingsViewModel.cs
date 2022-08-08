@@ -55,7 +55,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                GlosSIIntegration.Instance.DisplayError("DefaultTargetPathSettings", e.Message, e);
+                GlosSIIntegration.Instance.DisplayError(e.Message, e);
             }
         }
 
@@ -138,8 +138,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                plugin.DisplayError("BackupTargetFiles", 
-                    string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupGlosSIUnexpectedError"), 
+                plugin.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupGlosSIUnexpectedError"), 
                     e.Message), e);
             }
             
@@ -169,8 +168,8 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                plugin.DisplayError("BackupShortcutsFile", 
-                    string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupSteamFileUnexpectedError"), e.Message), e);
+                plugin.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupSteamFileUnexpectedError"), 
+                    e.Message), e);
             }
         }
 
