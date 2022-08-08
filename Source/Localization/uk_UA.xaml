@@ -35,6 +35,7 @@
     <sys:String x:Key="LOC_GI_GameMenuSection">GlosSI Integration</sys:String>
     <sys:String x:Key="LOC_GI_GameMenuAddIntegration">Add Integration</sys:String>
     <sys:String x:Key="LOC_GI_GameMenuRemoveIntegration">Remove Integration</sys:String>
+    <sys:String x:Key="LOC_GI_GameUnsupportedCharacterWarning">At least one game name and/or icon path contains non-ASCII characters. These games will be skipped as the installed version of GlosSI does not reliably support all Unicode characters.</sys:String>
 
     <!--Main Settings-->
     <sys:String x:Key="LOC_GI_GeneralSettingsHeader">General Settings</sys:String>
@@ -54,12 +55,14 @@
     <sys:String x:Key="LOC_GI_MultipleSteamUsersFound">Which of these Steam accounts should the GlosSI integration add shortcuts to? The plugin needs the path to shortcuts.vdf.</sys:String>
     <sys:String x:Key="LOC_GI_MultipleSteamUserCode">User with Friend Code: &quot;{0}&quot;</sys:String>
     <sys:String x:Key="LOC_GI_SelectShortcutsVDFFileType">Steam Shortcuts file</sys:String>
+    <sys:String x:Key="LOC_GI_OldGlosSIVersionWarning">The installed GlosSI version is an older one and the extension is not guaranteed to work with it. Please consider updating GlosSI for the latest features and bug fixes.</sys:String>
 
     <!--Shortcut Creation-->
     <sys:String x:Key="LOC_GI_ShortcutCreationWindowTitle">Create a new Steam shortcut</sys:String>
     <sys:String x:Key="LOC_GI_SteamShortcutNameTextBox">Steam shortcut name:</sys:String>
     <sys:String x:Key="LOC_GI_SteamShortcutIconTextBox">Steam shortcut icon:</sys:String>
     <sys:String x:Key="LOC_GI_SelectIconFileType">Image</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutUnsupportedCharacterError">The name and/or icon path contains non-ASCII characters. The installed version of GlosSI does not reliably support all Unicode characters.</sys:String>
 
     <!--Verification Errors-->
     <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectDesktopError">Required settings are missing/incorrect. Go to the settings menu?</sys:String>
@@ -91,6 +94,7 @@
     <sys:String x:Key="LOC_GI_ReadDefaultTargetUnexpectedError">Failed to open the default target file: {0}</sys:String>
     <sys:String x:Key="LOC_GI_ReadIconPathUnexpectedError">Unexpected error encountered when reading the icon path: {0}</sys:String>
     <sys:String x:Key="LOC_GI_CreateSteamShortcutUnexpectedError">Something went wrong when attempting to create the Steam shortcut: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_GetGlosSIVersionUnexpectedError">Failed to check the GlosSI version: {0}</sys:String>
     <sys:String x:Key="LOC_GI_CreateDefaultTargetFileUnexpectedError">Failed to access or create the default target file: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError">Failed to backup the GlosSI configuration files: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError">Failed to backup the Shortcuts.vdf file: {0}</sys:String>
