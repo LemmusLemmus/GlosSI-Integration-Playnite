@@ -1,7 +1,7 @@
 ﻿Id: GlosSIIntegration_6b0297da-75e5-4330-bb2d-b64bff22c315
 Name: GlosSI Integration
 Author: LemmusLemmus
-Version: 0.3.0
+Version: 1.0.0
 Module: GlosSIIntegration.dll
 Type: GenericPlugin
 Icon: icon.png
@@ -9,4 +9,6 @@ Links:
     - Name: GitHub
       Url: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite
     - Name: Wiki
-      Wiki: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki
+      Url: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki
+    - Name: Translate
+      Url: https://crowdin.com/project/glossi-integration-playnite

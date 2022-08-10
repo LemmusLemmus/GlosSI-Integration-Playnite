@@ -3,7 +3,7 @@ Type: Generic
 Name: GlosSI Integration
 Author: LemmusLemmus
 ShortDescription: Integrates Playnite with GlosSI, making it easy to use the Steam overlay and Steam input with any game.
-Description: An extension that integrates Playnite with GlosSI, making it easy to use the Steam overlay and Steam input with any game. The extension automates creating, removing, launching and closing of GlosSI Steam shortcuts for your games in Playnite. It requires that GlosSI and Steam is installed.
+Description: An extension that integrates Playnite with GlosSI, making it easy to use the Steam overlay and Steam input with any game. It automates creating, removing, launching and closing of GlosSI Steam shortcuts for your games in Playnite. GlosSI and Steam must be installed to use the extension.
 InstallerManifestUrl: https://raw.githubusercontent.com/LemmusLemmus/GlosSI-Integration-Playnite/main/InstallerManifest.yaml
 SourceUrl: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite
 IconUrl: https://raw.githubusercontent.com/LemmusLemmus/GlosSI-Integration-Playnite/main/Source/icon.png
@@ -11,6 +11,7 @@ Tags: ["Generic", "Steam", "Overlay", "Controller", "GlosSI"]
 Links:
     Github: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite
     Wiki: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki
+    Translate: https://crowdin.com/project/glossi-integration-playnite
 Screenshots:
     - Thumbnail: https://raw.githubusercontent.com/LemmusLemmus/GlosSI-Integration-Playnite/main/Screenshots/Thumbnails/AddonSettingsDefault.jpg
       Image: https://raw.githubusercontent.com/LemmusLemmus/GlosSI-Integration-Playnite/main/Screenshots/AddonSettingsDefault.png
