@@ -2,23 +2,23 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xml:space="preserve">
 
     <!--General-->
-    <sys:String x:Key="LOC_GI_DefaultWindowTitle">GlosSI Integration</sys:String>
-    <sys:String x:Key="LOC_GI_RestartSteamReminder">Steam must be restarted for the changes to take effect.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">GlosSI Integration failed to run the Steam Shortcut: The GlosSI .json target file could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_TopPanelButtonDisableTooltip">Disable GlosSI Integration</sys:String>
-    <sys:String x:Key="LOC_GI_TopPanelButtonEnableTooltip">Enable GlosSI Integration</sys:String>
+    <sys:String x:Key="LOC_GI_DefaultWindowTitle">Integración de GlosSI</sys:String>
+    <sys:String x:Key="LOC_GI_RestartSteamReminder">Se debe reiniciar Steam para que los cambios surtan efecto.</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">La integración de GlosSI no pudo ejecutar el acceso directo de Steam: El archivo de destino .json de GlosSI no pudo ser encontrado.</sys:String>
+    <sys:String x:Key="LOC_GI_TopPanelButtonDisableTooltip">Desactivar integración de GlosSI</sys:String>
+    <sys:String x:Key="LOC_GI_TopPanelButtonEnableTooltip">Habilitar integración de GlosSI</sys:String>
 
     <!--Progress Bars-->
-    <sys:String x:Key="LOC_GI_BackingUpGlosSIFiles">Backing up GlosSI configuration files...</sys:String>
-    <sys:String x:Key="LOC_GI_BackingUpSteamFile">Backing up Steam shortcuts file...</sys:String>
-    <sys:String x:Key="LOC_GI_AddingIntegrationToGames">Adding GlosSI integration to games...</sys:String>
-    <sys:String x:Key="LOC_GI_RemovingIntegrationFromGames">Removing GlosSI integration from games...</sys:String>
+    <sys:String x:Key="LOC_GI_BackingUpGlosSIFiles">Respaldando archivos de configuración GlosSI...</sys:String>
+    <sys:String x:Key="LOC_GI_BackingUpSteamFile">Respaldando archivo de accesos directos de Steam...</sys:String>
+    <sys:String x:Key="LOC_GI_AddingIntegrationToGames">Añadiendo integración GlosSI a los juegos...</sys:String>
+    <sys:String x:Key="LOC_GI_RemovingIntegrationFromGames">Eliminando la integración GlosSI de los juegos...</sys:String>
 
     <!--Adding Integration to Games-->
-    <sys:String x:Key="LOC_GI_AddGameIsSteamGame">The selected game &quot;{0}&quot; is a Steam game and should already support the Steam overlay/input. Are you sure you want to add the game?</sys:String>
-    <sys:String x:Key="LOC_GI_AddGamesAreSteamGames">All of the selected games are Steam games and should already support the Steam overlay/input. Are you sure you want to add the games?</sys:String>
-    <sys:String x:Key="LOC_GI_NoGamesAdded">No games were added as GlosSI Steam Shortcuts. This could be due to the games already having been added or having the ignored tag.</sys:String>
-    <sys:String x:Key="LOC_GI_OneGameAdded">One game was successfully added as GlosSI Steam Shortcut. {0}</sys:String>
+    <sys:String x:Key="LOC_GI_AddGameIsSteamGame">El juego seleccionado &quot;{0}&quot; es una juego de Steam y ya debería ser compatible con la superposición/entrada de Steam. ¿Estás seguro de que deseas añadir el juego?</sys:String>
+    <sys:String x:Key="LOC_GI_AddGamesAreSteamGames">Todos los juegos seleccionados son juegos de Steam y ya deberían ser compatibles con la superposición/entrada de Steam. ¿Estás seguro de que quieres añadir los juegos?</sys:String>
+    <sys:String x:Key="LOC_GI_NoGamesAdded">No se han añadido juegos como atajos de Steam GlosSI. Esto puede deberse a que los juegos ya han sido añadidos o que tienen el tag para ignornarlos.</sys:String>
+    <sys:String x:Key="LOC_GI_OneGameAdded">Un juego se ha añadido correctamente como acceso directo de Steam GlosSI. {0}</sys:String>
     <sys:String x:Key="LOC_GI_MultipleGamesAdded">{0} games were successfully added as GlosSI Steam Shortcuts{1}. {2}</sys:String>
     <sys:String x:Key="LOC_GI_GamesSkipped"> ({0} game(s) were skipped)</sys:String>
 
