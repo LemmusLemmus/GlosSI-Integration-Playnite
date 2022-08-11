@@ -2,72 +2,72 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xml:space="preserve">
 
     <!--General-->
-    <sys:String x:Key="LOC_GI_DefaultWindowTitle">GlosSI Integration</sys:String>
-    <sys:String x:Key="LOC_GI_RestartSteamReminder">Steam must be restarted for the changes to take effect.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">GlosSI Integration failed to run the Steam Shortcut: The GlosSI .json target file could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_TopPanelButtonDisableTooltip">Disable GlosSI Integration</sys:String>
-    <sys:String x:Key="LOC_GI_TopPanelButtonEnableTooltip">Enable GlosSI Integration</sys:String>
+    <sys:String x:Key="LOC_GI_DefaultWindowTitle">Integración de GlosSI</sys:String>
+    <sys:String x:Key="LOC_GI_RestartSteamReminder">Se debe reiniciar Steam para que los cambios surtan efecto.</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">La integración de GlosSI no pudo ejecutar el acceso directo de Steam: El archivo de destino .json de GlosSI no pudo ser encontrado.</sys:String>
+    <sys:String x:Key="LOC_GI_TopPanelButtonDisableTooltip">Desactivar integración de GlosSI</sys:String>
+    <sys:String x:Key="LOC_GI_TopPanelButtonEnableTooltip">Habilitar integración de GlosSI</sys:String>
 
     <!--Progress Bars-->
-    <sys:String x:Key="LOC_GI_BackingUpGlosSIFiles">Backing up GlosSI configuration files...</sys:String>
-    <sys:String x:Key="LOC_GI_BackingUpSteamFile">Backing up Steam shortcuts file...</sys:String>
-    <sys:String x:Key="LOC_GI_AddingIntegrationToGames">Adding GlosSI integration to games...</sys:String>
-    <sys:String x:Key="LOC_GI_RemovingIntegrationFromGames">Removing GlosSI integration from games...</sys:String>
+    <sys:String x:Key="LOC_GI_BackingUpGlosSIFiles">Respaldando archivos de configuración GlosSI...</sys:String>
+    <sys:String x:Key="LOC_GI_BackingUpSteamFile">Respaldando archivo de accesos directos de Steam...</sys:String>
+    <sys:String x:Key="LOC_GI_AddingIntegrationToGames">Añadiendo integración GlosSI a los juegos...</sys:String>
+    <sys:String x:Key="LOC_GI_RemovingIntegrationFromGames">Eliminando la integración GlosSI de los juegos...</sys:String>
 
     <!--Adding Integration to Games-->
-    <sys:String x:Key="LOC_GI_AddGameIsSteamGame">The selected game &quot;{0}&quot; is a Steam game and should already support the Steam overlay/input. Are you sure you want to add the game?</sys:String>
-    <sys:String x:Key="LOC_GI_AddGamesAreSteamGames">All of the selected games are Steam games and should already support the Steam overlay/input. Are you sure you want to add the games?</sys:String>
-    <sys:String x:Key="LOC_GI_NoGamesAdded">No games were added as GlosSI Steam Shortcuts. This could be due to the games already having been added or having the ignored tag.</sys:String>
-    <sys:String x:Key="LOC_GI_OneGameAdded">One game was successfully added as GlosSI Steam Shortcut. {0}</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleGamesAdded">{0} games were successfully added as GlosSI Steam Shortcuts{1}. {2}</sys:String>
-    <sys:String x:Key="LOC_GI_GamesSkipped"> ({0} game(s) were skipped)</sys:String>
+    <sys:String x:Key="LOC_GI_AddGameIsSteamGame">El juego seleccionado &quot;{0}&quot; es una juego de Steam y ya debería ser compatible con la superposición/entrada de Steam. ¿Estás seguro de que deseas añadir el juego?</sys:String>
+    <sys:String x:Key="LOC_GI_AddGamesAreSteamGames">Todos los juegos seleccionados son juegos de Steam y ya deberían ser compatibles con la superposición/entrada de Steam. ¿Estás seguro de que quieres añadir los juegos?</sys:String>
+    <sys:String x:Key="LOC_GI_NoGamesAdded">No se han añadido juegos como atajos de Steam GlosSI. Esto puede deberse a que los juegos ya han sido añadidos o que tienen el tag para ignornarlos.</sys:String>
+    <sys:String x:Key="LOC_GI_OneGameAdded">Un juego se ha añadido correctamente como acceso directo de Steam GlosSI. {0}</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleGamesAdded">{0} juegos se añadieron correctamente como accesos directos de GlosSI en Steam{1}. {2}</sys:String>
+    <sys:String x:Key="LOC_GI_GamesSkipped"> ({0} juego(s) fueron omitidos)</sys:String>
 
     <!--Removing Integration from Games-->
-    <sys:String x:Key="LOC_GI_NoGamesRemoved">No GlosSI/Steam integrations were removed.</sys:String>
-    <sys:String x:Key="LOC_GI_OneGameRemoved">The GlosSI/Steam integration of one game was removed.</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleGamesRemoved">The GlosSI/Steam integration of {0} games were removed.</sys:String>
+    <sys:String x:Key="LOC_GI_NoGamesRemoved">No se eliminaron integraciones de GlosSI/Steam.</sys:String>
+    <sys:String x:Key="LOC_GI_OneGameRemoved">La integración GlosSI/Steam de un juego fue eliminada.</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleGamesRemoved">La integración GlosSI/Steam de {0} juegos fueron eliminados.</sys:String>
 
     <!--Tags-->
     <sys:String x:Key="LOC_GI_IntegratedTag">[GI] Integrated</sys:String>
     <sys:String x:Key="LOC_GI_IgnoredTag">[GI] Ignored</sys:String>
     
     <!--Game Menu-->
-    <sys:String x:Key="LOC_GI_GameMenuSection">GlosSI Integration</sys:String>
-    <sys:String x:Key="LOC_GI_GameMenuAddIntegration">Add Integration</sys:String>
-    <sys:String x:Key="LOC_GI_GameMenuRemoveIntegration">Remove Integration</sys:String>
-    <sys:String x:Key="LOC_GI_GameUnsupportedCharacterWarning">At least one game name and/or icon path contains non-ASCII characters. These games will be skipped as the installed version of GlosSI does not reliably support all Unicode characters.</sys:String>
+    <sys:String x:Key="LOC_GI_GameMenuSection">Integración de GlosSI</sys:String>
+    <sys:String x:Key="LOC_GI_GameMenuAddIntegration">Añadir Integración</sys:String>
+    <sys:String x:Key="LOC_GI_GameMenuRemoveIntegration">Quitar integracion</sys:String>
+    <sys:String x:Key="LOC_GI_GameUnsupportedCharacterWarning">Al menos un nombre de juego y/o ruta de iconos contiene caracteres que no son ASCII. Estos juegos se saltarán ya que la versión instalada de GlosSI no soporta de forma fiable todos los caracteres Unicode.</sys:String>
 
     <!--Main Settings-->
-    <sys:String x:Key="LOC_GI_GeneralSettingsHeader">General Settings</sys:String>
-    <sys:String x:Key="LOC_GI_DesktopModeSettingsHeader">Desktop Mode Settings</sys:String>
-    <sys:String x:Key="LOC_GI_FullscreenModeSettingsHeader">Fullscreen Mode Settings</sys:String>
-    <sys:String x:Key="LOC_GI_PathSettingsHeader">Path Settings (required)</sys:String>
-    <sys:String x:Key="LOC_GI_EditDefaultGlosSITargetLink">Edit the GlosSI configuration used when creating new shortcuts.</sys:String>
-    <sys:String x:Key="LOC_GI_UseDefaultOverlayCheckBox">Use a Default Steam overlay</sys:String>
-    <sys:String x:Key="LOC_GI_UsePlayniteOverlayCheckBox">Use a Playnite Steam overlay</sys:String>
-    <sys:String x:Key="LOC_GI_DefaultOverlayNameTextBox">Default overlay name:</sys:String>
-    <sys:String x:Key="LOC_GI_PlayniteOverlayNameTextBox">Playnite overlay name:</sys:String>
-    <sys:String x:Key="LOC_GI_AddOverlayButtonTooltip">Add…</sys:String>
-    <sys:String x:Key="LOC_GI_DefaultUseIntegrationDesktopCheckBox">Enable GlosSI Integration by default in desktop mode</sys:String>
-    <sys:String x:Key="LOC_GI_UseIntegrationFullscreenCheckBox">Use GlosSI Integration in fullscreen mode</sys:String>
-    <sys:String x:Key="LOC_GI_SteamShortcutsPathTextBox">Steam shortcuts path:</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSIFolderPathTextBox">GlosSI folder path:</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleSteamUsersFound">Which of these Steam accounts should the GlosSI integration add shortcuts to? The plugin needs the path to shortcuts.vdf.</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleSteamUserCode">User with Friend Code: &quot;{0}&quot;</sys:String>
-    <sys:String x:Key="LOC_GI_SelectShortcutsVDFFileType">Steam Shortcuts file</sys:String>
-    <sys:String x:Key="LOC_GI_OldGlosSIVersionWarning">The installed GlosSI version is an older one and the extension is not guaranteed to work with it. Please consider updating GlosSI for the latest features and bug fixes.</sys:String>
+    <sys:String x:Key="LOC_GI_GeneralSettingsHeader">Configuración General</sys:String>
+    <sys:String x:Key="LOC_GI_DesktopModeSettingsHeader">Ajustes del modo de escritorio</sys:String>
+    <sys:String x:Key="LOC_GI_FullscreenModeSettingsHeader">Ajustes del modo pantalla completa</sys:String>
+    <sys:String x:Key="LOC_GI_PathSettingsHeader">Configuración de rutas (requerido)</sys:String>
+    <sys:String x:Key="LOC_GI_EditDefaultGlosSITargetLink">Editar la configuración de GlosSI usó al crear nuevos atajos.</sys:String>
+    <sys:String x:Key="LOC_GI_UseDefaultOverlayCheckBox">Usar una superposición de Steam por defecto</sys:String>
+    <sys:String x:Key="LOC_GI_UsePlayniteOverlayCheckBox">Usa una superposición de Steam de Playnite</sys:String>
+    <sys:String x:Key="LOC_GI_DefaultOverlayNameTextBox">Nombre de la superposición predeterminada:</sys:String>
+    <sys:String x:Key="LOC_GI_PlayniteOverlayNameTextBox">Nombre de la superposición de Playnite:</sys:String>
+    <sys:String x:Key="LOC_GI_AddOverlayButtonTooltip">Añadir…</sys:String>
+    <sys:String x:Key="LOC_GI_DefaultUseIntegrationDesktopCheckBox">Habilitar integración GlosSI por defecto en modo escritorio</sys:String>
+    <sys:String x:Key="LOC_GI_UseIntegrationFullscreenCheckBox">Usar integración GlosSI en modo de pantalla completa</sys:String>
+    <sys:String x:Key="LOC_GI_SteamShortcutsPathTextBox">Ruta de accesos directos de Steam:</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSIFolderPathTextBox">Ruta de la carpeta de GlosSI:</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleSteamUsersFound">¿Cuál de estas cuentas de Steam debería añadir accesos directos a la integración GlosSI? El plugin necesita la ruta a shortcuts.vdf.</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleSteamUserCode">Usuario con el Código de Amigo: &quot;{0}&quot;</sys:String>
+    <sys:String x:Key="LOC_GI_SelectShortcutsVDFFileType">Archivo de accesos directos de Steam</sys:String>
+    <sys:String x:Key="LOC_GI_OldGlosSIVersionWarning">La versión instalada de GlosSI es más antigua y la extensión no está garantizada para trabajar con ella. Por favor, considera actualizar GlosSI para las últimas características y correcciones de errores.</sys:String>
 
     <!--Shortcut Creation-->
-    <sys:String x:Key="LOC_GI_ShortcutCreationWindowTitle">Create a new Steam shortcut</sys:String>
-    <sys:String x:Key="LOC_GI_SteamShortcutNameTextBox">Steam shortcut name:</sys:String>
-    <sys:String x:Key="LOC_GI_SteamShortcutIconTextBox">Steam shortcut icon:</sys:String>
-    <sys:String x:Key="LOC_GI_SelectIconFileType">Image</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutUnsupportedCharacterError">The name and/or icon path contains non-ASCII characters. The installed version of GlosSI does not reliably support all Unicode characters.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutCreationWindowTitle">Crear un nuevo acceso directo de Steam</sys:String>
+    <sys:String x:Key="LOC_GI_SteamShortcutNameTextBox">Nombre del acceso directo de Steam:</sys:String>
+    <sys:String x:Key="LOC_GI_SteamShortcutIconTextBox">Icono de acceso directo en Steam:</sys:String>
+    <sys:String x:Key="LOC_GI_SelectIconFileType">Imágen</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutUnsupportedCharacterError">La ruta del nombre y/o icono contiene caracteres no ASCII. La versión instalada de GlosSI no soporta de forma fiable todos los caracteres Unicode.</sys:String>
 
     <!--Verification Errors-->
-    <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectDesktopError">Required settings are missing/incorrect. Go to the settings menu?</sys:String>
-    <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectFullscreenError">Required settings are missing/incorrect. Please visit the settings menu in desktop mode.</sys:String>
-    <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectCreateShortcutError">Required settings are missing/incorrect.</sys:String>
+    <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectDesktopError">Los ajustes requeridos faltan o son incorrectos. ¿Ir al menú de configuración?</sys:String>
+    <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectFullscreenError">Los ajustes requeridos no se encuentran o son incorrectos. Por favor, visita el menú de configuración en el modo de escritorio.</sys:String>
+    <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectCreateShortcutError">Los ajustes requeridos no se encuentran o son incorrectos.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotSetError">The path to shortcuts.vdf has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError">The path to the GlosSI folder has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">The shortcuts.vdf path does not lead to a file called &quot;shortcuts.vdf&quot;.</sys:String>
