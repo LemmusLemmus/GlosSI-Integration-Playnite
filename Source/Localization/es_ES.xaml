@@ -4,7 +4,7 @@
     <!--General-->
     <sys:String x:Key="LOC_GI_DefaultWindowTitle">Integración de GlosSI</sys:String>
     <sys:String x:Key="LOC_GI_RestartSteamReminder">Se debe reiniciar Steam para que los cambios surtan efecto.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">GlosSI Integration failed to run the Steam shortcut: The GlosSI .json target file could not be found.</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">La integración de GlosSI no pudo ejecutar el acceso directo de Steam: El archivo de destino .json de GlosSI no pudo ser encontrado.</sys:String>
     <sys:String x:Key="LOC_GI_TopPanelButtonDisableTooltip">Desactivar integración de GlosSI</sys:String>
     <sys:String x:Key="LOC_GI_TopPanelButtonEnableTooltip">Habilitar integración de GlosSI</sys:String>
 
@@ -17,9 +17,9 @@
     <!--Adding Integration to Games-->
     <sys:String x:Key="LOC_GI_AddGameIsSteamGame">El juego seleccionado &quot;{0}&quot; es una juego de Steam y ya debería ser compatible con la superposición/entrada de Steam. ¿Estás seguro de que deseas añadir el juego?</sys:String>
     <sys:String x:Key="LOC_GI_AddGamesAreSteamGames">Todos los juegos seleccionados son juegos de Steam y ya deberían ser compatibles con la superposición/entrada de Steam. ¿Estás seguro de que quieres añadir los juegos?</sys:String>
-    <sys:String x:Key="LOC_GI_NoGamesAdded">No games were added as GlosSI Steam shortcuts. This could be due to the games already having been added or having the ignored tag.</sys:String>
-    <sys:String x:Key="LOC_GI_OneGameAdded">One game was successfully added as GlosSI Steam shortcut{0}. {1}</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleGamesAdded">{0} games were successfully added as GlosSI Steam shortcuts{1}. {2}</sys:String>
+    <sys:String x:Key="LOC_GI_NoGamesAdded">No se han añadido juegos como atajos de Steam GlosSI. Esto puede deberse a que los juegos ya han sido añadidos o que tienen el tag para ignornarlos.</sys:String>
+    <sys:String x:Key="LOC_GI_OneGameAdded">Un juego se ha añadido correctamente como acceso directo de Steam GlosSI{0}. {1}</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleGamesAdded">{0} juegos se añadieron correctamente como accesos directos de GlosSI en Steam{1}. {2}</sys:String>
     <sys:String x:Key="LOC_GI_OneGameSkipped"> (one game was skipped)</sys:String>
     <sys:String x:Key="LOC_GI_MultipleGamesSkipped"> ({0} games were skipped)</sys:String>
 
@@ -55,7 +55,7 @@
     <sys:String x:Key="LOC_GI_GlosSIFolderPathTextBox">Ruta de la carpeta de GlosSI:</sys:String>
     <sys:String x:Key="LOC_GI_MultipleSteamUsersFound">¿Cuál de estas cuentas de Steam debería añadir accesos directos a la integración GlosSI? El plugin necesita la ruta a shortcuts.vdf.</sys:String>
     <sys:String x:Key="LOC_GI_MultipleSteamUserCode">Usuario con el Código de Amigo: &quot;{0}&quot;</sys:String>
-    <sys:String x:Key="LOC_GI_SelectShortcutsVDFFileType">Steam shortcuts file</sys:String>
+    <sys:String x:Key="LOC_GI_SelectShortcutsVDFFileType">Archivo de accesos directos de Steam</sys:String>
     <sys:String x:Key="LOC_GI_OldGlosSIVersionWarning">La versión instalada de GlosSI es más antigua y la extensión no está garantizada para trabajar con ella. Por favor, considera actualizar GlosSI para las últimas características y correcciones de errores.</sys:String>
 
     <!--Shortcut Creation-->
