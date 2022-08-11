@@ -1,5 +1,12 @@
 ﻿AddonId: GlosSIIntegration_6b0297da-75e5-4330-bb2d-b64bff22c315
 Packages:
+  - Version: 1.0.1
+    RequiredApiVersion: 6.2.2
+    ReleaseDate: 2022-08-11
+    PackageUrl: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/releases/download/v1.0.1/GlosSIIntegration_6b0297da-75e5-4330-bb2d-b64bff22c315_1_0_1.pext
+    Changelog:
+      - Added Spanish translations. Thanks darklinkpower!
+      - Minor localization changes.
   - Version: 1.0.0
     RequiredApiVersion: 6.2.2
     ReleaseDate: 2022-08-10
