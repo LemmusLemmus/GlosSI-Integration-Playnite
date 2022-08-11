@@ -18,7 +18,7 @@
     <sys:String x:Key="LOC_GI_AddGameIsSteamGame">The selected game &quot;{0}&quot; is a Steam game and should already support the Steam overlay/input. Are you sure you want to add the game?</sys:String>
     <sys:String x:Key="LOC_GI_AddGamesAreSteamGames">All of the selected games are Steam games and should already support the Steam overlay/input. Are you sure you want to add the games?</sys:String>
     <sys:String x:Key="LOC_GI_NoGamesAdded">No games were added as GlosSI Steam shortcuts. This could be due to the games already having been added or having the ignored tag.</sys:String>
-    <sys:String x:Key="LOC_GI_OneGameAdded">One game was successfully added as GlosSI Steam shortcut{0}. {1}</sys:String>
+    <sys:String x:Key="LOC_GI_OneGameAdded">One game was successfully added as a GlosSI Steam shortcut{0}. {1}</sys:String>
     <sys:String x:Key="LOC_GI_MultipleGamesAdded">{0} games were successfully added as GlosSI Steam shortcuts{1}. {2}</sys:String>
     <sys:String x:Key="LOC_GI_OneGameSkipped"> (one game was skipped)</sys:String>
     <sys:String x:Key="LOC_GI_MultipleGamesSkipped"> ({0} games were skipped)</sys:String>
