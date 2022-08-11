@@ -64,30 +64,34 @@
     <sys:String x:Key="LOC_GI_SelectIconFileType">Image</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutUnsupportedCharacterError">The name and/or icon path contains non-ASCII characters. The installed version of GlosSI does not reliably support all Unicode characters.</sys:String>
 
-    <!--Verification Errors-->
+    <!--Initial Verification Errors-->
     <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectDesktopError">Required settings are missing/incorrect. Go to the settings menu?</sys:String>
     <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectFullscreenError">Required settings are missing/incorrect. Please visit the settings menu in desktop mode.</sys:String>
     <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectCreateShortcutError">Required settings are missing/incorrect.</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSITargetsFolderNotFoundError">The GlosSI Targets folder could not be found. GlosSI must be installed and have run at least once before the GlosSI Integration extension can be used.</sys:String>
+    
+    <!--Settings Verification Errors-->
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotSetError">The path to shortcuts.vdf has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError">The path to the GlosSI folder has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">The shortcuts.vdf path does not lead to a file called "shortcuts.vdf".</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotFoundError">The shortcuts.vdf file could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotFoundError">The GlosSI folder location could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSITargetsFolderNotFoundError">The GlosSI Targets folder could not be found. GlosSI must be installed and have run at least once before the GlosSI Integration extension can be used.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderExecutablesNotFoundError">The GlosSI folder location is incorrect: the GlosSI executables could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFWrongLocationError">The shortcuts.vdf file location is incorrect. The file should be located inside the "config" folder in the Steam installation folder.</sys:String>
-    <sys:String x:Key="LOC_GI_SteamShortcutNameNotSetError">The name of the Steam shortcut has not been set.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutTargetAlreadyExistsError">A GlosSI target file already exists with the chosen shortcut name.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutIconNotFoundError">The icon could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutExeIconWarning">The icon path leads to an executable (.exe) file. Any transparency will be lost.</sys:String>
     
-    <!--Overlay Name Verification-->
+    <!--Settings Overlay Name Verification-->
     <sys:String x:Key="LOC_GI_PlayniteOverlayType">Playnite</sys:String>
     <sys:String x:Key="LOC_GI_DefaultOverlayType">default</sys:String>
     <sys:String x:Key="LOC_GI_OverlayNameNotSetError">The name of the {0} overlay has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_OverlayGlosSITargetNotFoundError">The target file referenced by the {0} overlay name could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_OverlayGlosSITargetNoNameError">Something is wrong with the file referenced by the {0} overlay name. The name property in the target .json file in %appdata%\GlosSI\Targets could not be found or has not been set.</sys:String>
-
+    
+    <!--Shortcut/Overlay Creation Verification-->
+    <sys:String x:Key="LOC_GI_SteamShortcutNameNotSetError">The name of the Steam shortcut has not been set.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutTargetAlreadyExistsError">A GlosSI target file already exists with the chosen shortcut name.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutIconNotFoundError">The icon could not be found.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutExeIconWarning">The icon path leads to an executable (.exe) file. Any transparency will be lost.</sys:String>
+    
     <!--Exceptional Errors-->
     <sys:String x:Key="LOC_GI_ReadDefaultTargetUnexpectedError">Failed to open the default target file: {0}</sys:String>
     <sys:String x:Key="LOC_GI_ReadIconPathUnexpectedError">Unexpected error encountered when reading the icon path: {0}</sys:String>
