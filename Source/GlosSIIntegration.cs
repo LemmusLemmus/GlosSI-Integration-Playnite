@@ -343,21 +343,39 @@ namespace GlosSIIntegration
                 Api.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_NoGamesAdded"), 
                     ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
-            else if (gamesAdded == 1)
-            {
-                Api.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOC_GI_OneGameAdded"), 
-                    ResourceProvider.GetString("LOC_GI_RestartSteamReminder")), 
-                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
-            }
             else
             {
                 int gamesSkipped = games.Count - gamesAdded;
-                
-                Api.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOC_GI_MultipleGamesAdded"), 
-                    gamesAdded, 
-                    gamesSkipped > 0 ? string.Format(ResourceProvider.GetString("LOC_GI_GamesSkipped"), gamesSkipped) : 
-                    "", ResourceProvider.GetString("LOC_GI_RestartSteamReminder")), 
-                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
+                string message;
+                string gamesSkippedMessage;
+
+                if (gamesSkipped == 0)
+                {
+                    gamesSkippedMessage = "";
+                }
+                else if (gamesSkipped == 1)
+                {
+                    gamesSkippedMessage = ResourceProvider.GetString("LOC_GI_OneGameSkipped");
+                }
+                else
+                {
+                    gamesSkippedMessage = string.Format(ResourceProvider.GetString("LOC_GI_MultipleGamesSkipped"), gamesSkipped);
+                }
+
+                if (gamesAdded == 1)
+                {
+                    message = string.Format(ResourceProvider.GetString("LOC_GI_OneGameAdded"), 
+                        gamesSkippedMessage, 
+                        ResourceProvider.GetString("LOC_GI_RestartSteamReminder"));
+                }
+                else
+                {
+                    message = string.Format(ResourceProvider.GetString("LOC_GI_MultipleGamesAdded"), 
+                        gamesAdded, gamesSkippedMessage, 
+                        ResourceProvider.GetString("LOC_GI_RestartSteamReminder"));
+                }
+
+                Api.Dialogs.ShowMessage(message, ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
         }
 
