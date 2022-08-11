@@ -4,7 +4,7 @@
     <!--General-->
     <sys:String x:Key="LOC_GI_DefaultWindowTitle">Integración de GlosSI</sys:String>
     <sys:String x:Key="LOC_GI_RestartSteamReminder">Se debe reiniciar Steam para que los cambios surtan efecto.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">La integración de GlosSI no pudo ejecutar el acceso directo de Steam: El archivo de destino .json de GlosSI no pudo ser encontrado.</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">GlosSI Integration failed to run the Steam shortcut: The GlosSI .json target file could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_TopPanelButtonDisableTooltip">Desactivar integración de GlosSI</sys:String>
     <sys:String x:Key="LOC_GI_TopPanelButtonEnableTooltip">Habilitar integración de GlosSI</sys:String>
 
@@ -17,10 +17,11 @@
     <!--Adding Integration to Games-->
     <sys:String x:Key="LOC_GI_AddGameIsSteamGame">El juego seleccionado &quot;{0}&quot; es una juego de Steam y ya debería ser compatible con la superposición/entrada de Steam. ¿Estás seguro de que deseas añadir el juego?</sys:String>
     <sys:String x:Key="LOC_GI_AddGamesAreSteamGames">Todos los juegos seleccionados son juegos de Steam y ya deberían ser compatibles con la superposición/entrada de Steam. ¿Estás seguro de que quieres añadir los juegos?</sys:String>
-    <sys:String x:Key="LOC_GI_NoGamesAdded">No se han añadido juegos como atajos de Steam GlosSI. Esto puede deberse a que los juegos ya han sido añadidos o que tienen el tag para ignornarlos.</sys:String>
-    <sys:String x:Key="LOC_GI_OneGameAdded">Un juego se ha añadido correctamente como acceso directo de Steam GlosSI. {0}</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleGamesAdded">{0} juegos se añadieron correctamente como accesos directos de GlosSI en Steam{1}. {2}</sys:String>
-    <sys:String x:Key="LOC_GI_GamesSkipped"> ({0} juego(s) fueron omitidos)</sys:String>
+    <sys:String x:Key="LOC_GI_NoGamesAdded">No games were added as GlosSI Steam shortcuts. This could be due to the games already having been added or having the ignored tag.</sys:String>
+    <sys:String x:Key="LOC_GI_OneGameAdded">One game was successfully added as GlosSI Steam shortcut{0}. {1}</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleGamesAdded">{0} games were successfully added as GlosSI Steam shortcuts{1}. {2}</sys:String>
+    <sys:String x:Key="LOC_GI_OneGameSkipped"> (one game was skipped)</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleGamesSkipped"> ({0} games were skipped)</sys:String>
 
     <!--Removing Integration from Games-->
     <sys:String x:Key="LOC_GI_NoGamesRemoved">No se eliminaron integraciones de GlosSI/Steam.</sys:String>
@@ -54,7 +55,7 @@
     <sys:String x:Key="LOC_GI_GlosSIFolderPathTextBox">Ruta de la carpeta de GlosSI:</sys:String>
     <sys:String x:Key="LOC_GI_MultipleSteamUsersFound">¿Cuál de estas cuentas de Steam debería añadir accesos directos a la integración GlosSI? El plugin necesita la ruta a shortcuts.vdf.</sys:String>
     <sys:String x:Key="LOC_GI_MultipleSteamUserCode">Usuario con el Código de Amigo: &quot;{0}&quot;</sys:String>
-    <sys:String x:Key="LOC_GI_SelectShortcutsVDFFileType">Archivo de accesos directos de Steam</sys:String>
+    <sys:String x:Key="LOC_GI_SelectShortcutsVDFFileType">Steam shortcuts file</sys:String>
     <sys:String x:Key="LOC_GI_OldGlosSIVersionWarning">La versión instalada de GlosSI es más antigua y la extensión no está garantizada para trabajar con ella. Por favor, considera actualizar GlosSI para las últimas características y correcciones de errores.</sys:String>
 
     <!--Shortcut Creation-->
@@ -64,30 +65,34 @@
     <sys:String x:Key="LOC_GI_SelectIconFileType">Imágen</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutUnsupportedCharacterError">La ruta del nombre y/o icono contiene caracteres no ASCII. La versión instalada de GlosSI no soporta de forma fiable todos los caracteres Unicode.</sys:String>
 
-    <!--Verification Errors-->
+    <!--Initial Verification Errors-->
     <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectDesktopError">Los ajustes requeridos faltan o son incorrectos. ¿Ir al menú de configuración?</sys:String>
     <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectFullscreenError">Los ajustes requeridos no se encuentran o son incorrectos. Por favor, visita el menú de configuración en el modo de escritorio.</sys:String>
     <sys:String x:Key="LOC_GI_RequriedSettingsIncorrectCreateShortcutError">Los ajustes requeridos no se encuentran o son incorrectos.</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSITargetsFolderNotFoundError">The GlosSI Targets folder could not be found. GlosSI must be installed and have run at least once before the GlosSI Integration extension can be used.</sys:String>
+    
+    <!--Settings Verification Errors-->
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotSetError">The path to shortcuts.vdf has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError">The path to the GlosSI folder has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">The shortcuts.vdf path does not lead to a file called &quot;shortcuts.vdf&quot;.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotFoundError">The shortcuts.vdf file could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotFoundError">The GlosSI folder location could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSITargetsFolderNotFoundError">The GlosSI Targets folder could not be found. GlosSI must be installed and have run at least once before the GlosSI Integration extension can be used.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderExecutablesNotFoundError">The GlosSI folder location is incorrect: the GlosSI executables could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongLocationError">The shortcuts.vdf file location is incorrect. The file should be located inside the &quot;config&quot; folder in the Steam installation folder.</sys:String>
-    <sys:String x:Key="LOC_GI_SteamShortcutNameNotSetError">The name of the Steam shortcut has not been set.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutTargetAlreadyExistsError">A GlosSI target file already exists with the chosen shortcut name.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutIconNotFoundError">The icon could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutExeIconWarning">The icon path leads to an executable (.exe) file. Any transparency will be lost.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongLocationError">The shortcuts.vdf file location is incorrect: the file should be located inside the &quot;config&quot; folder in the Steam installation folder.</sys:String>
     
-    <!--Overlay Name Verification-->
+    <!--Settings Overlay Name Verification-->
     <sys:String x:Key="LOC_GI_PlayniteOverlayType">Playnite</sys:String>
     <sys:String x:Key="LOC_GI_DefaultOverlayType">default</sys:String>
     <sys:String x:Key="LOC_GI_OverlayNameNotSetError">The name of the {0} overlay has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_OverlayGlosSITargetNotFoundError">The target file referenced by the {0} overlay name could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_OverlayGlosSITargetNoNameError">Something is wrong with the file referenced by the {0} overlay name. The name property in the target .json file in %appdata%\GlosSI\Targets could not be found or has not been set.</sys:String>
-
+    
+    <!--Shortcut/Overlay Creation Verification-->
+    <sys:String x:Key="LOC_GI_SteamShortcutNameNotSetError">The name of the Steam shortcut has not been set.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutTargetAlreadyExistsError">A GlosSI target file already exists with the chosen shortcut name.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutIconNotFoundError">The icon could not be found.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutExeIconWarning">The icon path leads to an executable (.exe) file. Any transparency will be lost.</sys:String>
+    
     <!--Exceptional Errors-->
     <sys:String x:Key="LOC_GI_ReadDefaultTargetUnexpectedError">Failed to open the default target file: {0}</sys:String>
     <sys:String x:Key="LOC_GI_ReadIconPathUnexpectedError">Unexpected error encountered when reading the icon path: {0}</sys:String>
@@ -95,7 +100,7 @@
     <sys:String x:Key="LOC_GI_GetGlosSIVersionUnexpectedError">Failed to check the GlosSI version: {0}</sys:String>
     <sys:String x:Key="LOC_GI_CreateDefaultTargetFileUnexpectedError">Failed to access or create the default target file: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError">Failed to backup the GlosSI configuration files: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError">Failed to backup the Shortcuts.vdf file: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError">Failed to backup the shortcuts.vdf file: {0}</sys:String>
     <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError">Failed to open the link: &quot;{0}&quot;: {1}</sys:String>
     <sys:String x:Key="LOC_GI_ReadOverlayGlosSITargetUnexpectedError">Something went wrong when attempting to read the target file referenced by the {0} overlay name: {1}</sys:String>
     <sys:String x:Key="LOC_GI_RunSteamGameUnexpectedError">GlosSI Integration failed to run the Steam shortcut: {0}</sys:String>
