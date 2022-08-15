@@ -1,4 +1,5 @@
 [![Crowdin](https://badges.crowdin.net/glossi-integration-playnite/localized.svg)](https://crowdin.com/project/glossi-integration-playnite)
+[![Github All Releases](https://img.shields.io/github/downloads/LemmusLemmus/GlosSI-Integration-Playnite/total.svg)]()
 # [GlosSI](https://alia5.github.io/GlosSI/) Integration Extension for [Playnite](https://playnite.link/)
 This extension automates creating, removing, launching and closing of GlosSI Steam shortcuts for your games in Playnite.
 
