@@ -81,6 +81,8 @@ namespace GlosSIIntegration
         /// <returns>true if the string contains a non-ASCII character; false otherwise.</returns>
         private bool IsNotAscii(string str)
         {
+            if (string.IsNullOrEmpty(str)) return false;
+
             return str.Any(c => c > 127);
         }
 
