@@ -99,7 +99,7 @@
     <sys:String x:Key="LOC_GI_CreateSteamShortcutUnexpectedError">Qualcosa è andato storto quando si tenta di creare il collegamento di Steam: {0}</sys:String>
     <sys:String x:Key="LOC_GI_GetGlosSIVersionUnexpectedError">Impossibile controllare la versione di GlosSI: {0}</sys:String>
     <sys:String x:Key="LOC_GI_CreateDefaultTargetFileUnexpectedError">Impossibile accedere o creare il file destinazione predefinito: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError">Backup dei file di configurazione di GlosSI non riuscito: « {0}»</sys:String>
+    <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError">Backup dei file di configurazione di GlosSI non riuscito: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError">Backup del file shortcuts.vdf non riuscito: {0}</sys:String>
     <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError">Apertura del link non riuscita: &quot;{0}&quot;: {1}</sys:String>
     <sys:String x:Key="LOC_GI_ReadOverlayGlosSITargetUnexpectedError">Qualcosa è andato storto durante il tentativo di leggere il file di destinazione referenziato dal nome {0} overlay: {1}</sys:String>
