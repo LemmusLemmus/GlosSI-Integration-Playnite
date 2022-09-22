@@ -85,7 +85,7 @@
     <sys:String x:Key="LOC_GI_DefaultOverlayType">predefinito</sys:String>
     <sys:String x:Key="LOC_GI_OverlayNameNotSetError">Il nome dell'overlay {0} non è stato impostato.</sys:String>
     <sys:String x:Key="LOC_GI_OverlayGlosSITargetNotFoundError">Il file di destinazione referenziato dal nome di overlay {0} non è stato trovato.</sys:String>
-    <sys:String x:Key="LOC_GI_OverlayGlosSITargetNoNameError">Qualcosa non va con il file referenziato dal nome dell'overlay {0} . La proprietà del nome nel target . il file son in %appdata%\GlosSI\Targets non può essere trovato o non è stato impostato.</sys:String>
+    <sys:String x:Key="LOC_GI_OverlayGlosSITargetNoNameError">Qualcosa non va con il file referenziato dal nome dell'overlay {0}. La proprietà del nome nella destinazione del file .json in %appdata%\GlosSI\Targets non è stato trovato o non è stato impostato.</sys:String>
     
     <!--Shortcut/Overlay Creation Verification-->
     <sys:String x:Key="LOC_GI_SteamShortcutNameNotSetError">Il nome del collegamento Steam non è stato impostato.</sys:String>
