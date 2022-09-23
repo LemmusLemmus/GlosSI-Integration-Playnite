@@ -16,7 +16,7 @@
                 <StackPanel Margin="0,-4,0,0">
                     <Label Content="{DynamicResource LOC_GI_GeneralSettingsHeader}" Margin="0,0,0,5"/>
                     <Separator Margin="0,0,0,5"/>
-                    <TextBlock Margin="0,0,0,10"><Hyperlink Click="EditDefaultGlosSITarget_Click"><TextBlock Text="{DynamicResource LOC_GI_EditDefaultGlosSITargetLink}"></TextBlock></Hyperlink></TextBlock>
+                    <TextBlock Margin="0,0,0,10"><Hyperlink Click="EditDefaultGlosSITarget_Click"><Run Text="{DynamicResource LOC_GI_EditDefaultGlosSITargetLink}"></Run></Hyperlink></TextBlock>
                     <!--<CheckBox IsChecked="{Binding Settings.CloseGameWhenOverlayIsClosed}" Content="When the game overlay is closed, also close the game" Margin="0,0,0,10"/>-->
                     <CheckBox IsChecked="{Binding Settings.UseDefaultOverlay}" Content="{DynamicResource LOC_GI_UseDefaultOverlayCheckBox}" Margin="0,0,0,10" Checked="UpdateIsEnabled" Unchecked="UpdateIsEnabled" Name="UseDefaultOverlayCheckBox"/>
                     <DockPanel Margin="0,0,0,10" Name="DefaultOverlayNamePanel">
