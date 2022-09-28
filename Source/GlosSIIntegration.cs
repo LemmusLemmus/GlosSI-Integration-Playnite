@@ -153,7 +153,7 @@ namespace GlosSIIntegration
                 overlayName = args.Game.Name;
                 runningGameOverlay = new SteamGameID(args.Game);
             }
-            else if (GetSettings().UseDefaultOverlay)
+            else if (GetSettings().UseDefaultOverlay && !IsSteamGame(args.Game))
             {
                 overlayName = GetSettings().DefaultOverlayName;
                 runningGameOverlay = new SteamGameID(overlayName);
