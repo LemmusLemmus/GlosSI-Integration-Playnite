@@ -619,7 +619,7 @@ namespace GlosSIIntegration
             }
             catch (FileNotFoundException) // Verify that the corresponding .json file actually exists
             {
-                errors.Add(ResourceProvider.GetString("LOC_GI_OverlayGlosSITargetNotFoundError"));
+                errors.Add(string.Format(ResourceProvider.GetString("LOC_GI_OverlayGlosSITargetNotFoundError"), overlayType));
                 return false;
             }
             catch (Exception e)
