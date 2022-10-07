@@ -269,7 +269,8 @@ namespace GlosSIIntegration
             // Wait for the process to steal focus, if it has not already.
             WaitForStolenFocus(p[0]);
             FocusSelf();
-            // For some reason focus is sometimes stolen twice. An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
+            // For some reason focus is sometimes stolen twice.
+            // An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
             WaitForStolenFocus(p[0]);
             FocusSelf();
         }
@@ -329,12 +330,23 @@ namespace GlosSIIntegration
             try
             {
                 Process[] glosSITargets = Process.GetProcessesByName("GlosSITarget");
+
                 // It is assumed that there is no reason for the user to ever want to have multiple GlosSITargets
                 // running simultaneously. As such, they are all closed.
                 foreach (Process proc in glosSITargets)
                 {
-                    proc.CloseMainWindow();
+                    if(!proc.CloseMainWindow())
+                    {
+                        // The GlosSITarget overlay is most likely disabled, close it by other means.
+                        logger.Trace("Closing GlosSITarget without overlay.");
+                        // Since this method gets the process by name,
+                        // it will only work reliably if there is only one GlosSITarget running.
+                        // There is no reason to bother with supporting that case, as
+                        // "Multiple instances of the target calls for trouble...".
+                        CloseWindowByCaption("GlosSITarget");
+                    }
                 }
+
                 foreach (Process proc in glosSITargets)
                 {
                     if (!proc.WaitForExit(10000))
@@ -351,6 +363,34 @@ namespace GlosSIIntegration
                     e.Message), e);
             }
         }
+
+        /// <summary>
+        /// Attempts to close a window by sending the message WM_CLOSE. The method is capable of closing windows without a GUI.
+        /// </summary>
+        /// <param name="lpWindowName">The name of the window to be closed.</param>
+        private static void CloseWindowByCaption(string lpWindowName)
+        {
+            IntPtr windowPtr = FindWindowByCaption(IntPtr.Zero, lpWindowName);
+
+            if (windowPtr == IntPtr.Zero)
+            {
+                logger.Warn("No window to close was found.");
+                return;
+            }
+
+            SendMessage(windowPtr, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+        }
+
+        private const uint WM_CLOSE = 0x0010;
+
+        /// <summary>
+        /// Finds a window by caption. Note that the first parameter must be IntPtr.Zero.
+        /// </summary>
+        [DllImport("user32.dll", EntryPoint = "FindWindow")]
+        static extern IntPtr FindWindowByCaption(IntPtr intPtrZero, string lpWindowName);
+
+        [DllImport("user32.dll")]
+        static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
