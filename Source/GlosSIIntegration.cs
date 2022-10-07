@@ -168,7 +168,7 @@ namespace GlosSIIntegration
             {
                 if (!GlosSITarget.HasJsonFile(overlayName))
                 {
-                    // TODO: Make the notification more helpful.
+                    // TODO: Make the error message more helpful.
                     // A currently probable reason for this happening is due to a name change.
                     // Perhaps add a help link?
                     DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));

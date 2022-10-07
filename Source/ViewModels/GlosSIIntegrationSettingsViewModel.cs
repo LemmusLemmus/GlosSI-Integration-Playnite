@@ -149,7 +149,7 @@ namespace GlosSIIntegration
 
         /// <summary>
         /// Backs up the <c>shortcuts.vdf</c> file, if it has not already been backed up.
-        /// Displays any potential exception as a notification.
+        /// Displays any potential exception as an error message.
         /// This method assumes that the <c>SteamShortcutsPath</c> setting has been verified.
         /// </summary>
         private void BackupShortcutsFile()
