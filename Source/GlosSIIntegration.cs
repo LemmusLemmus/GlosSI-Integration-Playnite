@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows;
 using System.Threading;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace GlosSIIntegration
 {
@@ -226,9 +227,99 @@ namespace GlosSIIntegration
         private void RunPlayniteOverlay()
         {
             if (!GetSettings().UsePlayniteOverlay) return;
-            
-            new SteamGameID(GetSettings().PlayniteOverlayName).Run();
+
+            // It is up to personal preference whether to start this in a new thread.
+            // The difference is whether the user can see their library or a "loading" screen while the Steam overlay is starting.
+            new Thread(() =>
+            {
+                new SteamGameID(GetSettings().PlayniteOverlayName).Run();
+                try
+                {
+                    ReturnStolenFocus("GlosSITarget");
+                }
+                catch (TimeoutException e)
+                {
+                    logger.Warn($"Failed to return focus to Playnite: {e.Message}");
+                }
+            }).Start();
         }
+
+        /// <summary>
+        /// Assuming that <paramref name="processName"/> has or will soon steal the focus from this application, returns the focus to this application.
+        /// </summary>
+        /// <param name="processName">The name of the process that will steal window focus.</param>
+        /// <exception cref="TimeoutException">If an operation took too long.</exception>
+        private static void ReturnStolenFocus(string processName)
+        {
+            Process[] p;
+            int sleptTime = 0;
+
+            // Wait for the process to start, if it has not already.
+            while ((p = Process.GetProcessesByName(processName)).Length == 0)
+            {
+                Thread.Sleep(300);
+                if ((sleptTime += 300) > 10000)
+                {
+                    throw new TimeoutException("Failed to find a GlosSITarget process to return focus from in time.");
+                }
+            }
+
+            if (p.Length > 1) logger.Warn($"Multiple ({p.Length}) GlosSITargets were found in full screen mode.");
+
+            // Wait for the process to steal focus, if it has not already.
+            WaitForStolenFocus(p[0]);
+            FocusSelf();
+            // For some reason focus is sometimes stolen twice. An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
+            WaitForStolenFocus(p[0]);
+            FocusSelf();
+        }
+
+        /// <summary>
+        /// Waits for window focus to be stolen by <paramref name="thief"/>.
+        /// </summary>
+        /// <param name="thief">The process which will steal focus.</param>
+        private static void WaitForStolenFocus(Process thief, int interval = 80, int maxSleepTime = 4000)
+        {
+            int sleptTime = 0;
+            while (GetForegroundWindow() != thief.MainWindowHandle)
+            {
+                Thread.Sleep(interval);
+                if ((sleptTime += interval) > maxSleepTime)
+                {
+                    throw new TimeoutException("Process did not steal focus in time.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the window focus to this process. 
+        /// Unfortunately, a virtual-key press is necessary to ensure that Windows allows the focus to be changed.
+        /// </summary>
+        /// <param name="unusedKey">The virtual-key code of the key to be pressed, by default the left alt key (VK_LMENU).</param>
+        private static void FocusSelf(byte unusedKey = 0xA4)
+        {
+            // Fool Windows to permit the usage of SetForegroundWindow().
+            keybd_event(unusedKey, 0x45, EXTENDEDKEY | 0, 0);
+            keybd_event(unusedKey, 0x45, EXTENDEDKEY | KEYUP, 0);
+
+            if (!SetForegroundWindow(Process.GetCurrentProcess().MainWindowHandle))
+            {
+                logger.Warn("Setting foreground window to Playnite failed.");
+            }
+        }
+
+        private const uint EXTENDEDKEY = 0x1, KEYUP = 0x2; // KEYEVENTF_EXTENDEDKEY & KEYEVENTF_KEYUP
+
+        #pragma warning disable IDE1006
+        [DllImport("user32.dll")]
+        private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+        #pragma warning restore IDE1006
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
 
         /// <summary>
         /// Closes all currently running GlosSITarget processes.
