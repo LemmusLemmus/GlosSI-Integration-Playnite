@@ -351,7 +351,9 @@ namespace GlosSIIntegration
                 {
                     if (!proc.WaitForExit(10000))
                     {
-                        DisplayError(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetTimelyUnexpectedError"));
+                        string errorMessage = ResourceProvider.GetString("LOC_GI_CloseGlosSITargetTimelyUnexpectedError");
+                        logger.Error(errorMessage);
+                        Api.Notifications.Add("GlosSIIntegration-FailedToCloseGlosSITarget", errorMessage, NotificationType.Error);
                     }
                     proc.Close();
                 }
