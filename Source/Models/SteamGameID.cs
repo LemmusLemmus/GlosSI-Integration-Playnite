@@ -7,6 +7,8 @@ using Playnite.SDK.Models;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace GlosSIIntegration
 {
@@ -19,7 +21,7 @@ namespace GlosSIIntegration
         public SteamGameID(string name, string path)
         {
             Crc algorithm = new Crc(32, 0x04C11DB7, true, 0xffffffff, true, 0xffffffff);
-            string input = "\"" + path + "\"" + name;
+            string input = UTF8ToCodeUnits("\"" + path + "\"" + name);
             uint top32 = algorithm.BitByBit(input) | 0x80000000;
             gameID = (((ulong)top32) << 32) | 0x02000000;
         }
@@ -34,6 +36,11 @@ namespace GlosSIIntegration
         public SteamGameID(ulong gameID)
         {
             this.gameID = gameID;
+        }
+
+        private string UTF8ToCodeUnits(string str)
+        {
+            return new string(Encoding.UTF8.GetBytes(str).Select(b => (char)b).ToArray());
         }
 
         public ulong GetSteamGameID()
