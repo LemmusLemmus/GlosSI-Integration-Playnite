@@ -15,12 +15,13 @@ namespace GlosSIIntegration
     /// </summary>
     class SteamGameID
     {
-        private readonly uint top32;
+        private readonly ulong gameID;
         public SteamGameID(string name, string path)
         {
             Crc algorithm = new Crc(32, 0x04C11DB7, true, 0xffffffff, true, 0xffffffff);
             string input = "\"" + path + "\"" + name;
-            this.top32 = algorithm.BitByBit(input) | 0x80000000;
+            uint top32 = algorithm.BitByBit(input) | 0x80000000;
+            gameID = (((ulong)top32) << 32) | 0x02000000;
         }
 
         // TODO: If the name of the game in playnite is changed, the correct SteamGameID won't be found.
@@ -30,20 +31,14 @@ namespace GlosSIIntegration
         public SteamGameID(string name) : this(name, 
             Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSITarget.exe").Replace('\\', '/')) { }
 
-        public SteamGameID(uint top32)
+        public SteamGameID(ulong gameID)
         {
-            this.top32 = top32;
+            this.gameID = gameID;
         }
 
-        public string GetSteamGameID()
+        public ulong GetSteamGameID()
         {
-            ulong full64 = (((ulong)top32) << 32) | 0x02000000;
-            return full64.ToString();
-        }
-
-        public uint GetTop32ID()
-        {
-            return top32;
+            return gameID;
         }
 
         /// <summary>
@@ -54,7 +49,7 @@ namespace GlosSIIntegration
         {
             try
             {
-                return Process.Start("steam://rungameid/" + GetSteamGameID());
+                return Process.Start("steam://rungameid/" + GetSteamGameID().ToString());
             }
             catch (Exception e)
             {
