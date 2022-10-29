@@ -1,5 +1,4 @@
 ﻿using Playnite.SDK;
-using Playnite.SDK.Models;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -14,25 +13,18 @@ namespace GlosSIIntegration
     class SteamGameID
     {
         private readonly ulong gameID;
+        private readonly string gameName;
         public SteamGameID(string name, string path)
         {
             Crc algorithm = new Crc(32, 0x04C11DB7, true, 0xffffffff, true, 0xffffffff);
             string input = UTF8ToCodeUnits("\"" + path + "\"" + name);
             uint top32 = algorithm.BitByBit(input) | 0x80000000;
             gameID = (((ulong)top32) << 32) | 0x02000000;
+            gameName = name;
         }
-
-        // TODO: If the name of the game in playnite is changed, the correct SteamGameID won't be found.
-        // It might therefore be better to store the IDs.
-        public SteamGameID(Game playniteGame) : this(playniteGame.Name) { }
 
         public SteamGameID(string name) : this(name, 
             Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSITarget.exe").Replace('\\', '/')) { }
-
-        public SteamGameID(ulong gameID)
-        {
-            this.gameID = gameID;
-        }
 
         private string UTF8ToCodeUnits(string str)
         {
@@ -44,6 +36,11 @@ namespace GlosSIIntegration
             return gameID;
         }
 
+        public string GetSteamGameName()
+        {
+            return gameName;
+        }
+
         /// <summary>
         /// Runs the Steam game associated with the ID.
         /// </summary>
@@ -52,6 +49,7 @@ namespace GlosSIIntegration
         {
             try
             {
+                LogManager.GetLogger().Info($"Starting Steam game {this}.");
                 return Process.Start("steam://rungameid/" + GetSteamGameID().ToString());
             }
             catch (Exception e)
@@ -69,7 +67,7 @@ namespace GlosSIIntegration
         {
             if (!(obj is SteamGameID other)) return false;
 
-            return gameID == other.gameID;
+            return gameName == other.gameName;
         }
 
         public override int GetHashCode()
@@ -79,7 +77,7 @@ namespace GlosSIIntegration
 
         public override string ToString()
         {
-            return gameID.ToString();
+            return $"{gameName}: {gameID}";
         }
     }
 }
