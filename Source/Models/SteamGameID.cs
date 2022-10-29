@@ -1,8 +1,4 @@
-﻿// Generation of values "top32" and "full64" are done via Corporal Quesadilla's Python function getURL()
-// from their "Steam Shortcut Manager" at https://github.com/CorporalQuesadilla/Steam-Shortcut-Manager.
-// Corporal Quesadilla's getURL() function is licensed under the MIT License, copyright (c) Corporal Quesadilla 2018.
-
-using Playnite.SDK;
+﻿using Playnite.SDK;
 using Playnite.SDK.Models;
 using System;
 using System.Diagnostics;
@@ -67,6 +63,23 @@ namespace GlosSIIntegration
                     message, NotificationType.Error);
                 return null;
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is SteamGameID other)) return false;
+
+            return gameID == other.gameID;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)gameID;
+        }
+
+        public override string ToString()
+        {
+            return gameID.ToString();
         }
     }
 }
