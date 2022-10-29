@@ -63,6 +63,19 @@ namespace GlosSIIntegration
             }
         }
 
+        /// <summary>
+        /// Runs the GlosSITarget associated with this SteamGameID via Steam.
+        /// </summary>
+        /// <returns>true if the process was started; false if the GlosSI configuration file could not be found.</returns>
+        public bool RunGlosSITarget()
+        {
+            if (!GlosSITarget.ValidateJsonFile(gameName)) return false;
+
+            Run();
+
+            return true;
+        }
+
         public override bool Equals(object obj)
         {
             if (!(obj is SteamGameID other)) return false;

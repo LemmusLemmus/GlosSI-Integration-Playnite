@@ -12,6 +12,7 @@ using System.Windows;
 using System.Threading;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Net.Http;
 
 namespace GlosSIIntegration
 {
@@ -25,6 +26,8 @@ namespace GlosSIIntegration
         private readonly TopPanelItem topPanel;
         private readonly TextBlock topPanelTextBlock;
         private SteamGameID runningGameOverlay;
+        private int runningGamePid;
+        private static readonly HttpClient httpClient;
 
         private bool integrationEnabled;
         public bool IntegrationEnabled
@@ -38,6 +41,14 @@ namespace GlosSIIntegration
         public static GlosSIIntegration Instance { get; private set; }
         private GlosSIIntegrationSettingsViewModel SettingsViewModel { get; set; }
 
+        static GlosSIIntegration()
+        {
+            httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(@"http://127.0.0.1:8756/")
+            };
+        }
+
         public GlosSIIntegration(IPlayniteAPI api) : base(api)
         {
             Instance = this;
@@ -50,6 +61,8 @@ namespace GlosSIIntegration
             };
 
             runningGameOverlay = null;
+            runningGamePid = -1;
+            
             topPanelTextBlock = GetInitialTopPanelTextBlock();
             topPanel = GetInitialTopPanel();
             InitializeIntegrationEnabled();
@@ -141,49 +154,64 @@ namespace GlosSIIntegration
             return game.Tags != null && game.Tags.Any(t => t.Name == tagName);
         }
 
+        public override void OnGameStarted(OnGameStartedEventArgs args)
+        {
+            if (GameHasIgnoredTag(args.Game)) return;
+
+            runningGamePid = args.StartedProcessId;
+
+            if (IntegrationEnabled) AttachPIDToGlosSI(runningGamePid);
+        }
+
+        private void AttachPIDToGlosSI(int pid)
+        {
+            if (runningGameOverlay == null || !GetSettings().CloseGameWhenOverlayIsClosed || pid <= 0) return;
+
+            try
+            {
+                logger.Trace("Attaching PID to GlosSI...");
+                httpClient.PostAsync("launched-pids", new StringContent($"[ {pid} ]"));
+            }
+            catch (Exception e)
+            {
+                logger.Error(e, $"Sending PID to GlosSI failed.");
+            }
+        }
+
+        private SteamGameID GetGameOverlay(Game game)
+        {
+            string overlayName;
+
+            if (GameHasIntegratedTag(game))
+            {
+                overlayName = game.Name;
+            }
+            else if (GetSettings().UseDefaultOverlay && !IsSteamGame(game))
+            {
+                overlayName = GetSettings().DefaultOverlayName;
+            }
+            else
+            {
+                return null;
+            }
+
+            return new SteamGameID(overlayName);
+        }
+
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
             if (GameHasIgnoredTag(args.Game)) return;
 
             CloseGlosSITargets();
 
-            string overlayName;
-            
-            if (GameHasIntegratedTag(args.Game))
+            runningGameOverlay = GetGameOverlay(args.Game);
+
+            if (runningGameOverlay == null || !IntegrationEnabled) return;
+
+            if (!runningGameOverlay.RunGlosSITarget())
             {
-                overlayName = args.Game.Name;
-                runningGameOverlay = new SteamGameID(args.Game);
-            }
-            else if (GetSettings().UseDefaultOverlay && !IsSteamGame(args.Game))
-            {
-                overlayName = GetSettings().DefaultOverlayName;
-                runningGameOverlay = new SteamGameID(overlayName);
-            }
-            else
-            {
+                DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
                 return;
-            }
-
-            if (IntegrationEnabled)
-            {
-                if (!GlosSITarget.HasJsonFile(overlayName))
-                {
-                    // TODO: Make the error message more helpful.
-                    // A currently probable reason for this happening is due to a name change.
-                    // Perhaps add a help link?
-                    DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
-                    return;
-                }
-
-                runningGameOverlay.Run();
-
-                if (GetSettings().CloseGameWhenOverlayIsClosed)
-                {
-                    // TODO: Set up a thread that closes the application when the overlay is closed via the overlay itself (i.e. forcefully closed).
-                    // Alternatively start this thread in OnGameStarted().
-                    // The GlosSITarget log can be checked to determine if the application was forcefully closed or not.
-                    //logger.Trace("GlosSI watcher thread started...");
-                }
             }
         }
 
@@ -210,6 +238,7 @@ namespace GlosSIIntegration
             if (GameHasIgnoredTag(args.Game)) return;
 
             runningGameOverlay = null;
+            runningGamePid = -1;
 
             if (IntegrationEnabled)
             {
@@ -232,7 +261,11 @@ namespace GlosSIIntegration
             // The difference is whether the user can see their library or a "loading" screen while the Steam overlay is starting.
             new Thread(() =>
             {
-                new SteamGameID(GetSettings().PlayniteOverlayName).Run();
+                if (!new SteamGameID(GetSettings().PlayniteOverlayName).RunGlosSITarget())
+                {
+                    DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
+                    return;
+                }
                 try
                 {
                     ReturnStolenFocus("GlosSITarget");
@@ -690,7 +723,12 @@ namespace GlosSIIntegration
             if (runningGameOverlay != null && IntegrationEnabled)
             {
                 logger.Trace("Steam Overlay launched whilst in-game.");
-                runningGameOverlay.Run();
+                if (!runningGameOverlay.RunGlosSITarget())
+                {
+                    DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
+                    return;
+                }
+                AttachPIDToGlosSI(runningGamePid);
             }
         }
 
