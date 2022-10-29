@@ -44,6 +44,7 @@
     <sys:String x:Key="LOC_GI_FullscreenModeSettingsHeader">Impostazioni Modalità Schermo Intero</sys:String>
     <sys:String x:Key="LOC_GI_PathSettingsHeader">Impostazioni Percorso (obbligatorio)</sys:String>
     <sys:String x:Key="LOC_GI_EditDefaultGlosSITargetLink">Modificare la configurazione di GlosSI usata per creare nuove scorciatoie.</sys:String>
+    <sys:String x:Key="LOC_GI_CloseGameWhenOverlayIsClosedCheckBox">When the game overlay is closed, also close the game</sys:String>
     <sys:String x:Key="LOC_GI_UseDefaultOverlayCheckBox">Usa una sovrapposizione predefinita di Steam</sys:String>
     <sys:String x:Key="LOC_GI_UsePlayniteOverlayCheckBox">Usa una sovrapposizione di Playnite Steam</sys:String>
     <sys:String x:Key="LOC_GI_DefaultOverlayNameTextBox">Nome predefinito di sovrapposizione:</sys:String>
@@ -72,6 +73,7 @@
     <sys:String x:Key="LOC_GI_GlosSITargetsFolderNotFoundError">Impossibile trovare la cartella GlosSI Targets. GlosSI deve essere installato e avere eseguito almeno una volta prima che l'estensione di integrazione GlosSI possa essere utilizzata.</sys:String>
     
     <!--Settings Verification Errors-->
+    <sys:String x:Key="LOC_GI_GlosSITooOldForOption">Please install a newer version of GlosSI to be able to use the option &quot;{0}&quot;.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotSetError">Il percorso delle shortcuts.vdf non è stato impostato.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError">Il percorso della cartella GlosSI non è stato impostato.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">Il percorso di shortcuts.vdf non porta a un file chiamato &quot;shortcuts.vdf&quot;.</sys:String>
