@@ -25,7 +25,7 @@ namespace GlosSIIntegration
         private static readonly ILogger logger = LogManager.GetLogger();
         private readonly TopPanelItem topPanel;
         private readonly TextBlock topPanelTextBlock;
-        private SteamGameID runningGameOverlay;
+        private SteamGame runningGameOverlay;
         private int runningGamePid;
         private static readonly HttpClient httpClient;
 
@@ -178,7 +178,7 @@ namespace GlosSIIntegration
             }
         }
 
-        private SteamGameID GetGameOverlay(Game game)
+        private SteamGame GetGameOverlay(Game game)
         {
             string overlayName;
 
@@ -195,7 +195,7 @@ namespace GlosSIIntegration
                 return null;
             }
 
-            return new SteamGameID(overlayName);
+            return new SteamGame(overlayName);
         }
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
@@ -261,7 +261,7 @@ namespace GlosSIIntegration
             // The difference is whether the user can see their library or a "loading" screen while the Steam overlay is starting.
             new Thread(() =>
             {
-                if (!new SteamGameID(GetSettings().PlayniteOverlayName).RunGlosSITarget())
+                if (!new SteamGame(GetSettings().PlayniteOverlayName).RunGlosSITarget())
                 {
                     DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
                     return;

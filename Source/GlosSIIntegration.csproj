@@ -69,7 +69,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Models\SteamGameID.cs" />
+    <Compile Include="Models\SteamGame.cs" />
     <Compile Include="ViewModels\ShortcutCreationViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -8,13 +8,13 @@ using System.Text;
 namespace GlosSIIntegration
 {
     /// <summary>
-    /// Represents a Steam Game/App ID. This ID is used to run the Steam game.
+    /// Represents a Steam game.
     /// </summary>
-    class SteamGameID
+    class SteamGame
     {
         private readonly ulong gameID;
         private readonly string gameName;
-        public SteamGameID(string name, string path)
+        public SteamGame(string name, string path)
         {
             Crc algorithm = new Crc(32, 0x04C11DB7, true, 0xffffffff, true, 0xffffffff);
             string input = UTF8ToCodeUnits("\"" + path + "\"" + name);
@@ -23,7 +23,7 @@ namespace GlosSIIntegration
             gameName = name;
         }
 
-        public SteamGameID(string name) : this(name, 
+        public SteamGame(string name) : this(name, 
             Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSITarget.exe").Replace('\\', '/')) { }
 
         private string UTF8ToCodeUnits(string str)
@@ -31,12 +31,12 @@ namespace GlosSIIntegration
             return new string(Encoding.UTF8.GetBytes(str).Select(b => (char)b).ToArray());
         }
 
-        public ulong GetSteamGameID()
+        public ulong GetID()
         {
             return gameID;
         }
 
-        public string GetSteamGameName()
+        public string GetName()
         {
             return gameName;
         }
@@ -50,21 +50,21 @@ namespace GlosSIIntegration
             try
             {
                 LogManager.GetLogger().Info($"Starting Steam game {this}.");
-                return Process.Start("steam://rungameid/" + GetSteamGameID().ToString());
+                return Process.Start("steam://rungameid/" + GetID().ToString());
             }
             catch (Exception e)
             {
                 string message = string.Format(ResourceProvider.GetString("LOC_GI_RunSteamGameUnexpectedError"), 
                     e.Message);
                 LogManager.GetLogger().Error(e, message);
-                GlosSIIntegration.Api.Notifications.Add("GlosSIIntegration-SteamGameID-Run", 
+                GlosSIIntegration.Api.Notifications.Add("GlosSIIntegration-SteamGame-Run", 
                     message, NotificationType.Error);
                 return null;
             }
         }
 
         /// <summary>
-        /// Runs the GlosSITarget associated with this SteamGameID via Steam.
+        /// Runs the GlosSITarget associated with this <c>SteamGame</c> via Steam.
         /// </summary>
         /// <returns>true if the process was started; false if the GlosSI configuration file could not be found.</returns>
         public bool RunGlosSITarget()
@@ -78,7 +78,7 @@ namespace GlosSIIntegration
 
         public override bool Equals(object obj)
         {
-            if (!(obj is SteamGameID other)) return false;
+            if (!(obj is SteamGame other)) return false;
 
             return gameName == other.gameName;
         }
