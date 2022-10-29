@@ -24,7 +24,7 @@ namespace GlosSIIntegration
         private Version glosSIVersion = null;
 
         public bool CloseGameWhenOverlayIsClosed { get => closeGameWhenOverlayIsClosed; set => SetValue(ref closeGameWhenOverlayIsClosed, value); }
-        public string GlosSIPath { get => glosSIPath; set => SetValue(ref glosSIPath, value); }
+        public string GlosSIPath { get => glosSIPath; set => SetGlosSIPath(value); }
         public string SteamShortcutsPath { get => steamShortcutsPath; set => SetValue(ref steamShortcutsPath, value); }
         public string PlayniteOverlayName { get => playniteOverlayName; set => SetValue(ref playniteOverlayName, value); }
         public bool UsePlayniteOverlay { get => usePlayniteOverlay; set => SetValue(ref usePlayniteOverlay, value); }
@@ -39,6 +39,16 @@ namespace GlosSIIntegration
         public string DefaultTargetPath { get => GetDefaultTargetPath(); set => defaultTargetPath = value; }
         [DontSerialize]
         public Version GlosSIVersion { get => GetGlosSIVersion(); set => glosSIVersion = value; }
+
+        /// <summary>
+        /// Sets <c>GlosSIPath</c> and updates the current <c>GlosSIVersion</c>.
+        /// </summary>
+        /// <param name="path">The new path to GlosSI.</param>
+        private void SetGlosSIPath(string path)
+        {
+            SetValue(ref glosSIPath, path);
+            glosSIVersion = null;
+        }
 
         private Version GetGlosSIVersion()
         {
