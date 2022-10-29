@@ -44,6 +44,7 @@
     <sys:String x:Key="LOC_GI_FullscreenModeSettingsHeader">Fullscreen Mode Settings</sys:String>
     <sys:String x:Key="LOC_GI_PathSettingsHeader">Path Settings (required)</sys:String>
     <sys:String x:Key="LOC_GI_EditDefaultGlosSITargetLink">Edit the GlosSI configuration used when creating new shortcuts.</sys:String>
+    <sys:String x:Key="LOC_GI_CloseGameWhenOverlayIsClosedCheckBox">When the game overlay is closed, also close the game</sys:String>
     <sys:String x:Key="LOC_GI_UseDefaultOverlayCheckBox">Use a Default Steam overlay</sys:String>
     <sys:String x:Key="LOC_GI_UsePlayniteOverlayCheckBox">Use a Playnite Steam overlay</sys:String>
     <sys:String x:Key="LOC_GI_DefaultOverlayNameTextBox">Default overlay name:</sys:String>
@@ -72,6 +73,7 @@
     <sys:String x:Key="LOC_GI_GlosSITargetsFolderNotFoundError">The GlosSI Targets folder could not be found. GlosSI must be installed and have run at least once before the GlosSI Integration extension can be used.</sys:String>
     
     <!--Settings Verification Errors-->
+    <sys:String x:Key="LOC_GI_GlosSITooOldForOption">Please install a newer version of GlosSI to be able to use the option &quot;{0}&quot;.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotSetError">The path to shortcuts.vdf has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError">The path to the GlosSI folder has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">The shortcuts.vdf path does not lead to a file called &quot;shortcuts.vdf&quot;.</sys:String>
