@@ -196,7 +196,8 @@ namespace GlosSIIntegration
         /// <summary>
         /// Attempts to automatically find and set the <c>SteamShortcutsPath</c>.
         /// </summary>
-        private void AutoSetSteamShortcutsPath()
+        /// <returns>true if a path was found and set; false otherwise.</returns>
+        private bool AutoSetSteamShortcutsPath()
         {
             string newSteamShortcutsPath = GetSteamShortcutsPath();
 
@@ -206,13 +207,56 @@ namespace GlosSIIntegration
                 {
                     // GetFullPath is only used for appearance, by converting any '/' to '\'.
                     Settings.SteamShortcutsPath = Path.GetFullPath(newSteamShortcutsPath);
-                    plugin.SavePluginSettings(Settings);
+                    return true;
                 }
                 catch (Exception e)
                 {
                     logger.Error(e, "Failed to assign the automatically found Steam shortcuts path:");
                 }
             }
+            return false;
+        }
+
+        /// <summary>
+        /// Attempts to automatically find and set the <c>glosSIPath</c>.
+        /// </summary>
+        /// <returns>true if a path was found and set; false otherwise.</returns>
+        private bool AutoSetGlosSIPath()
+        {
+            string newGlosSIPath = GetGlosSIPath();
+
+            if (newGlosSIPath != null)
+            {
+                try
+                {
+                    Settings.GlosSIPath = newGlosSIPath;
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    logger.Error(e, "Failed to assign the automatically found GlosSI path:");
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Attempts to automatically find the GlosSI installation folder.
+        /// </summary>
+        /// <returns>If found, the GlosSI installation path; <c>null</c> otherwise.</returns>
+        private string GetGlosSIPath()
+        {
+            string path;
+            // TODO: This can probably be improved by checking the registry.
+            // Check the default install location.
+            path = Environment.ExpandEnvironmentVariables(@"%ProgramW6432%\GlosSI");
+            if (Directory.Exists(path))
+            {
+                logger.Trace("Automatically found the GlosSI install location.");
+                return path;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -267,7 +311,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                logger.Warn($"Could not read the Steam userdata path from the registry: {e.Message}");
+                logger.Warn(e, $"Could not read the Steam userdata path from the registry:");
             }
 
             // Check two common locations.
@@ -359,10 +403,19 @@ namespace GlosSIIntegration
             // Code executed when settings view is opened and user starts editing values.
             EditingClone = Serialization.GetClone(Settings);
 
+            bool autoUpdateSettings = false;
+
             if (string.IsNullOrEmpty(Settings.SteamShortcutsPath))
             {
-                AutoSetSteamShortcutsPath();
+                autoUpdateSettings |= AutoSetSteamShortcutsPath();
             }
+
+            if (string.IsNullOrEmpty(Settings.GlosSIPath))
+            {
+                autoUpdateSettings |= AutoSetGlosSIPath();
+            }
+
+            if (autoUpdateSettings) plugin.SavePluginSettings(Settings);
         }
 
         public void CancelEdit()
@@ -491,7 +544,7 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Verifies the <c>shortcuts.vdf</c> path. Also expands any environment variables in the path.
+        /// Verifies the <c>shortcuts.vdf</c> path.
         /// </summary>
         /// <param name="errors">The list of errors to which potential errors are added as descriptive messages.</param>
         /// <returns>true if the <c>shortcuts.vdf</c> path is valid; false otherwise.</returns>
@@ -537,7 +590,7 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Verifies the GlosSI folder path. Also expands any environment variables in the path.
+        /// Verifies the GlosSI folder path.
         /// </summary>
         /// <param name="errors">The list of errors to which potential errors are added as descriptive messages.</param>
         /// <returns>true if the GlosSI folder path is valid; false otherwise.</returns>
