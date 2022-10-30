@@ -8,15 +8,21 @@
         "hideDevices": true,
         "realDeviceIds": false
     },
+    "extendedLogging": false,
     "icon": "<icon>",
     "launch": {
-        "closeOnExit": false,
+        "closeOnExit": true,
+        "ignoreLauncher": true,
+        "killLauncher": false,
         "launch": false,
         "launchAppArgs": null,
         "launchPath": null,
+        "launcherProcesses": [
+        ],
         "waitForChildProcs": false
     },
     "name": "<name>",
+    "snapshotNotify": false,
     "version": 1,
     "window": {
         "disableOverlay": false,
