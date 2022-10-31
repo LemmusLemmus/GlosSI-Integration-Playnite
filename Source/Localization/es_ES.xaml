@@ -20,8 +20,8 @@
     <sys:String x:Key="LOC_GI_NoGamesAdded">No se han añadido juegos como atajos de Steam GlosSI. Esto puede deberse a que los juegos ya han sido añadidos o que tienen el tag para ignornarlos.</sys:String>
     <sys:String x:Key="LOC_GI_OneGameAdded">Un juego se ha añadido correctamente como acceso directo de Steam GlosSI{0}. {1}</sys:String>
     <sys:String x:Key="LOC_GI_MultipleGamesAdded">{0} juegos se añadieron correctamente como accesos directos de GlosSI en Steam{1}. {2}</sys:String>
-    <sys:String x:Key="LOC_GI_OneGameSkipped"> (one game was skipped)</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleGamesSkipped"> ({0} games were skipped)</sys:String>
+    <sys:String x:Key="LOC_GI_OneGameSkipped"> (un juego fue omitido)</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleGamesSkipped"> ({0} juego fueron omitidos)</sys:String>
 
     <!--Removing Integration from Games-->
     <sys:String x:Key="LOC_GI_NoGamesRemoved">No se eliminaron integraciones de GlosSI/Steam.</sys:String>
@@ -44,7 +44,7 @@
     <sys:String x:Key="LOC_GI_FullscreenModeSettingsHeader">Ajustes del modo pantalla completa</sys:String>
     <sys:String x:Key="LOC_GI_PathSettingsHeader">Configuración de rutas (requerido)</sys:String>
     <sys:String x:Key="LOC_GI_EditDefaultGlosSITargetLink">Editar la configuración de GlosSI usó al crear nuevos atajos.</sys:String>
-    <sys:String x:Key="LOC_GI_CloseGameWhenOverlayIsClosedCheckBox">When the game overlay is closed, also close the game</sys:String>
+    <sys:String x:Key="LOC_GI_CloseGameWhenOverlayIsClosedCheckBox">Cuando la superposición del juego se cierre, también se cierra el juego</sys:String>
     <sys:String x:Key="LOC_GI_UseDefaultOverlayCheckBox">Usar una superposición de Steam por defecto</sys:String>
     <sys:String x:Key="LOC_GI_UsePlayniteOverlayCheckBox">Usa una superposición de Steam de Playnite</sys:String>
     <sys:String x:Key="LOC_GI_DefaultOverlayNameTextBox">Nombre de la superposición predeterminada:</sys:String>
@@ -77,14 +77,14 @@
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotSetError">The path to shortcuts.vdf has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError">The path to the GlosSI folder has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">The shortcuts.vdf path does not lead to a file called &quot;shortcuts.vdf&quot;.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutsVDFNotFoundError">The shortcuts.vdf file could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSIFolderNotFoundError">The GlosSI folder location could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSIFolderExecutablesNotFoundError">The GlosSI folder location is incorrect: the GlosSI executables could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongLocationError">The shortcuts.vdf file location is incorrect: the file should be located inside the &quot;config&quot; folder in the Steam installation folder.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFNotFoundError">No se encuentra el archivo shortcuts.vdf.</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSIFolderNotFoundError">No se ha podido encontrar la ubicación de la carpeta de GlosSI.</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSIFolderExecutablesNotFoundError">La ubicación de la carpeta de GlosSI es incorrecta: los ejecutables de GlosSI no se han encontrado.</sys:String>
+    <sys:String x:Key="LOC_GI_ShortcutsVDFWrongLocationError">La ubicación del archivo shortcuts.vdf es incorrecta: el archivo debe ubicarse dentro de la carpeta &quot;config&quot; en la carpeta de instalación de Steam.</sys:String>
     
     <!--Settings Overlay Name Verification-->
     <sys:String x:Key="LOC_GI_PlayniteOverlayType">Playnite</sys:String>
-    <sys:String x:Key="LOC_GI_DefaultOverlayType">default</sys:String>
+    <sys:String x:Key="LOC_GI_DefaultOverlayType">predeterminado</sys:String>
     <sys:String x:Key="LOC_GI_OverlayNameNotSetError">The name of the {0} overlay has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_OverlayGlosSITargetNotFoundError">The target file referenced by the {0} overlay name could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_OverlayGlosSITargetNoNameError">Something is wrong with the file referenced by the {0} overlay name. The name property in the target .json file in %appdata%\GlosSI\Targets could not be found or has not been set.</sys:String>
