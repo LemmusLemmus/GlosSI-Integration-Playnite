@@ -85,7 +85,7 @@
     <!--Settings Overlay Name Verification-->
     <sys:String x:Key="LOC_GI_PlayniteOverlayType">Playnite</sys:String>
     <sys:String x:Key="LOC_GI_DefaultOverlayType">predeterminado</sys:String>
-    <sys:String x:Key="LOC_GI_OverlayNameNotSetError">The name of the {0} overlay has not been set.</sys:String>
+    <sys:String x:Key="LOC_GI_OverlayNameNotSetError">No se ha establecido el nombre de la capa {0}.</sys:String>
     <sys:String x:Key="LOC_GI_OverlayGlosSITargetNotFoundError">The target file referenced by the {0} overlay name could not be found.</sys:String>
     <sys:String x:Key="LOC_GI_OverlayGlosSITargetNoNameError">Something is wrong with the file referenced by the {0} overlay name. The name property in the target .json file in %appdata%\GlosSI\Targets could not be found or has not been set.</sys:String>
     
