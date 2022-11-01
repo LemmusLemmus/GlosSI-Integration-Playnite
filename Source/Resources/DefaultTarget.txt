@@ -11,7 +11,7 @@
     "extendedLogging": false,
     "icon": "<icon>",
     "launch": {
-        "closeOnExit": true,
+        "closeOnExit": false,
         "ignoreLauncher": true,
         "killLauncher": false,
         "launch": false,

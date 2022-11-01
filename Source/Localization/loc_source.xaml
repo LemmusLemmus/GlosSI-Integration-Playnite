@@ -73,7 +73,6 @@
     <sys:String x:Key="LOC_GI_GlosSITargetsFolderNotFoundError">The GlosSI Targets folder could not be found. GlosSI must be installed and have run at least once before the GlosSI Integration extension can be used.</sys:String>
     
     <!--Settings Verification Errors-->
-    <sys:String x:Key="LOC_GI_GlosSITooOldForOption">Please install a newer version of GlosSI to be able to use the option "{0}".</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFNotSetError">The path to shortcuts.vdf has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_GlosSIFolderNotSetError">The path to the GlosSI folder has not been set.</sys:String>
     <sys:String x:Key="LOC_GI_ShortcutsVDFWrongNameError">The shortcuts.vdf path does not lead to a file called "shortcuts.vdf".</sys:String>

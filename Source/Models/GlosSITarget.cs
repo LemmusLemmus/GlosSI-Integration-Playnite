@@ -190,46 +190,6 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Validates the contents of the json file.
-        /// </summary>
-        /// <param name="gameName">The name of the game whose json file should be validated.</param>
-        /// <returns>true if the file was validated; false if the file does not exist.</returns>
-        public static bool ValidateJsonFile(string gameName)
-        {
-            string filePath = GetJsonFilePath(RemoveIllegalFileNameChars(gameName));
-
-            if (!File.Exists(filePath)) return false;
-
-            UpdateJsonFileCloseOnExit(filePath);
-            return true;
-        }
-
-        /// <summary>
-        /// Ensures that the closeOnExit property is set to true in the json file.
-        /// </summary>
-        /// <param name="filePath">The path to the json file.</param>
-        private static void UpdateJsonFileCloseOnExit(string filePath)
-        {
-            JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(filePath));
-
-            try
-            {
-                JToken closeOnExit = jObject.SelectToken("launch.closeOnExit");
-                if (closeOnExit.ToObject<bool>() == false)
-                {
-                    closeOnExit.Replace(true);
-                    LogManager.GetLogger().Info("Overwrote launch.closeOnExit to true.");
-                    File.WriteAllText(filePath, jObject.ToString());
-                }
-            }
-            catch (NullReferenceException)
-            {
-                jObject.Add("launch.closeOnExit", true);
-                LogManager.GetLogger().Info("Target file missing launch.closeOnExit, added it.");
-            }
-        }
-
-        /// <summary>
         /// Removes the integration of a game. 
         /// This removes the game's integrated tag, GlosSITarget and entry in Steam shortcuts.vdf file.
         /// </summary>

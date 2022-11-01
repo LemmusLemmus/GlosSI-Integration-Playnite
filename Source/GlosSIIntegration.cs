@@ -25,9 +25,18 @@ namespace GlosSIIntegration
         private static readonly ILogger logger = LogManager.GetLogger();
         private readonly TopPanelItem topPanel;
         private readonly TextBlock topPanelTextBlock;
-        private SteamGame runningGameOverlay;
+        /// <summary>
+        /// The overlay that should currently run (irregardless of whether the integration is enabled).
+        /// </summary>
+        private SteamGame relevantOverlay;
+        /// <summary>
+        /// Whether the user is currently in-game (disregarding ignored games).
+        /// </summary>
+        private bool isInGame;
+        /// <summary>
+        /// The pid of the game that is currently running, or -1 if no game is currently running. May be invalid.
+        /// </summary>
         private int runningGamePid;
-        private static readonly HttpClient httpClient;
 
         private bool integrationEnabled;
         public bool IntegrationEnabled
@@ -41,14 +50,6 @@ namespace GlosSIIntegration
         public static GlosSIIntegration Instance { get; private set; }
         private GlosSIIntegrationSettingsViewModel SettingsViewModel { get; set; }
 
-        static GlosSIIntegration()
-        {
-            httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(@"http://127.0.0.1:8756/")
-            };
-        }
-
         public GlosSIIntegration(IPlayniteAPI api) : base(api)
         {
             Instance = this;
@@ -60,9 +61,10 @@ namespace GlosSIIntegration
                 HasSettings = true
             };
 
-            runningGameOverlay = null;
+            relevantOverlay = null;
             runningGamePid = -1;
-            
+            isInGame = false;
+
             topPanelTextBlock = GetInitialTopPanelTextBlock();
             topPanel = GetInitialTopPanel();
             InitializeIntegrationEnabled();
@@ -160,24 +162,94 @@ namespace GlosSIIntegration
 
             runningGamePid = args.StartedProcessId;
 
-            if (IntegrationEnabled) AttachPIDToGlosSI(runningGamePid);
+            if (IntegrationEnabled && GetSettings().CloseGameWhenOverlayIsClosed)
+            {
+                KillGameWhenGlosSICloses(runningGamePid);
+            }
         }
 
-        private void AttachPIDToGlosSI(int pid)
+        /// <summary>
+        /// Starts a new thread that kills a game when GlosSI closes.
+        /// </summary>
+        /// <param name="gamePid">The game to (potentially) kill.</param>
+        private void KillGameWhenGlosSICloses(int gamePid)
         {
-            if (runningGameOverlay == null || !GetSettings().CloseGameWhenOverlayIsClosed || pid <= 0) return;
+            new Thread(() =>
+            {
+                Process game;
+                Process glosSITarget;
 
-            try
-            {
-                logger.Trace("Attaching PID to GlosSI...");
-                httpClient.PostAsync("launched-pids", new StringContent($"[ {pid} ]"));
-            }
-            catch (Exception e)
-            {
-                logger.Error(e, $"Sending PID to GlosSI failed.");
-            }
+                try
+                {
+                    game = Process.GetProcessById(gamePid);
+                    glosSITarget = WaitForGlosSITargetToStart()[0];
+                }
+                catch (ArgumentException e)
+                {
+                    logger.Error(e, $"Waiting for GlosSI to close failed: the game with pid {gamePid} is not running.");
+                    return;
+                }
+                catch (TimeoutException e)
+                {
+                    logger.Error($"Waiting for GlosSI to close failed: {e.Message}");
+                    return;
+                }
+
+                // TODO: There are better ways to ensure that this thread does not outlive the game.
+                while (!glosSITarget.WaitForExit(1000000))
+                {
+                    if (game.HasExited)
+                    {
+                        logger.Debug("Waiting for GlosSI to close aborted: game closed long before GlosSI closed.");
+                        return;
+                    }
+                }
+
+                if (game.HasExited) return;
+                // TODO: Check if GlosSI was force closed or not! If it was not force closed, simply return.
+
+                logger.Trace("GlosSI closed, closing game...");
+                try
+                {
+                    game.Kill(); // TODO: Might want to close the game more gracefully? At least as an alternative?
+                    game.Close();
+                }
+                catch (Exception e)
+                {
+                    logger.Warn(e, "Closing game failed:");
+                }
+            }) { IsBackground = true }.Start();
         }
 
+        /// <summary>
+        /// Waits for GlosSITarget to start and returns the found process.
+        /// </summary>
+        /// <returns>The found GlosSITarget process.</returns>
+        /// <exception cref="TimeoutException">If GlosSITarget did not start after 10 seconds.</exception>
+        private static Process[] WaitForGlosSITargetToStart()
+        {
+            int sleptTime = 0;
+            Process[] p;
+
+            while ((p = Process.GetProcessesByName("GlosSITarget")).Length == 0)
+            {
+                Thread.Sleep(333);
+                if ((sleptTime += 333) > 10000)
+                {
+                    throw new TimeoutException("GlosSITarget did not start in time.");
+                }
+            }
+
+            if (p.Length > 1) logger.Warn($"Multiple ({p.Length}) GlosSITargets were found.");
+
+            return p;
+        }
+
+        /// <summary>
+        /// Gets the overlay associated with a game.
+        /// </summary>
+        /// <param name="game">The game to get the overlay for.</param>
+        /// <returns>If found, the overlay; <c>null</c> otherwise.</returns>
         private SteamGame GetGameOverlay(Game game)
         {
             string overlayName;
@@ -202,17 +274,15 @@ namespace GlosSIIntegration
         {
             if (GameHasIgnoredTag(args.Game)) return;
 
-            CloseGlosSITargets();
+            isInGame = true;
 
-            runningGameOverlay = GetGameOverlay(args.Game);
-
-            if (runningGameOverlay == null || !IntegrationEnabled) return;
-
-            if (!runningGameOverlay.RunGlosSITarget())
+            if (ReplaceRelevantOverlay(GetGameOverlay(args.Game)) && 
+                IntegrationEnabled && relevantOverlay != null)
             {
-                DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
-                return;
+                relevantOverlay.RunGlosSITarget();
             }
+
+            logger.Trace($"Game starting: relevant overlay is: {relevantOverlay?.ToString() ?? "null"}.");
         }
 
         /// <summary>
@@ -220,7 +290,8 @@ namespace GlosSIIntegration
         /// </summary>
         /// <param name="message">The user-readable error message.</param>
         /// <param name="exception">The exception, if one exists.</param>
-        public void DisplayError(string message, Exception exception = null)
+        /// <seealso cref="NotifyError(string, string)"/>
+        public static void DisplayError(string message, Exception exception = null)
         {
             if (exception == null)
             {
@@ -233,78 +304,132 @@ namespace GlosSIIntegration
             Api.Dialogs.ShowErrorMessage(message, ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
         }
 
+        /// <summary>
+        /// Displays an error as a notification and logs it.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="id">The ID of the notification.</param>
+        /// <seealso cref="DisplayError(string, Exception)"/>
+        public static void NotifyError(string message, string id)
+        {
+            logger.Error(message);
+            Api.Notifications.Add(id, message, NotificationType.Error);
+        }
+
+        /// <summary>
+        /// Updates the <c>relevantOverlay</c> and closes GlosSITarget if the overlay was changed.
+        /// </summary>
+        /// <param name="overlay">The new relevant overlay.</param>
+        /// <returns>True if the overlay was changed; false otherwise.</returns>
+        private bool ReplaceRelevantOverlay(SteamGame overlay)
+        {
+            // Check if the overlay to be started is already running.
+            if (relevantOverlay != null && relevantOverlay.Equals(overlay) && IsGlosSITargetRunning())
+            {
+                logger.Trace($"Overlay \"{relevantOverlay?.ToString() ?? "null"}\" was left running.");
+                return false;
+            }
+            relevantOverlay = overlay;
+            if (IntegrationEnabled) CloseGlosSITargets();
+            return true;
+        }
+
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
             if (GameHasIgnoredTag(args.Game)) return;
 
-            runningGameOverlay = null;
+            isInGame = false;
             runningGamePid = -1;
-
-            if (IntegrationEnabled)
+                
+            if (IntegrationEnabled && 
+                Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen && 
+                GetSettings().UsePlayniteOverlay)
             {
-                CloseGlosSITargets();
-                if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen)
+                if (ReplaceRelevantOverlay(new SteamGame(GetSettings().PlayniteOverlayName)))
                 {
-                    RunPlayniteOverlay();
+                    RunPlayniteOverlay(relevantOverlay);
                 }
             }
+            else
+            {
+                relevantOverlay = null;
+                if (IntegrationEnabled) CloseGlosSITargets();
+            }
+
+            logger.Trace($"Game stopped: relevant overlay is: {relevantOverlay?.ToString() ?? "null"}.");
         }
 
         /// <summary>
-        /// Starts the Playnite GlosSI/Steam overlay, if the user has enabled/configured one.
+        /// Checks if GlosSITarget is currently running.
         /// </summary>
-        private void RunPlayniteOverlay()
+        /// <returns>true if GlosSITarget is running; false otherwise.</returns>
+        private bool IsGlosSITargetRunning()
         {
-            if (!GetSettings().UsePlayniteOverlay) return;
+            return Process.GetProcessesByName("GlosSITarget").Length != 0;
+        }
+
+        /// <summary>
+        /// Starts the Playnite GlosSI/Steam overlay.
+        /// </summary>
+        /// <param name="playniteOverlay">The Playnite overlay to start.</param>
+        private void RunPlayniteOverlay(SteamGame playniteOverlay)
+        {
+            if (!GetSettings().UsePlayniteOverlay)
+            {
+                logger.Warn("Attempted to run the Playnite overlay despite it being disabled.");
+                return;
+            }
 
             // It is up to personal preference whether to start this in a new thread.
             // The difference is whether the user can see their library or a "loading" screen while the Steam overlay is starting.
             new Thread(() =>
             {
-                if (!new SteamGame(GetSettings().PlayniteOverlayName).RunGlosSITarget())
+                if (!playniteOverlay.RunGlosSITarget())
                 {
                     DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
                     return;
                 }
                 try
                 {
-                    ReturnStolenFocus("GlosSITarget");
+                    ReturnStolenFocus();
                 }
                 catch (TimeoutException e)
                 {
-                    logger.Warn($"Failed to return focus to Playnite: {e.Message}");
+                    logger.Trace($"Failed to return focus to Playnite: {e.Message}");
                 }
             }).Start();
         }
 
         /// <summary>
-        /// Assuming that <paramref name="processName"/> has or will soon steal the focus from this application, returns the focus to this application.
+        /// Assuming that GlosSITarget has or will soon steal the focus from this application, 
+        /// attempts to return the focus to this application.
         /// </summary>
-        /// <param name="processName">The name of the process that will steal window focus.</param>
         /// <exception cref="TimeoutException">If an operation took too long.</exception>
-        private static void ReturnStolenFocus(string processName)
+        private void ReturnStolenFocus()
         {
-            Process[] p;
-            int sleptTime = 0;
+            Process glosSITarget;
 
-            // Wait for the process to start, if it has not already.
-            while ((p = Process.GetProcessesByName(processName)).Length == 0)
-            {
-                Thread.Sleep(300);
-                if ((sleptTime += 300) > 10000)
-                {
-                    throw new TimeoutException("Failed to find a GlosSITarget process to return focus from in time.");
-                }
-            }
-
-            if (p.Length > 1) logger.Warn($"Multiple ({p.Length}) GlosSITargets were found in full screen mode.");
-
-            // Wait for the process to steal focus, if it has not already.
-            WaitForStolenFocus(p[0]);
-            FocusSelf();
+            // Wait for GlosSITarget to start, if it has not already.
+            glosSITarget = WaitForGlosSITargetToStart()[0];
             // For some reason focus is sometimes stolen twice.
             // An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
-            WaitForStolenFocus(p[0]);
+            ReturnStolenFocus(glosSITarget);
+            ReturnStolenFocus(glosSITarget);
+        }
+
+        /// <summary>
+        /// Attempts to return focus stolen by a process to Playnite once, unless the user is currently in game.
+        /// </summary>
+        /// <param name="proc">The process expected to steal focus.</param>
+        /// <exception cref="TimeoutException">If an operation took too long.</exception>
+        private void ReturnStolenFocus(Process proc)
+        {
+            // Wait for GlosSITarget to steal focus, if it has not already.
+            WaitForStolenFocus(proc);
+            if (isInGame)
+            {
+                throw new TimeoutException("Game started before process stole focus.");
+            }
             FocusSelf();
         }
 
@@ -360,6 +485,7 @@ namespace GlosSIIntegration
         /// </summary>
         private void CloseGlosSITargets()
         {
+            logger.Trace("Closing GlosSITargets...");
             try
             {
                 Process[] glosSITargets = Process.GetProcessesByName("GlosSITarget");
@@ -384,9 +510,8 @@ namespace GlosSIIntegration
                 {
                     if (!proc.WaitForExit(10000))
                     {
-                        string errorMessage = ResourceProvider.GetString("LOC_GI_CloseGlosSITargetTimelyUnexpectedError");
-                        logger.Error(errorMessage);
-                        Api.Notifications.Add("GlosSIIntegration-FailedToCloseGlosSITarget", errorMessage, NotificationType.Error);
+                        NotifyError(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetTimelyUnexpectedError"), 
+                            "GlosSIIntegration-FailedToCloseGlosSITarget");
                     }
                     proc.Close();
                 }
@@ -431,15 +556,17 @@ namespace GlosSIIntegration
         {
             SettingsViewModel.InitialVerification();
             Api.Database.Tags.Add(LOC_IGNORED_TAG);
-            if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen && IntegrationEnabled)
+            if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen && 
+                IntegrationEnabled && GetSettings().UsePlayniteOverlay)
             {
-                RunPlayniteOverlay();
+                relevantOverlay = new SteamGame(GetSettings().PlayniteOverlayName);
+                RunPlayniteOverlay(relevantOverlay);
             }
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
         {
-            CloseGlosSITargets();
+            if (IntegrationEnabled) CloseGlosSITargets();
         }
 
         public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
@@ -550,17 +677,17 @@ namespace GlosSIIntegration
         /// </summary>
         /// <param name="games">The list of games to perform an operation on.</param>
         /// <param name="progressBar">A progress bar for which the progress value is incremented
-        /// every time <paramref name="proccess"/> is run.</param>
+        /// every time <paramref name="process"/> is run.</param>
         /// <param name="errorMessage">The error message that is shown to the user if 
-        /// <paramref name="proccess"/> throws an exception. 
+        /// <paramref name="process"/> throws an exception. 
         /// The message will be formatted with the name of the game and the exception message.</param>
-        /// <param name="proccess">The proccess to run for each game.</param>
-        /// <returns>The number of games for which <paramref name="proccess"/> returned true.</returns>
+        /// <param name="process">The process to run for each game.</param>
+        /// <returns>The number of games for which <paramref name="process"/> returned true.</returns>
         private int ProcessGames(List<Game> games, GlobalProgressActionArgs progressBar,
-            string errorMessage, Predicate<Game> proccess)
+            string errorMessage, Predicate<Game> process)
         {
             bool hasWarnedUnsupportedCharacters = false;
-            int gamesProccessed = 0;
+            int gamesProcessed = 0;
             progressBar.ProgressMaxValue = games.Count();
 
             using (Api.Database.BufferedUpdate())
@@ -569,7 +696,7 @@ namespace GlosSIIntegration
                 {
                     try
                     {
-                        if (proccess(game)) gamesProccessed++;
+                        if (process(game)) gamesProcessed++;
                         progressBar.CurrentProgressValue++;
                     }
                     catch (GlosSITarget.UnsupportedCharacterException)
@@ -595,7 +722,7 @@ namespace GlosSIIntegration
                 }
             }
 
-            return gamesProccessed;
+            return gamesProcessed;
         }
 
         private void AddGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesAdded, bool avoidSteamGames)
@@ -720,15 +847,14 @@ namespace GlosSIIntegration
             CloseGlosSITargets();
 
             // If the user is currently in-game, launch the game specific overlay.
-            if (runningGameOverlay != null && IntegrationEnabled)
+            if (IntegrationEnabled && isInGame && relevantOverlay != null)
             {
                 logger.Trace("Steam Overlay launched whilst in-game.");
-                if (!runningGameOverlay.RunGlosSITarget())
+                if (!relevantOverlay.RunGlosSITarget()) return;
+                if (GetSettings().CloseGameWhenOverlayIsClosed)
                 {
-                    DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
-                    return;
+                    KillGameWhenGlosSICloses(runningGamePid);
                 }
-                AttachPIDToGlosSI(runningGamePid);
             }
         }
 
@@ -791,10 +917,9 @@ namespace GlosSIIntegration
             {
                 new Thread(() =>
                 {
-                    Thread.CurrentThread.IsBackground = true;
                     Thread.Sleep(2000);
                     UpdateTopPanelGlyphBrush();
-                }).Start();
+                }) { IsBackground = true }.Start();
             }
         }
 

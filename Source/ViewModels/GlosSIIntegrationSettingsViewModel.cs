@@ -55,7 +55,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                GlosSIIntegration.Instance.DisplayError(e.Message, e);
+                GlosSIIntegration.DisplayError(e.Message, e);
             }
         }
 
@@ -138,7 +138,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                plugin.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupGlosSIUnexpectedError"), 
+                GlosSIIntegration.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupGlosSIUnexpectedError"), 
                     e.Message), e);
             }
             
@@ -168,7 +168,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                plugin.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupSteamFileUnexpectedError"), 
+                GlosSIIntegration.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupSteamFileUnexpectedError"), 
                     e.Message), e);
             }
         }
@@ -462,8 +462,7 @@ namespace GlosSIIntegration
             errors = new List<string>();
             return VerifySteamShortcutsPath(ref errors) & VerifyGlosSIPath(ref errors) && 
                 (!Settings.UseIntegrationFullscreen || !Settings.UsePlayniteOverlay || VerifyPlayniteOverlayName(ref errors)) &
-                (!Settings.UseDefaultOverlay || VerifyDefaultOverlayName(ref errors)) &
-                (!Settings.CloseGameWhenOverlayIsClosed || VerifyCloseGameWhenOverlayIsClosed(ref errors));
+                (!Settings.UseDefaultOverlay || VerifyDefaultOverlayName(ref errors));
         }
 
         public RelayCommand<object> BrowseSteamShortcutsFile
@@ -524,23 +523,6 @@ namespace GlosSIIntegration
                     ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Verifies that the option closeGameWhenOverlayIsClosed is usable.
-        /// </summary>
-        /// <param name="errors">The list of errors to which potential errors are added as descriptive messages.</param>
-        /// <returns>true if closeGameWhenOverlayIsClosed is usable; false otherwise.</returns>
-        private bool VerifyCloseGameWhenOverlayIsClosed(ref List<string> errors)
-        {
-            if (Settings.GlosSIVersion < new Version("0.1.1.0"))
-            {
-                logger.Warn($"GlosSI version {Settings.GlosSIVersion} is too old to be able to close the game when the overlay is closed.");
-                errors.Add(string.Format(ResourceProvider.GetString("LOC_GI_GlosSITooOldForOption"), ResourceProvider.GetString("LOC_GI_CloseGameWhenOverlayIsClosedCheckBox")));
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>

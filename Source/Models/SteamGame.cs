@@ -44,36 +44,40 @@ namespace GlosSIIntegration
         /// <summary>
         /// Runs the Steam game associated with the ID.
         /// </summary>
-        /// <returns>The started process; <c>null</c> if starting the process failed.</returns>
-        public Process Run()
+        /// <returns>true if the process was started; false if starting the process failed.</returns>
+        public bool Run()
         {
             try
             {
                 LogManager.GetLogger().Info($"Starting Steam game {this}.");
-                return Process.Start("steam://rungameid/" + GetID().ToString());
+                Process.Start("steam://rungameid/" + GetID().ToString());
+                return true;
             }
             catch (Exception e)
             {
-                string message = string.Format(ResourceProvider.GetString("LOC_GI_RunSteamGameUnexpectedError"), 
-                    e.Message);
-                LogManager.GetLogger().Error(e, message);
-                GlosSIIntegration.Api.Notifications.Add("GlosSIIntegration-SteamGame-Run", 
-                    message, NotificationType.Error);
-                return null;
+                GlosSIIntegration.NotifyError(string.Format(ResourceProvider.GetString("LOC_GI_RunSteamGameUnexpectedError"),
+                    e.Message), "GlosSIIntegration-SteamGame-Run");
+                return false;
             }
         }
 
         /// <summary>
         /// Runs the GlosSITarget associated with this <c>SteamGame</c> via Steam.
+        /// If the GlosSI configuration file could not be found, the method only displays an error notification.
         /// </summary>
-        /// <returns>true if the process was started; false if the GlosSI configuration file could not be found.</returns>
+        /// <returns>true if the process was started; false otherwise.</returns>
+        /// <seealso cref="Run"/>
         public bool RunGlosSITarget()
         {
-            if (!GlosSITarget.ValidateJsonFile(gameName)) return false;
+            LogManager.GetLogger().Trace($"Running GlosSITarget for {gameName}...");
+            if (!GlosSITarget.HasJsonFile(gameName))
+            {
+                GlosSIIntegration.NotifyError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"), 
+                    "GlosSIIntegration-SteamGame-RunGlosSITarget");
+                return false;
+            }
 
-            Run();
-
-            return true;
+            return Run();
         }
 
         public override bool Equals(object obj)
