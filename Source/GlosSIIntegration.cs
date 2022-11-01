@@ -877,37 +877,6 @@ namespace GlosSIIntegration
             return (Brush)PlayniteApi.Resources.GetResource("GlyphBrush");
         }
 
-        // Commented out due to the method probably being overkill.
-        // If the user changes the constants, a simple restart or toggling of the button will update the color used.
-        // There are probably better ways to do this.
-        /*
-        /// <summary>
-        /// Creates a FileSystemWatcher that updates the color of the TopPanelTextBox if 
-        /// the brush used is potentially changed by Lacro59's plugin ThemeModifier.
-        /// </summary>
-        private FileSystemWatcher CreateThemeModifierWatcher()
-        {
-            FileSystemWatcher watcher = null;
-            try
-            {
-                watcher = new FileSystemWatcher
-                {
-                    Path = Path.GetFullPath(Path.Combine(GetPluginUserDataPath(), "..", "ec2f4013-17e6-428a-b8a9-5e34a3b80009")),
-                    NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite,
-                    Filter = "config.json",
-                    EnableRaisingEvents = true
-                };
-                watcher.Changed += new FileSystemEventHandler(OnThemeModifierChanged);
-            }
-            catch { }
-            return watcher;
-        }
-
-        private void OnThemeModifierChanged(object source, FileSystemEventArgs e)
-        {
-            UpdateTopPanelGlyphBrush();
-        }*/
-
         /// <summary>
         /// Updates <c>topPanelTextBlock.Foreground</c> after all plugins (hopefully) have finished initializing, if necessary.
         /// </summary>
