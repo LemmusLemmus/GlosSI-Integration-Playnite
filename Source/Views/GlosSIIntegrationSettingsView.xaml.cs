@@ -33,6 +33,14 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
+        /// Opens a link to the "Tips and Tricks" page on the GitHub wiki.
+        /// </summary>
+        private void TipsAndTricks_Click(object sender, RoutedEventArgs e)
+        {
+            GlosSIIntegrationSettingsViewModel.OpenLink("https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki/Tips-and-tricks");
+        }
+
+        /// <summary>
         /// Opens a link to the "Configuring settings" page on the GitHub wiki.
         /// </summary>
         private void Help_Click(object sender, RoutedEventArgs e)

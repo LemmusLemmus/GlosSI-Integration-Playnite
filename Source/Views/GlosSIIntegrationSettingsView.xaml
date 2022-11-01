@@ -40,6 +40,7 @@
                         <Button Margin="10,0,0,0" DockPanel.Dock="Right" Content="&#xec3e;" FontFamily="{DynamicResource FontIcoFont}" Command="{Binding AddPlayniteOverlay}" ToolTip="{DynamicResource LOC_GI_AddOverlayButtonTooltip}"/>
                         <TextBox Margin="10,0,0,0" Text="{Binding Settings.PlayniteOverlayName}"/>
                     </DockPanel>
+                    <TextBlock Margin="0,0,0,10"><Hyperlink Click="TipsAndTricks_Click"><Run Text="{DynamicResource LOC_GI_TipsAndTricksLink}"></Run><Run Text=" &#xef1f;" FontFamily="{DynamicResource FontIcoFont}"></Run></Hyperlink></TextBlock>
                 </StackPanel>
                 <StackPanel Margin="0,10,0,0">
                     <Label Content="{DynamicResource LOC_GI_PathSettingsHeader}" Margin="0,0,0,5"/>
