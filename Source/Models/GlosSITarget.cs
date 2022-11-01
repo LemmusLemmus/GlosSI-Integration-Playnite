@@ -278,6 +278,21 @@ namespace GlosSIIntegration
                 arguments);
             glosSIConfig.WaitForExit();
 
+            try
+            {
+                if (glosSIConfig.ExitCode != 0)
+                {
+                    LogManager.GetLogger().Error($"GlosSIConfig returned exit code {glosSIConfig.ExitCode}, " +
+                        $"using arguments {initialArgument} and {targetArgument}.");
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                LogManager.GetLogger().Error(e, "Failed to check GlosSIConfig exit code.");
+            }
+            glosSIConfig.Close();
+
             VerifyShortcutModification(initialContents, arguments);
         }
 
