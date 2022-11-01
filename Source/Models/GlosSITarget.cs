@@ -274,24 +274,24 @@ namespace GlosSIIntegration
             string initialContents = File.ReadAllText(GlosSIIntegration.GetSettings().SteamShortcutsPath);
             string arguments = $"{initialArgument} {targetArgument} \"{GlosSIIntegration.GetSettings().SteamShortcutsPath}\"";
 
-            Process glosSIConfig = Process.Start(Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSIConfig.exe"), 
-                arguments);
-            glosSIConfig.WaitForExit();
-
-            try
+            using (Process glosSIConfig = Process.Start(Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSIConfig.exe"), arguments))
             {
-                if (glosSIConfig.ExitCode != 0)
+                glosSIConfig.WaitForExit();
+
+                try
                 {
-                    LogManager.GetLogger().Error($"GlosSIConfig returned exit code {glosSIConfig.ExitCode}, " +
-                        $"using arguments {initialArgument} and {targetArgument}.");
-                    return;
+                    if (glosSIConfig.ExitCode != 0)
+                    {
+                        LogManager.GetLogger().Error($"GlosSIConfig returned exit code {glosSIConfig.ExitCode}, " +
+                            $"using arguments {initialArgument} and {targetArgument}.");
+                        return;
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogManager.GetLogger().Error(e, "Failed to check GlosSIConfig exit code.");
                 }
             }
-            catch (Exception e)
-            {
-                LogManager.GetLogger().Error(e, "Failed to check GlosSIConfig exit code.");
-            }
-            glosSIConfig.Close();
 
             VerifyShortcutModification(initialContents, arguments);
         }

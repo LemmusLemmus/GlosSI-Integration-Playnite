@@ -176,13 +176,33 @@ namespace GlosSIIntegration
         {
             new Thread(() =>
             {
-                Process game;
-                Process glosSITarget;
-
                 try
                 {
-                    game = Process.GetProcessById(gamePid);
-                    glosSITarget = WaitForGlosSITargetToStart()[0];
+                    using (Process game = Process.GetProcessById(gamePid), glosSITarget = WaitForGlosSITargetToStart())
+                    {
+                        // TODO: There are better ways to ensure that this thread does not outlive the game.
+                        while (!glosSITarget.WaitForExit(1000000))
+                        {
+                            if (game.HasExited)
+                            {
+                                logger.Debug("Waiting for GlosSI to close aborted: game closed long before GlosSI closed.");
+                                return;
+                            }
+                        }
+
+                        if (game.HasExited) return;
+                        // TODO: Check if GlosSI was force closed or not! If it was not force closed, simply return.
+
+                        logger.Trace("GlosSI closed, closing game...");
+                        try
+                        {
+                            game.Kill(); // TODO: Might want to close the game more gracefully? At least as an alternative?
+                        }
+                        catch (Exception e)
+                        {
+                            logger.Warn(e, "Closing game failed:");
+                        }
+                    }
                 }
                 catch (ArgumentException e)
                 {
@@ -194,30 +214,6 @@ namespace GlosSIIntegration
                     logger.Error($"Waiting for GlosSI to close failed: {e.Message}");
                     return;
                 }
-
-                // TODO: There are better ways to ensure that this thread does not outlive the game.
-                while (!glosSITarget.WaitForExit(1000000))
-                {
-                    if (game.HasExited)
-                    {
-                        logger.Debug("Waiting for GlosSI to close aborted: game closed long before GlosSI closed.");
-                        return;
-                    }
-                }
-
-                if (game.HasExited) return;
-                // TODO: Check if GlosSI was force closed or not! If it was not force closed, simply return.
-
-                logger.Trace("GlosSI closed, closing game...");
-                try
-                {
-                    game.Kill(); // TODO: Might want to close the game more gracefully? At least as an alternative?
-                    game.Close();
-                }
-                catch (Exception e)
-                {
-                    logger.Warn(e, "Closing game failed:");
-                }
             }) { IsBackground = true }.Start();
         }
 
@@ -226,7 +222,7 @@ namespace GlosSIIntegration
         /// </summary>
         /// <returns>The found GlosSITarget process.</returns>
         /// <exception cref="TimeoutException">If GlosSITarget did not start after 10 seconds.</exception>
-        private static Process[] WaitForGlosSITargetToStart()
+        private static Process WaitForGlosSITargetToStart()
         {
             int sleptTime = 0;
             Process[] p;
@@ -240,9 +236,13 @@ namespace GlosSIIntegration
                 }
             }
 
-            if (p.Length > 1) logger.Warn($"Multiple ({p.Length}) GlosSITargets were found.");
+            if (p.Length > 1)
+            {
+                logger.Warn($"Multiple ({p.Length}) GlosSITargets were found.");
+                for (int i = 1; i < p.Length; i++) p[i].Dispose();
+            }
 
-            return p;
+            return p[0];
         }
 
         /// <summary>
@@ -365,7 +365,19 @@ namespace GlosSIIntegration
         /// <returns>true if GlosSITarget is running; false otherwise.</returns>
         private bool IsGlosSITargetRunning()
         {
-            return Process.GetProcessesByName("GlosSITarget").Length != 0;
+            Process[] glosSITargets = Process.GetProcessesByName("GlosSITarget");
+            if (glosSITargets.Length != 0)
+            {
+                foreach (Process p in glosSITargets)
+                {
+                    p.Dispose();
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -407,14 +419,14 @@ namespace GlosSIIntegration
         /// <exception cref="TimeoutException">If an operation took too long.</exception>
         private void ReturnStolenFocus()
         {
-            Process glosSITarget;
-
             // Wait for GlosSITarget to start, if it has not already.
-            glosSITarget = WaitForGlosSITargetToStart()[0];
-            // For some reason focus is sometimes stolen twice.
-            // An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
-            ReturnStolenFocus(glosSITarget);
-            ReturnStolenFocus(glosSITarget);
+            using (Process glosSITarget = WaitForGlosSITargetToStart())
+            {
+                // For some reason focus is sometimes stolen twice.
+                // An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
+                ReturnStolenFocus(glosSITarget);
+                ReturnStolenFocus(glosSITarget);
+            }
         }
 
         /// <summary>
@@ -461,9 +473,12 @@ namespace GlosSIIntegration
             keybd_event(unusedKey, 0x45, EXTENDEDKEY | 0, 0);
             keybd_event(unusedKey, 0x45, EXTENDEDKEY | KEYUP, 0);
 
-            if (!SetForegroundWindow(Process.GetCurrentProcess().MainWindowHandle))
+            using (Process currentProcess = Process.GetCurrentProcess())
             {
-                logger.Warn("Setting foreground window to Playnite failed.");
+                if (!SetForegroundWindow(currentProcess.MainWindowHandle))
+                {
+                    logger.Warn("Setting foreground window to Playnite failed.");
+                }
             }
         }
 

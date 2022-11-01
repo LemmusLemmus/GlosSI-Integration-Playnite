@@ -50,7 +50,7 @@ namespace GlosSIIntegration
             try
             {
                 LogManager.GetLogger().Info($"Starting Steam game {this}.");
-                Process.Start("steam://rungameid/" + GetID().ToString());
+                Process.Start("steam://rungameid/" + GetID().ToString()).Dispose();
                 return true;
             }
             catch (Exception e)
