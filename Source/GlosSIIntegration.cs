@@ -432,7 +432,7 @@ namespace GlosSIIntegration
         /// Assuming that GlosSITarget has or will soon steal the focus from this application, 
         /// attempts to return the focus to this application.
         /// </summary>
-        /// <exception cref="TimeoutException">If an operation took too long.</exception>
+        /// <exception cref="TimeoutException">If GlosSITarget took too long to start.</exception>
         private void ReturnStolenFocus()
         {
             // Wait for GlosSITarget to start, if it has not already.
@@ -440,8 +440,17 @@ namespace GlosSIIntegration
             {
                 // For some reason focus is sometimes stolen twice.
                 // An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
-                ReturnStolenFocus(glosSITarget);
-                ReturnStolenFocus(glosSITarget);
+                int attempts = 1;
+                try
+                {
+                    for (; attempts <= 3; attempts++) // Third time's a charm.
+                    {
+                        ReturnStolenFocus(glosSITarget);
+                    }
+                    logger.Trace("All attempts to return focus to Playnite passed.");
+                }
+                catch (TimeoutException) { }
+                logger.Trace($"{attempts} attempts were made to return focus to Playnite.");
             }
         }
 
