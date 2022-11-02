@@ -12,7 +12,6 @@ using System.Windows;
 using System.Threading;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Net.Http;
 
 namespace GlosSIIntegration
 {
@@ -169,52 +168,69 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Starts a new thread that kills a game when GlosSI closes.
+        /// Kills a game when GlosSI force closes.
         /// </summary>
         /// <param name="gamePid">The game to (potentially) kill.</param>
         private void KillGameWhenGlosSICloses(int gamePid)
         {
-            new Thread(() =>
+            try
             {
-                try
+                Process glosSITarget = WaitForGlosSITargetToStart();
+                Process game = Process.GetProcessById(gamePid);
+                glosSITarget.EnableRaisingEvents = true;
+                glosSITarget.Exited += (sender, e) => GlosSITargetExited(sender, e, game);
+            }
+            catch (ArgumentException e)
+            {
+                logger.Error(e, $"Waiting for GlosSI to close failed: the game with pid {gamePid} is not running.");
+                return;
+            }
+            catch (TimeoutException e)
+            {
+                logger.Error($"Waiting for GlosSI to close failed: {e.Message}");
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Delegate for the <c>glosSITarget.Exited</c> event.
+        /// Kills a game if the game is still running and if GlosSITarget was killed.
+        /// </summary>
+        /// <param name="sender">The GlosSITarget process.</param>
+        /// <param name="_">Ignored.</param>
+        /// <param name="game">The game to attempt to kill.</param>
+        private void GlosSITargetExited(object sender, EventArgs _, Process game)
+        {
+            Process glosSITarget = sender as Process;
+
+            if (!game.HasExited)
+            {
+                // Check if GlosSI was killed or not, i.e. if it was closed via the Steam overlay.
+                // Unless something went wrong, ExitCode 1 should mean that the process was killed.
+                if (glosSITarget.ExitCode == 1)
                 {
-                    using (Process game = Process.GetProcessById(gamePid), glosSITarget = WaitForGlosSITargetToStart())
+                    logger.Trace("GlosSI killed, killing game in retaliation...");
+                    try
                     {
-                        // TODO: There are better ways to ensure that this thread does not outlive the game.
-                        while (!glosSITarget.WaitForExit(1000000))
-                        {
-                            if (game.HasExited)
-                            {
-                                logger.Debug("Waiting for GlosSI to close aborted: game closed long before GlosSI closed.");
-                                return;
-                            }
-                        }
-
-                        if (game.HasExited) return;
-                        // TODO: Check if GlosSI was force closed or not! If it was not force closed, simply return.
-
-                        logger.Trace("GlosSI closed, closing game...");
-                        try
-                        {
-                            game.Kill(); // TODO: Might want to close the game more gracefully? At least as an alternative?
-                        }
-                        catch (Exception e)
-                        {
-                            logger.Warn(e, "Closing game failed:");
-                        }
+                        game.Kill(); // TODO: Might want to close the game more gracefully? At least as an alternative?
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Warn(ex, "Killing game failed:");
                     }
                 }
-                catch (ArgumentException e)
+                else if (glosSITarget.ExitCode == 0)
                 {
-                    logger.Error(e, $"Waiting for GlosSI to close failed: the game with pid {gamePid} is not running.");
-                    return;
+                    logger.Trace("GlosSI closed normally, not killing game.");
                 }
-                catch (TimeoutException e)
+                else
                 {
-                    logger.Error($"Waiting for GlosSI to close failed: {e.Message}");
-                    return;
+                    logger.Warn($"GlosSI closed with exit code {glosSITarget.ExitCode}, not killing game.");
                 }
-            }) { IsBackground = true }.Start();
+            }
+
+            glosSITarget.Dispose();
+            game.Dispose();
         }
 
         /// <summary>
