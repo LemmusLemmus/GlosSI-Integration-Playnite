@@ -44,6 +44,8 @@
     <sys:String x:Key="LOC_GI_FullscreenModeSettingsHeader">Fullscreen Mode Settings</sys:String>
     <sys:String x:Key="LOC_GI_PathSettingsHeader">Path Settings (required)</sys:String>
     <sys:String x:Key="LOC_GI_EditDefaultGlosSITargetLink">Edit the GlosSI configuration used when creating new shortcuts.</sys:String>
+    <sys:String x:Key="LOC_GI_TipsAndTricksLink">Tips and tricks!</sys:String>
+    <sys:String x:Key="LOC_GI_CloseGameWhenOverlayIsClosedCheckBox">When the game overlay is closed, also close the game</sys:String>
     <sys:String x:Key="LOC_GI_UseDefaultOverlayCheckBox">Use a Default Steam overlay</sys:String>
     <sys:String x:Key="LOC_GI_UsePlayniteOverlayCheckBox">Use a Playnite Steam overlay</sys:String>
     <sys:String x:Key="LOC_GI_DefaultOverlayNameTextBox">Default overlay name:</sys:String>

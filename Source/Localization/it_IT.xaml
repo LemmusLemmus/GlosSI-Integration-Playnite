@@ -44,6 +44,8 @@
     <sys:String x:Key="LOC_GI_FullscreenModeSettingsHeader">Impostazioni Modalità Schermo Intero</sys:String>
     <sys:String x:Key="LOC_GI_PathSettingsHeader">Impostazioni Percorso (obbligatorio)</sys:String>
     <sys:String x:Key="LOC_GI_EditDefaultGlosSITargetLink">Modificare la configurazione di GlosSI usata per creare nuove scorciatoie.</sys:String>
+    <sys:String x:Key="LOC_GI_TipsAndTricksLink">Tips and tricks!</sys:String>
+    <sys:String x:Key="LOC_GI_CloseGameWhenOverlayIsClosedCheckBox">When the game overlay is closed, also close the game</sys:String>
     <sys:String x:Key="LOC_GI_UseDefaultOverlayCheckBox">Usa una sovrapposizione predefinita di Steam</sys:String>
     <sys:String x:Key="LOC_GI_UsePlayniteOverlayCheckBox">Usa una sovrapposizione di Playnite Steam</sys:String>
     <sys:String x:Key="LOC_GI_DefaultOverlayNameTextBox">Nome predefinito di sovrapposizione:</sys:String>
