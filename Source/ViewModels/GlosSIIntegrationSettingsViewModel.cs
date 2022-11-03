@@ -667,12 +667,12 @@ namespace GlosSIIntegration
                 return false;
             }
 
-            string fileName = GlosSITarget.RemoveIllegalFileNameChars(overlayName);
+            string fileName = GlosSITargetFile.RemoveIllegalFileNameChars(overlayName);
             string jsonString;
 
             try
             {
-                jsonString = File.ReadAllText(GlosSITarget.GetJsonFilePath(fileName));
+                jsonString = File.ReadAllText(GlosSITargetFile.GetJsonFilePath(fileName));
             }
             catch (FileNotFoundException) // Verify that the corresponding .json file actually exists
             {

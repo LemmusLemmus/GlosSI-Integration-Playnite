@@ -766,7 +766,7 @@ namespace GlosSIIntegration
                         if (process(game)) gamesProcessed++;
                         progressBar.CurrentProgressValue++;
                     }
-                    catch (GlosSITarget.UnsupportedCharacterException)
+                    catch (GlosSITargetFile.UnsupportedCharacterException)
                     {
                         if (!hasWarnedUnsupportedCharacters)
                         {
@@ -774,7 +774,7 @@ namespace GlosSIIntegration
                             WarnGameHasUnsupportedCharacters();
                         }
                     }
-                    catch (GlosSITarget.UnexpectedGlosSIBehaviour)
+                    catch (GlosSITargetFile.UnexpectedGlosSIBehaviour)
                     {
                         logger.Error(string.Format(errorMessage, game.Name, "UnexpectedGlosSIBehaviour"));
                         break;
@@ -798,11 +798,11 @@ namespace GlosSIIntegration
 
             if (avoidSteamGames)
             {
-                process = (game) => !IsSteamGame(game) && new GlosSITarget(game).Create();
+                process = (game) => !IsSteamGame(game) && new GlosSITargetFile(game).Create();
             }
             else
             {
-                process = (game) => new GlosSITarget(game).Create();
+                process = (game) => new GlosSITargetFile(game).Create();
             }
 
             gamesAdded = ProcessGames(games, progressBar,
@@ -812,7 +812,7 @@ namespace GlosSIIntegration
 
         private void RemoveGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesRemoved)
         {
-            bool process(Game game) => new GlosSITarget(game).Remove();
+            bool process(Game game) => new GlosSITargetFile(game).Remove();
 
             gamesRemoved = ProcessGames(games, progressBar,
                 ResourceProvider.GetString("LOC_GI_RemoveGlosSITargetUnexpectedError"),

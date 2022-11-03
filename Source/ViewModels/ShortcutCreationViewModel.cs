@@ -89,7 +89,7 @@ namespace GlosSIIntegration
                 return false;
             }
 
-            if (GlosSITarget.HasJsonFile(ShortcutName))
+            if (GlosSITargetFile.HasJsonFile(ShortcutName))
             {
                 // TODO: Give the user the choice to use the already existing GlosSI target file instead.
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutTargetAlreadyExistsError"));
@@ -160,7 +160,7 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Creates a Steam shortcut and a GlosSITarget.
+        /// Creates a Steam shortcut and a GlosSITarget file.
         /// The new shortcut uses <see cref="ShortcutName"/> and <see cref="ShortcutIconPath"/>.
         /// Anything wrong with the name and icon is shown to the user.
         /// </summary>
@@ -173,16 +173,16 @@ namespace GlosSIIntegration
             {
                 try
                 {
-                    GlosSITarget target = new GlosSITarget(ShortcutName, ShortcutIconPath);
+                    GlosSITargetFile target = new GlosSITargetFile(ShortcutName, ShortcutIconPath);
                     target.Create();
                     return true;
                 }
-                catch (GlosSITarget.UnsupportedCharacterException)
+                catch (GlosSITargetFile.UnsupportedCharacterException)
                 {
                     GlosSIIntegration.WarnUnsupportedCharacters(
                         ResourceProvider.GetString("LOC_GI_ShortcutUnsupportedCharacterError"), MessageBoxImage.Error);
                 }
-                catch (GlosSITarget.UnexpectedGlosSIBehaviour)
+                catch (GlosSITargetFile.UnexpectedGlosSIBehaviour)
                 {
                     LogManager.GetLogger().Error($"Creating shortcut \"{ShortcutName}\" " +
                         $"with icon path \"{ShortcutIconPath}\" lead to UnexpectedGlosSIBehaviour.");

@@ -70,7 +70,7 @@ namespace GlosSIIntegration
         public bool RunGlosSITarget()
         {
             LogManager.GetLogger().Trace($"Running GlosSITarget for {gameName}...");
-            if (!GlosSITarget.HasJsonFile(gameName))
+            if (!GlosSITargetFile.HasJsonFile(gameName))
             {
                 GlosSIIntegration.NotifyError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"), 
                     "GlosSIIntegration-SteamGame-RunGlosSITarget");

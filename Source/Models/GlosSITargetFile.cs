@@ -13,22 +13,24 @@ namespace GlosSIIntegration
     /// <summary>
     /// Represents a GlosSI target file.
     /// </summary>
-    class GlosSITarget
+    class GlosSITargetFile
     {
         private readonly Game game;
         private readonly bool isPlayniteGame;
-        // The filename of the .json GlosSITarget profile, without the extension.
+        /// <summary>
+        /// The filename of the .json GlosSITarget profile, without the extension.
+        /// </summary>
         private readonly string jsonFileName;
 
         public class UnsupportedCharacterException : Exception { }
         public class UnexpectedGlosSIBehaviour : Exception { }
 
         /// <summary>
-        /// Creates a <c>GlosSITarget</c> object from a Playnite <see cref="Game"/>.
+        /// Creates a <c>GlosSITargetFile</c> object from a Playnite <see cref="Game"/>.
         /// </summary>
         /// <param name="playniteGame">The Playnite game.</param>
         /// <exception cref="ArgumentException">If the name of the game is null.</exception>
-        public GlosSITarget(Game playniteGame)
+        public GlosSITargetFile(Game playniteGame)
         {
             game = playniteGame;
             if (game.Name == null) throw new ArgumentException("The name of the game is null.");
@@ -37,12 +39,12 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Creates a <c>GlosSITarget</c> object from a name and a path to an icon.
+        /// Creates a <c>GlosSITargetFile</c> object from a name and a path to an icon.
         /// </summary>
         /// <param name="name">The name of the shortcut.</param>
         /// <param name="iconPath">A path to the icon of the shortcut. The path can be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException">If the name is null.</exception>
-        public GlosSITarget(string name, string iconPath)
+        public GlosSITargetFile(string name, string iconPath)
         {
             if (name == null) throw new ArgumentNullException("name");
 
@@ -169,7 +171,7 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Checks if this GlosSITarget has a corresponding .json file.
+        /// Checks if this object has a corresponding .json file.
         /// The actual name stored inside the .json file is not compared.
         /// </summary>
         /// <returns>true if the target has a corresponding .json file; false otherwise.</returns>
@@ -179,7 +181,7 @@ namespace GlosSIIntegration
         }
 
         /// <summary>
-        /// Checks if there exists a .json file that corresponds to the enterned name 
+        /// Checks if there exists a .json file that corresponds to the entered name 
         /// when illegal file name characters have been removed.
         /// The actual name stored inside the .json file is not compared.
         /// </summary>
