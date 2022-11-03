@@ -404,7 +404,7 @@ namespace GlosSIIntegration
         /// Waits for window focus to be stolen by <paramref name="thief"/>.
         /// </summary>
         /// <param name="thief">The process which will steal focus.</param>
-        private static void WaitForStolenFocus(Process thief, int interval = 80, int maxSleepTime = 4000)
+        private static void WaitForStolenFocus(Process thief, int interval = 120, int maxSleepTime = 8000)
         {
             int sleptTime = 0;
             while (GetForegroundWindow() != thief.MainWindowHandle)
