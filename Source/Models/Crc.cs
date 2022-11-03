@@ -24,101 +24,104 @@
 
 using System;
 
-/// <summary>
-/// A base class for CRC routines.
-/// </summary>
-public class Crc
+namespace GlosSIIntegration
 {
-    private readonly int width;
-    private readonly bool reflectIn, reflectOut;
-    private readonly uint xorOut, poly;
-    private readonly uint msbMask, mask;
-    private readonly uint nonDirectInit;
-
-    public Crc(int width, uint poly, bool reflectIn, uint xorIn, bool reflectOut, uint xorOut)
-    {
-        this.width = width;
-        this.poly = poly;
-        this.reflectIn = reflectIn;
-        this.reflectOut = reflectOut;
-        this.xorOut = xorOut;
-        this.msbMask = 0x1U << this.width - 1;
-        this.mask = this.msbMask - 1 << 1 | 1;
-        this.nonDirectInit = GetNondirectInit(xorIn);
-    }
-
     /// <summary>
-    /// Returns the non-direct init if the direct algorithm has been selected.
+    /// A base class for CRC routines.
     /// </summary>
-    private uint GetNondirectInit(uint init)
+    public class Crc
     {
-        uint crc = init;
+        private readonly int width;
+        private readonly bool reflectIn, reflectOut;
+        private readonly uint xorOut, poly;
+        private readonly uint msbMask, mask;
+        private readonly uint nonDirectInit;
 
-        for (int i = 0; i < this.width; i++)
+        public Crc(int width, uint poly, bool reflectIn, uint xorIn, bool reflectOut, uint xorOut)
         {
-            uint bit = crc & 0x01;
-            if (bit != 0)
-            {
-                crc ^= (uint) this.poly;
-            }
-            crc >>= 1;
-            if (bit != 0)
-            {
-                crc |= this.msbMask;
-            }
+            this.width = width;
+            this.poly = poly;
+            this.reflectIn = reflectIn;
+            this.reflectOut = reflectOut;
+            this.xorOut = xorOut;
+            this.msbMask = 0x1U << this.width - 1;
+            this.mask = this.msbMask - 1 << 1 | 1;
+            this.nonDirectInit = GetNondirectInit(xorIn);
         }
-        return crc & this.mask;
-    }
-   
-    /// <summary>
-    /// Reflect a data word, i.e. reverts the bit order.
-    /// </summary>
-    public uint Reflect(uint data, int width)
-    {
-        uint x = data & 0x01;
 
-        for (int i = 0; i < width - 1; i++)
+        /// <summary>
+        /// Returns the non-direct init if the direct algorithm has been selected.
+        /// </summary>
+        private uint GetNondirectInit(uint init)
         {
-            data >>= 1;
-            x = x << 1 | data & 0x01;
+            uint crc = init;
+
+            for (int i = 0; i < this.width; i++)
+            {
+                uint bit = crc & 0x01;
+                if (bit != 0)
+                {
+                    crc ^= (uint) this.poly;
+                }
+                crc >>= 1;
+                if (bit != 0)
+                {
+                    crc |= this.msbMask;
+                }
+            }
+            return crc & this.mask;
         }
-        return x;
-    }
    
-    /// <summary>
-    /// Classic simple and slow CRC implementation. 
-    /// This function iterates bit by bit over the augmented input message and returns 
-    /// the calculated CRC value at the end.
-    /// </summary>
-    public uint BitByBit(string input)
-    {
-        bool topbit;
-        uint register = this.nonDirectInit;
-
-        foreach (char c in input)
+        /// <summary>
+        /// Reflect a data word, i.e. reverts the bit order.
+        /// </summary>
+        public uint Reflect(uint data, int width)
         {
-            uint octet = (uint) c;
-            if (this.reflectIn) octet = Reflect(octet, 8);
-            for (int i = 0; i < 8; i++)
+            uint x = data & 0x01;
+
+            for (int i = 0; i < width - 1; i++)
+            {
+                data >>= 1;
+                x = x << 1 | data & 0x01;
+            }
+            return x;
+        }
+   
+        /// <summary>
+        /// Classic simple and slow CRC implementation. 
+        /// This function iterates bit by bit over the augmented input message and returns 
+        /// the calculated CRC value at the end.
+        /// </summary>
+        public uint BitByBit(string input)
+        {
+            bool topbit;
+            uint register = this.nonDirectInit;
+
+            foreach (char c in input)
+            {
+                uint octet = (uint) c;
+                if (this.reflectIn) octet = Reflect(octet, 8);
+                for (int i = 0; i < 8; i++)
+                {
+                    topbit = Convert.ToBoolean(register & this.msbMask);
+                    register = register << 1 & this.mask | octet >> 7 - i & 0x01;
+                    if (topbit)
+                    {
+                        register ^= this.poly;
+                    }
+                }
+            }
+            for (int i = 0; i < this.width; i++)
             {
                 topbit = Convert.ToBoolean(register & this.msbMask);
-                register = register << 1 & this.mask | octet >> 7 - i & 0x01;
+                register = register << 1 & this.mask;
                 if (topbit)
                 {
                     register ^= this.poly;
                 }
             }
+            if (this.reflectOut) register = Reflect(register, this.width);
+            return register ^ this.xorOut;
         }
-        for (int i = 0; i < this.width; i++)
-        {
-            topbit = Convert.ToBoolean(register & this.msbMask);
-            register = register << 1 & this.mask;
-            if (topbit)
-            {
-                register ^= this.poly;
-            }
-        }
-        if (this.reflectOut) register = Reflect(register, this.width);
-        return register ^ this.xorOut;
     }
 }
