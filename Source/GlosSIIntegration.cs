@@ -31,11 +31,15 @@ namespace GlosSIIntegration
         /// <summary>
         /// Whether the user is currently in-game (disregarding ignored games).
         /// </summary>
-        private bool isInGame;
+        private volatile bool isInGame;
         /// <summary>
         /// The pid of the game that is currently running, or -1 if no game is currently running. May be invalid.
         /// </summary>
         private int runningGamePid;
+        /// <summary>
+        /// The thread that runs when a game is starting. Handles closing and opening of a new GlosSITarget.
+        /// </summary>
+        private Thread onGameStartingThread;
 
         private bool integrationEnabled;
         public bool IntegrationEnabled
@@ -63,6 +67,7 @@ namespace GlosSIIntegration
             relevantOverlay = null;
             runningGamePid = -1;
             isInGame = false;
+            onGameStartingThread = null;
 
             topPanelTextBlock = GetInitialTopPanelTextBlock();
             topPanel = GetInitialTopPanel();
@@ -157,9 +162,12 @@ namespace GlosSIIntegration
 
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
-            if (GameHasIgnoredTag(args.Game)) return;
+            if (onGameStartingThread == null) return;
 
             runningGamePid = args.StartedProcessId;
+
+            onGameStartingThread.Join();
+            onGameStartingThread = null;
 
             if (IntegrationEnabled && GetSettings().CloseGameWhenOverlayIsClosed)
             {
@@ -292,8 +300,17 @@ namespace GlosSIIntegration
 
             isInGame = true;
 
-            if (ReplaceRelevantOverlay(GetGameOverlay(args.Game)) && 
-                IntegrationEnabled && relevantOverlay != null)
+            if (onGameStartingThread != null)
+            {
+                logger.Warn("onGameStartingThread is already in use!");
+            }
+            onGameStartingThread = new Thread(() => PrepareOverlayForGameStart(args.Game));
+            onGameStartingThread.Start();
+        }
+
+        private void PrepareOverlayForGameStart(Game game)
+        {
+            if (ReplaceRelevantOverlay(GetGameOverlay(game)) && IntegrationEnabled && relevantOverlay != null)
             {
                 relevantOverlay.RunGlosSITarget();
             }
@@ -596,7 +613,7 @@ namespace GlosSIIntegration
         {
             SettingsViewModel.InitialVerification();
             Api.Database.Tags.Add(LOC_IGNORED_TAG);
-            if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen && 
+            if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen &&
                 IntegrationEnabled && GetSettings().UsePlayniteOverlay)
             {
                 relevantOverlay = new SteamGame(GetSettings().PlayniteOverlayName);
