@@ -40,6 +40,10 @@ namespace GlosSIIntegration
         /// The thread that runs when a game is starting. Handles closing and opening of a new GlosSITarget.
         /// </summary>
         private Thread onGameStartingThread;
+        /// <summary>
+        /// Set when Playnite has finished starting.
+        /// </summary>
+        private static readonly ManualResetEvent playniteStarted = new ManualResetEvent(false);
 
         private bool integrationEnabled;
         public bool IntegrationEnabled
@@ -73,6 +77,13 @@ namespace GlosSIIntegration
             topPanel = GetInitialTopPanel();
             InitializeIntegrationEnabled();
             InitializeTopPanelColor();
+
+            if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen &&
+                IntegrationEnabled && GetSettings().UsePlayniteOverlay)
+            {
+                relevantOverlay = new SteamGame(GetSettings().PlayniteOverlayName);
+                RunPlayniteOverlay(relevantOverlay);
+            }
         }
 
         private void InitializeIntegrationEnabled()
@@ -373,9 +384,9 @@ namespace GlosSIIntegration
 
             isInGame = false;
             runningGamePid = -1;
-                
-            if (IntegrationEnabled && 
-                Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen && 
+
+            if (IntegrationEnabled &&
+                Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen &&
                 GetSettings().UsePlayniteOverlay)
             {
                 if (ReplaceRelevantOverlay(new SteamGame(GetSettings().PlayniteOverlayName)))
@@ -434,6 +445,7 @@ namespace GlosSIIntegration
                     DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
                     return;
                 }
+                playniteStarted.WaitOne();
                 try
                 {
                     ReturnStolenFocus();
@@ -442,12 +454,14 @@ namespace GlosSIIntegration
                 {
                     logger.Trace($"Failed to return focus to Playnite: {e.Message}");
                 }
-            }).Start();
+            })
+            { IsBackground = true }.Start();
         }
 
         /// <summary>
         /// Assuming that GlosSITarget has or will soon steal the focus from this application, 
         /// attempts to return the focus to this application.
+        /// Only returns focus if the user is not currently in-game.
         /// </summary>
         /// <exception cref="TimeoutException">If GlosSITarget took too long to start.</exception>
         private void ReturnStolenFocus()
@@ -551,7 +565,7 @@ namespace GlosSIIntegration
                 // running simultaneously. As such, they are all closed.
                 foreach (Process proc in glosSITargets)
                 {
-                    if(!proc.CloseMainWindow())
+                    if (!proc.CloseMainWindow())
                     {
                         // The GlosSITarget overlay is most likely disabled, close it by other means.
                         logger.Trace("Closing GlosSITarget without overlay.");
@@ -567,7 +581,7 @@ namespace GlosSIIntegration
                 {
                     if (!proc.WaitForExit(10000))
                     {
-                        NotifyError(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetTimelyUnexpectedError"), 
+                        NotifyError(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetTimelyUnexpectedError"),
                             "GlosSIIntegration-FailedToCloseGlosSITarget");
                     }
                     proc.Close();
@@ -576,7 +590,7 @@ namespace GlosSIIntegration
             catch (InvalidOperationException) { }
             catch (PlatformNotSupportedException e)
             {
-                DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetUnexpectedError"), 
+                DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_CloseGlosSITargetUnexpectedError"),
                     e.Message), e);
             }
         }
@@ -611,14 +625,9 @@ namespace GlosSIIntegration
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
+            playniteStarted.Set();
             SettingsViewModel.InitialVerification();
             Api.Database.Tags.Add(LOC_IGNORED_TAG);
-            if (Api.ApplicationInfo.Mode == ApplicationMode.Fullscreen &&
-                IntegrationEnabled && GetSettings().UsePlayniteOverlay)
-            {
-                relevantOverlay = new SteamGame(GetSettings().PlayniteOverlayName);
-                RunPlayniteOverlay(relevantOverlay);
-            }
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
@@ -668,8 +677,8 @@ namespace GlosSIIntegration
                     new MessageBoxOption(ResourceProvider.GetString("LOCYesLabel"), false, false),
                     new MessageBoxOption(ResourceProvider.GetString("LOCCancelLabel"), true, true)
                 };
-                if (Api.Dialogs.ShowMessage(games.Count == 1 ? 
-                    string.Format(ResourceProvider.GetString("LOC_GI_AddGameIsSteamGame"), games[0].Name) : 
+                if (Api.Dialogs.ShowMessage(games.Count == 1 ?
+                    string.Format(ResourceProvider.GetString("LOC_GI_AddGameIsSteamGame"), games[0].Name) :
                     ResourceProvider.GetString("LOC_GI_AddGamesAreSteamGames"),
                     ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"), MessageBoxImage.Warning, options)
                     .Equals(options[1])) return;
@@ -690,7 +699,7 @@ namespace GlosSIIntegration
 
             if (gamesAdded == 0)
             {
-                Api.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_NoGamesAdded"), 
+                Api.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_NoGamesAdded"),
                     ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
             else
@@ -714,14 +723,14 @@ namespace GlosSIIntegration
 
                 if (gamesAdded == 1)
                 {
-                    message = string.Format(ResourceProvider.GetString("LOC_GI_OneGameAdded"), 
-                        gamesSkippedMessage, 
+                    message = string.Format(ResourceProvider.GetString("LOC_GI_OneGameAdded"),
+                        gamesSkippedMessage,
                         ResourceProvider.GetString("LOC_GI_RestartSteamReminder"));
                 }
                 else
                 {
-                    message = string.Format(ResourceProvider.GetString("LOC_GI_MultipleGamesAdded"), 
-                        gamesAdded, gamesSkippedMessage, 
+                    message = string.Format(ResourceProvider.GetString("LOC_GI_MultipleGamesAdded"),
+                        gamesAdded, gamesSkippedMessage,
                         ResourceProvider.GetString("LOC_GI_RestartSteamReminder"));
                 }
 
@@ -824,7 +833,7 @@ namespace GlosSIIntegration
 
             int gamesRemoved = 0;
 
-            Api.Dialogs.ActivateGlobalProgress((progressBar) => RemoveGamesProcess(games, progressBar, out gamesRemoved), 
+            Api.Dialogs.ActivateGlobalProgress((progressBar) => RemoveGamesProcess(games, progressBar, out gamesRemoved),
                 new GlobalProgressOptions(ResourceProvider.GetString("LOC_GI_RemovingIntegrationFromGames"), true)
                 {
                     IsIndeterminate = false
@@ -851,7 +860,7 @@ namespace GlosSIIntegration
 
         private static void WarnGameHasUnsupportedCharacters()
         {
-            WarnUnsupportedCharacters(ResourceProvider.GetString("LOC_GI_GameUnsupportedCharacterWarning"), 
+            WarnUnsupportedCharacters(ResourceProvider.GetString("LOC_GI_GameUnsupportedCharacterWarning"),
                 MessageBoxImage.Warning);
         }
 
@@ -945,7 +954,8 @@ namespace GlosSIIntegration
                 {
                     Thread.Sleep(2000);
                     UpdateTopPanelGlyphBrush();
-                }) { IsBackground = true }.Start();
+                })
+                { IsBackground = true }.Start();
             }
         }
 
