@@ -82,6 +82,7 @@ namespace GlosSIIntegration
                 IntegrationEnabled && GetSettings().UsePlayniteOverlay)
             {
                 relevantOverlay = new SteamGame(GetSettings().PlayniteOverlayName);
+                CloseGlosSITargets(); // Close any GlosSITarget running since before Playnite was started.
                 RunPlayniteOverlay(relevantOverlay);
             }
         }
