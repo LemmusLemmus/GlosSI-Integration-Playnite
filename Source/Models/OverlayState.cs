@@ -120,7 +120,7 @@ namespace GlosSIIntegration
         /// <param name="game"></param>
         public static void GameStopped(Game game)
         {
-            if (!game.Equals(relevantGame))
+            if (relevantGame != null && !game.Equals(relevantGame))
             {
                 logger.Trace($"Ignoring game \"{game.Name}\" stopped: The game is not the relevant integrated game.");
                 return;
