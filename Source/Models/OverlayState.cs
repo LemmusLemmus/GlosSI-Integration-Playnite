@@ -39,11 +39,25 @@ namespace GlosSIIntegration
         /// </summary>
         public static void Initialize()
         {
-            if (IsFullscreenMode() && IsIntegrationEnabled() && GlosSIIntegration.GetSettings().UsePlayniteOverlay)
+            ReturnOverlayToPlaynite();
+        }
+
+        private static void ReturnOverlayToPlaynite()
+        {
+            isInGame = false;
+            runningGamePid = -1;
+
+            if (IsIntegrationEnabled() && IsFullscreenMode() && GlosSIIntegration.GetSettings().UsePlayniteOverlay)
             {
-                relevantOverlay = new SteamGame(GlosSIIntegration.GetSettings().PlayniteOverlayName);
-                CloseGlosSITargets(); // Close any GlosSITarget running since before Playnite was started.
-                RunPlayniteOverlay(relevantOverlay);
+                if (ReplaceRelevantOverlay(new SteamGame(GlosSIIntegration.GetSettings().PlayniteOverlayName)))
+                {
+                    RunPlayniteOverlay(relevantOverlay);
+                }
+            }
+            else
+            {
+                relevantOverlay = null;
+                if (IsIntegrationEnabled()) CloseGlosSITargets();
             }
         }
 
@@ -93,21 +107,7 @@ namespace GlosSIIntegration
         {
             if (GlosSIIntegration.GameHasIgnoredTag(game)) return;
 
-            isInGame = false;
-            runningGamePid = -1;
-
-            if (IsIntegrationEnabled() && IsFullscreenMode() && GlosSIIntegration.GetSettings().UsePlayniteOverlay)
-            {
-                if (ReplaceRelevantOverlay(new SteamGame(GlosSIIntegration.GetSettings().PlayniteOverlayName)))
-                {
-                    RunPlayniteOverlay(relevantOverlay);
-                }
-            }
-            else
-            {
-                relevantOverlay = null;
-                if (IsIntegrationEnabled()) CloseGlosSITargets();
-            }
+            ReturnOverlayToPlaynite();
 
             logger.Trace($"Game stopped: relevant overlay is: {relevantOverlay?.ToString() ?? "null"}.");
         }
