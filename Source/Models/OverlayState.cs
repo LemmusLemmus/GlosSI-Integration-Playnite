@@ -171,23 +171,29 @@ namespace GlosSIIntegration
         /// <param name="gamePid">The game to (potentially) kill.</param>
         private static void KillGameWhenGlosSICloses(int gamePid)
         {
-            try
+            // Below is run in a separate thread primarily to prevent an early exit (due to an error)
+            // from returning focus to Playnite.
+            new Thread(() =>
             {
-                Process glosSITarget = WaitForGlosSITargetToStart();
-                Process game = Process.GetProcessById(gamePid);
-                glosSITarget.EnableRaisingEvents = true;
-                glosSITarget.Exited += (sender, e) => GlosSITargetExited(sender, e, game);
-            }
-            catch (ArgumentException e)
-            {
-                logger.Error(e, $"Waiting for GlosSI to close failed: the game with pid {gamePid} is not running.");
-                return;
-            }
-            catch (TimeoutException e)
-            {
-                logger.Error($"Waiting for GlosSI to close failed: {e.Message}");
-                return;
-            }
+                try
+                {
+                    Process glosSITarget = WaitForGlosSITargetToStart();
+                    Process game = Process.GetProcessById(gamePid);
+                    glosSITarget.EnableRaisingEvents = true;
+                    glosSITarget.Exited += (sender, e) => GlosSITargetExited(sender, e, game);
+                }
+                catch (ArgumentException e)
+                {
+                    logger.Error(e, $"Waiting for GlosSI to close failed: the game with pid {gamePid} is not running.");
+                    return;
+                }
+                catch (TimeoutException e)
+                {
+                    logger.Error($"Waiting for GlosSI to close failed: {e.Message}");
+                    return;
+                }
+            })
+            { IsBackground = true }.Start();
         }
 
         /// <summary>
