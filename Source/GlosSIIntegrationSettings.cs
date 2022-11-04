@@ -46,8 +46,8 @@ namespace GlosSIIntegration
         /// <param name="path">The new path to GlosSI.</param>
         private void SetGlosSIPath(string path)
         {
+            if (path != glosSIPath) glosSIVersion = null;
             SetValue(ref glosSIPath, path);
-            glosSIVersion = null;
         }
 
         private Version GetGlosSIVersion()
