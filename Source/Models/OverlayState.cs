@@ -93,7 +93,7 @@ namespace GlosSIIntegration
             onGameStartingThread.Join();
             onGameStartingThread = null;
 
-            if (IsIntegrationEnabled() && GlosSIIntegration.GetSettings().CloseGameWhenOverlayIsClosed)
+            if (relevantOverlay != null && IsIntegrationEnabled() && GlosSIIntegration.GetSettings().CloseGameWhenOverlayIsClosed)
             {
                 KillGameWhenGlosSICloses(runningGamePid);
             }
