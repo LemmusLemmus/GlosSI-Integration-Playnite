@@ -54,7 +54,7 @@ namespace GlosSIIntegration
                     RunPlayniteOverlay(relevantOverlay);
                 }
             }
-            else
+            else if (relevantOverlay != null)
             {
                 relevantOverlay = null;
                 if (IsIntegrationEnabled()) CloseGlosSITargets();
