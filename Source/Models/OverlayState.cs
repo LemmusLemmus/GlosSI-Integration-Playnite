@@ -26,6 +26,11 @@ namespace GlosSIIntegration
         /// </summary>
         private static SteamGame relevantOverlay = null;
         /// <summary>
+        /// Accompanies <see cref="relevantOverlay"/>.
+        /// Useful to make sure that only one overlay is used for one game at a time.
+        /// </summary>
+        private static Game relevantGame = null;
+        /// <summary>
         /// The pid of the game that is currently running, or -1 if no game is currently running. May be invalid.
         /// </summary>
         private static int runningGamePid = -1;
@@ -68,13 +73,23 @@ namespace GlosSIIntegration
         /// <param name="game">Game that is starting.</param>
         public static void GameStarting(Game game)
         {
-            if (GlosSIIntegration.GameHasIgnoredTag(game)) return;
+            if (relevantGame != null)
+            {
+                logger.Trace($"Ignoring game \"{game.Name}\" starting: There is already a running integrated game.");
+                if (!isInGame) logger.Error("Contradiction: isInGame is set to false and relevantGame is not null.");
+                return;
+            }
+            else if (GlosSIIntegration.GameHasIgnoredTag(game))
+            {
+                logger.Trace($"Ignoring game \"{game.Name}\" starting: The game has the ignored tag.");
+                return;
+            }
 
             isInGame = true;
 
             if (onGameStartingThread != null)
             {
-                logger.Warn("onGameStartingThread is already in use!");
+                logger.Error("onGameStartingThread is already in use!");
             }
             onGameStartingThread = new Thread(() => PrepareOverlayForGameStart(game));
             onGameStartingThread.Start();
@@ -105,7 +120,17 @@ namespace GlosSIIntegration
         /// <param name="game"></param>
         public static void GameStopped(Game game)
         {
-            if (GlosSIIntegration.GameHasIgnoredTag(game)) return;
+            if (!game.Equals(relevantGame))
+            {
+                logger.Trace($"Ignoring game \"{game.Name}\" stopped: The game is not the relevant integrated game.");
+                return;
+            }
+            else if (GlosSIIntegration.GameHasIgnoredTag(game))
+            {
+                logger.Trace($"Ignoring game \"{game.Name}\" stopped: The game has the ignored tag.");
+                return;
+            }
+            relevantGame = null;
 
             ReturnOverlayToPlaynite();
 
@@ -161,6 +186,8 @@ namespace GlosSIIntegration
             {
                 relevantOverlay.RunGlosSITarget();
             }
+
+            if (relevantOverlay != null) relevantGame = game;
 
             logger.Trace($"Game starting: relevant overlay is: {relevantOverlay?.ToString() ?? "null"}.");
         }
