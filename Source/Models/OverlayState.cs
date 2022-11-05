@@ -488,7 +488,7 @@ namespace GlosSIIntegration
         /// </summary>
         private static void CloseGlosSITargets()
         {
-            logger.Trace("Closing GlosSITargets...");
+            logger.Debug("Closing GlosSITargets...");
             try
             {
                 Process[] glosSITargets = Process.GetProcessesByName("GlosSITarget");
