@@ -277,7 +277,7 @@ namespace GlosSIIntegration
             while ((p = Process.GetProcessesByName("GlosSITarget")).Length == 0)
             {
                 Thread.Sleep(333);
-                if ((sleptTime += 333) > 10000)
+                if ((sleptTime += 333) > 20000)
                 {
                     throw new TimeoutException("GlosSITarget did not start in time.");
                 }
