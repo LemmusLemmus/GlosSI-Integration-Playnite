@@ -240,16 +240,21 @@ namespace GlosSIIntegration
         {
             Process glosSITarget = sender as Process;
 
-            if (!game.HasExited)
+            try
             {
                 // Check if GlosSI was killed or not, i.e. if it was closed via the Steam overlay.
                 // Unless something went wrong, ExitCode 1 should mean that the process was killed.
                 if (glosSITarget.ExitCode == 1)
                 {
-                    logger.Trace("GlosSI killed, killing game in retaliation...");
                     try
                     {
+                        logger.Trace("Attempting to kill game...");
                         game.Kill(); // TODO: Might want to close the game more gracefully? At least as an alternative?
+                        logger.Debug("Killed game in retaliation for GlosSI being killed.");
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        logger.Trace($"Game closed before GlosSITarget, not doing anything: {ex.Message}.");
                     }
                     catch (Exception ex)
                     {
@@ -262,8 +267,12 @@ namespace GlosSIIntegration
                 }
                 else
                 {
-                    logger.Warn($"GlosSI closed with exit code {glosSITarget.ExitCode}, not killing game.");
+                    logger.Warn($"GlosSI closed with exit code {glosSITarget.ExitCode}.");
                 }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to ensure that the game is killed when the overlay is closed.");
             }
 
             glosSITarget.Dispose();
