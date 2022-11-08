@@ -40,6 +40,12 @@ namespace GlosSIIntegration
         private static Thread onGameStartingThread = null;
 
         /// <summary>
+        /// Playnite overlays that are starting but have yet finished starting.
+        /// Used to ensure that the game overlay replaces the Playnite overlay after it has finished starting.
+        /// </summary>
+        private static readonly ManualResetEvent playniteOverlayNotStarting = new ManualResetEvent(true);
+
+        /// <summary>
         /// Initializes the overlay.
         /// </summary>
         public static void Initialize()
@@ -331,7 +337,21 @@ namespace GlosSIIntegration
                 return false;
             }
             relevantOverlay = overlay;
-            if (IsIntegrationEnabled()) CloseGlosSITargets();
+
+            if (IsIntegrationEnabled())
+            {
+                if (IsFullscreenMode() && GlosSIIntegration.GetSettings().UsePlayniteOverlay && 
+                    !playniteOverlayNotStarting.WaitOne(0))
+                {
+                    // TODO: This appears to lead to GlosSI stealing focus from the game.
+                    logger.Trace("Started waiting for the Playnite overlay to finish starting.");
+                    playniteOverlayNotStarting.WaitOne();
+                    Thread.Sleep(5000); // Arbitrary delay that is probably unnecessarily long.
+                    logger.Trace("Done waiting for the Playnite overlay to finish starting.");
+                }
+
+                CloseGlosSITargets();
+            }
             return true;
         }
 
@@ -370,21 +390,40 @@ namespace GlosSIIntegration
 
             // It is up to personal preference whether to start this in a new thread.
             // The difference is whether the user can see their library or a "loading" screen while the Steam overlay is starting.
+
+            playniteOverlayNotStarting.Reset();
             new Thread(() =>
             {
+                Process glosSITarget;
+
                 if (!playniteOverlay.RunGlosSITarget())
                 {
                     GlosSIIntegration.DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
                     return;
                 }
                 playniteStarted.WaitOne();
+
                 try
                 {
-                    ReturnStolenFocus();
+                    glosSITarget = WaitForGlosSITargetToStart();
                 }
                 catch (TimeoutException e)
                 {
                     logger.Trace($"Failed to return focus to Playnite: {e.Message}");
+                    return;
+                }
+                finally
+                {
+                    playniteOverlayNotStarting.Set();
+                }
+
+                try
+                {
+                    ReturnFocusStolenByPlayniteOverlay(glosSITarget);
+                }
+                finally
+                {
+                    glosSITarget.Dispose();
                 }
             })
             { IsBackground = true }.Start();
@@ -395,26 +434,21 @@ namespace GlosSIIntegration
         /// attempts to return the focus to this application.
         /// Only returns focus if the user is not currently in-game.
         /// </summary>
-        /// <exception cref="TimeoutException">If GlosSITarget took too long to start.</exception>
-        private static void ReturnStolenFocus()
+        private static void ReturnFocusStolenByPlayniteOverlay(Process glosSITarget)
         {
-            // Wait for GlosSITarget to start, if it has not already.
-            using (Process glosSITarget = WaitForGlosSITargetToStart())
+            // For some reason focus is sometimes stolen twice.
+            // An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
+            int attempts = 1;
+            try
             {
-                // For some reason focus is sometimes stolen twice.
-                // An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
-                int attempts = 1;
-                try
+                for (; attempts <= 3; attempts++) // Third time's a charm.
                 {
-                    for (; attempts <= 3; attempts++) // Third time's a charm.
-                    {
-                        ReturnStolenFocus(glosSITarget);
-                    }
-                    logger.Trace("All attempts to return focus to Playnite passed.");
+                    ReturnStolenFocus(glosSITarget);
                 }
-                catch (TimeoutException) { }
-                logger.Trace($"{attempts} attempts were made to return focus to Playnite.");
+                logger.Trace("All attempts to return focus to Playnite passed.");
             }
+            catch (TimeoutException) { }
+            logger.Trace($"{attempts} attempts were made to return focus to Playnite.");
         }
 
         /// <summary>
@@ -506,6 +540,10 @@ namespace GlosSIIntegration
                         // There is no reason to bother with supporting that case, as
                         // "Multiple instances of the target calls for trouble...".
                         CloseWindowByCaption("GlosSITarget");
+                    }
+                    else
+                    {
+                        logger.Trace("Closed GlosSITarget.");
                     }
                 }
 
