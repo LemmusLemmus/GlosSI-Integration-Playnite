@@ -355,7 +355,7 @@ namespace GlosSIIntegration
                     // TODO: This appears to lead to GlosSI stealing focus from the game.
                     logger.Trace("Started waiting for the Playnite overlay to finish starting.");
                     playniteOverlayNotStarting.WaitOne();
-                    Thread.Sleep(5000); // Arbitrary delay that is probably unnecessarily long.
+                    Thread.Sleep(1000); // Arbitrary delay.
                     logger.Trace("Done waiting for the Playnite overlay to finish starting.");
                 }
 
