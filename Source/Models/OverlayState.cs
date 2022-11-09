@@ -405,15 +405,15 @@ namespace GlosSIIntegration
             {
                 Process glosSITarget;
 
-                if (!playniteOverlay.RunGlosSITarget())
-                {
-                    GlosSIIntegration.DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
-                    return;
-                }
-                playniteStarted.WaitOne();
-
                 try
                 {
+                    if (!playniteOverlay.RunGlosSITarget())
+                    {
+                        GlosSIIntegration.DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
+                        return;
+                    }
+                    playniteStarted.WaitOne();
+
                     glosSITarget = WaitForGlosSITargetToStart();
                 }
                 catch (TimeoutException e)
@@ -428,7 +428,7 @@ namespace GlosSIIntegration
 
                 try
                 {
-                    ReturnFocusStolenByPlayniteOverlay(glosSITarget);
+                    ReturnFocusStolenByOverlay(glosSITarget);
                 }
                 finally
                 {
@@ -443,7 +443,8 @@ namespace GlosSIIntegration
         /// attempts to return the focus to this application.
         /// Only returns focus if the user is not currently in-game.
         /// </summary>
-        private static void ReturnFocusStolenByPlayniteOverlay(Process glosSITarget)
+        /// <param name="glosSITarget">The process that will steal focus.</param>
+        private static void ReturnFocusStolenByOverlay(Process glosSITarget)
         {
             // For some reason focus is sometimes stolen twice.
             // An alternative solution is to simply use a delay of say 250 ms before calling FocusSelf().
