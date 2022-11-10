@@ -18,7 +18,7 @@ namespace GlosSIIntegration
         private string playniteOverlayName = null;
         private bool usePlayniteOverlay = false;
         private bool useIntegrationFullscreen = true;
-        private bool defaultUseIntegrationDesktop = false;
+        private bool defaultUseIntegrationDesktop = true;
         private bool useDefaultOverlay = false;
         private string defaultOverlayName = null;
         private Version glosSIVersion = null;
