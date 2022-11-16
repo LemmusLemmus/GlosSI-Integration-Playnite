@@ -23,8 +23,30 @@ namespace GlosSIIntegration
             gameName = name;
         }
 
-        public SteamGame(string name) : this(name, 
-            Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSITarget.exe").Replace('\\', '/')) { }
+        /// <summary>
+        /// Instantiates a <c>SteamGame</c> object belonging to a GlosSITarget shortcut.
+        /// </summary>
+        /// <param name="name">The name of the shortcut.</param>
+        /// <exception cref="InvalidOperationException">
+        /// If the GlosSIPath setting is <c>null</c>.</exception>
+        public SteamGame(string name) : this(name, GetGlosSITargetPath()) { }
+
+        /// <summary>
+        /// Gets the path to the GlosSITarget executable.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// If the GlosSIPath setting is <c>null</c>.</exception>
+        /// <returns>The path to GlosSITarget.</returns>
+        private static string GetGlosSITargetPath()
+        {
+            string glosSIFolderPath = GlosSIIntegration.GetSettings().GlosSIPath;
+            if (glosSIFolderPath == null)
+            {
+                throw new InvalidOperationException("The path to GlosSI has not been set.");
+            }
+
+            return Path.Combine(glosSIFolderPath, "GlosSITarget.exe").Replace('\\', '/');
+        } 
 
         private string UTF8ToCodeUnits(string str)
         {
@@ -55,7 +77,8 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                GlosSIIntegration.NotifyError(string.Format(ResourceProvider.GetString("LOC_GI_RunSteamGameUnexpectedError"),
+                GlosSIIntegration.NotifyError(
+                    string.Format(ResourceProvider.GetString("LOC_GI_RunSteamGameUnexpectedError"),
                     e.Message), "GlosSIIntegration-SteamGame-Run");
                 return false;
             }
@@ -63,7 +86,8 @@ namespace GlosSIIntegration
 
         /// <summary>
         /// Runs the GlosSITarget associated with this <c>SteamGame</c> via Steam.
-        /// If the GlosSI configuration file could not be found, the method only displays an error notification.
+        /// If the GlosSI configuration file could not be found, 
+        /// the method only displays an error notification.
         /// </summary>
         /// <returns>true if the process was started; false otherwise.</returns>
         /// <seealso cref="Run"/>
@@ -72,7 +96,8 @@ namespace GlosSIIntegration
             LogManager.GetLogger().Trace($"Running GlosSITarget for {gameName}...");
             if (!GlosSITargetFile.HasJsonFile(gameName))
             {
-                GlosSIIntegration.NotifyError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"), 
+                GlosSIIntegration.NotifyError(
+                    ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"), 
                     "GlosSIIntegration-SteamGame-RunGlosSITarget");
                 return false;
             }

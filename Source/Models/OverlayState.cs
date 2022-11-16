@@ -60,9 +60,16 @@ namespace GlosSIIntegration
 
             if (IsIntegrationEnabled() && IsFullscreenMode() && GlosSIIntegration.GetSettings().UsePlayniteOverlay)
             {
-                if (ReplaceRelevantOverlay(new SteamGame(GlosSIIntegration.GetSettings().PlayniteOverlayName)))
+                try
                 {
-                    RunPlayniteOverlay(relevantOverlay);
+                    if (ReplaceRelevantOverlay(new SteamGame(GlosSIIntegration.GetSettings().PlayniteOverlayName)))
+                    {
+                        RunPlayniteOverlay(relevantOverlay);
+                    }
+                }
+                catch (InvalidOperationException e)
+                {
+                    logger.Error("Failed to return to the Playnite overlay: " + e.Message);
                 }
             }
             else if (relevantOverlay != null)
@@ -88,6 +95,11 @@ namespace GlosSIIntegration
             else if (GlosSIIntegration.GameHasIgnoredTag(game))
             {
                 logger.Trace($"Ignoring game \"{game.Name}\" starting: The game has the ignored tag.");
+                return;
+            }
+            else if (GlosSIIntegration.GetSettings().GlosSIPath == null)
+            {
+                logger.Error("Cannot launch the overlay: the path to GlosSI has not been set.");
                 return;
             }
 
@@ -360,6 +372,13 @@ namespace GlosSIIntegration
                 }
 
                 CloseGlosSITargets();
+
+                // In some cases, a delay of at least 250 ms is required before starting a new overlay.
+                // This problem could potentially be solved elsehow.
+                //if (IsFullscreenMode() && GlosSIIntegration.GetSettings().UsePlayniteOverlay)
+                //{
+                //    Thread.Sleep(GlosSIIntegration.GetSettings().Delay);
+                //}
             }
             return true;
         }
