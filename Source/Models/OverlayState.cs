@@ -24,7 +24,7 @@ namespace GlosSIIntegration
         /// <summary>
         /// The overlay that should currently run (irregardless of whether the integration is enabled).
         /// </summary>
-        private static SteamGame relevantOverlay = null;
+        private static GlosSISteamShortcut relevantOverlay = null;
         /// <summary>
         /// Accompanies <see cref="relevantOverlay"/>.
         /// Useful to make sure that only one overlay is used for one game at a time.
@@ -62,7 +62,7 @@ namespace GlosSIIntegration
             {
                 try
                 {
-                    if (ReplaceRelevantOverlay(new SteamGame(GlosSIIntegration.GetSettings().PlayniteOverlayName)))
+                    if (ReplaceRelevantOverlay(new GlosSISteamShortcut(GlosSIIntegration.GetSettings().PlayniteOverlayName)))
                     {
                         RunPlayniteOverlay(relevantOverlay);
                     }
@@ -180,7 +180,7 @@ namespace GlosSIIntegration
             if (IsIntegrationEnabled() && isInGame && relevantOverlay != null)
             {
                 logger.Trace("Steam Overlay launched whilst in-game.");
-                if (!relevantOverlay.RunGlosSITarget()) return;
+                if (!relevantOverlay.Run()) return;
                 if (GlosSIIntegration.GetSettings().CloseGameWhenOverlayIsClosed)
                 {
                     KillGameWhenGlosSICloses(runningGamePid);
@@ -202,7 +202,7 @@ namespace GlosSIIntegration
         {
             if (ReplaceRelevantOverlay(GetGameOverlay(game)) && IsIntegrationEnabled() && relevantOverlay != null)
             {
-                relevantOverlay.RunGlosSITarget();
+                relevantOverlay.Run();
             }
 
             if (relevantOverlay != null) relevantGame = game;
@@ -324,7 +324,7 @@ namespace GlosSIIntegration
         /// </summary>
         /// <param name="game">The game to get the overlay for.</param>
         /// <returns>If found, the overlay; <c>null</c> otherwise.</returns>
-        private static SteamGame GetGameOverlay(Game game)
+        private static GlosSISteamShortcut GetGameOverlay(Game game)
         {
             string overlayName;
 
@@ -341,7 +341,7 @@ namespace GlosSIIntegration
                 return null;
             }
 
-            return new SteamGame(overlayName);
+            return new GlosSISteamShortcut(overlayName);
         }
 
         /// <summary>
@@ -349,7 +349,7 @@ namespace GlosSIIntegration
         /// </summary>
         /// <param name="overlay">The new relevant overlay.</param>
         /// <returns>True if the overlay was changed; false otherwise.</returns>
-        private static bool ReplaceRelevantOverlay(SteamGame overlay)
+        private static bool ReplaceRelevantOverlay(GlosSISteamShortcut overlay)
         {
             // Check if the overlay to be started is already running.
             if (relevantOverlay != null && relevantOverlay.Equals(overlay) && IsGlosSITargetRunning())
@@ -408,7 +408,7 @@ namespace GlosSIIntegration
         /// Starts the Playnite GlosSI/Steam overlay.
         /// </summary>
         /// <param name="playniteOverlay">The Playnite overlay to start.</param>
-        private static void RunPlayniteOverlay(SteamGame playniteOverlay)
+        private static void RunPlayniteOverlay(GlosSISteamShortcut playniteOverlay)
         {
             if (!GlosSIIntegration.GetSettings().UsePlayniteOverlay)
             {
@@ -426,7 +426,7 @@ namespace GlosSIIntegration
 
                 try
                 {
-                    if (!playniteOverlay.RunGlosSITarget())
+                    if (!playniteOverlay.Run())
                     {
                         GlosSIIntegration.DisplayError(ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"));
                         return;
