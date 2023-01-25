@@ -10,6 +10,8 @@ This extension uses GlosSI. GlosSI lets you use **Steam input** and/or the **Ste
 
 Apart from all the features that GlosSI offers on its own, this extension makes it easy to use the Steam overlay and Steam input for any game in your Playnite library. Each game can automatically be assigned a separate Steam overlay, allowing for unique controller configurations and making it easier for your Steam friends to see what game you are currently playing. The Steam overlay can be launched automatically when you launch your games. Additionally, when in fullscreen mode a Steam overlay can be assigned to Playnite itself, making it possible to take advantage of Steam input while navigating your Playnite library.
 
+Note that you can use GlosSI with Playnite without this extension: the extension simply automates some things that may be of interest.
+
 ## More information
 Check out the [wiki](https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki) for information about getting started and general usage of the extension!
 
