@@ -97,20 +97,20 @@
     
     <!--Exceptional Errors-->
     <sys:String x:Key="LOC_GI_ReadDefaultTargetUnexpectedError">Error al abrir el archivo de destino predeterminado: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_ReadIconPathUnexpectedError">Unexpected error encountered when reading the icon path: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_CreateSteamShortcutUnexpectedError">Something went wrong when attempting to create the Steam shortcut: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_GetGlosSIVersionUnexpectedError">Failed to check the GlosSI version: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_CreateDefaultTargetFileUnexpectedError">Failed to access or create the default target file: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError">Failed to backup the GlosSI configuration files: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError">Failed to backup the shortcuts.vdf file: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError">Failed to open the link: &quot;{0}&quot;: {1}</sys:String>
-    <sys:String x:Key="LOC_GI_ReadOverlayGlosSITargetUnexpectedError">Something went wrong when attempting to read the target file referenced by the {0} overlay name: {1}</sys:String>
-    <sys:String x:Key="LOC_GI_RunSteamGameUnexpectedError">GlosSI Integration failed to run the Steam shortcut: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_DefaultTargetItemsMissingUnexpectedError">The GlosSI default target is missing items.</sys:String>
-    <sys:String x:Key="LOC_GI_CloseGlosSITargetTimelyUnexpectedError">GlosSI Integration failed to close the Steam Overlay in time.</sys:String>
-    <sys:String x:Key="LOC_GI_CloseGlosSITargetUnexpectedError">GlosSI Integration failed to close the Steam Overlay: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_CreateGlosSITargetUnexpectedError">GlosSI Integration failed to add the GlosSI target configuration file and/or Steam shortcut for &quot;{0}&quot;, the adding process was aborted: {1}</sys:String>
-    <sys:String x:Key="LOC_GI_RemoveGlosSITargetUnexpectedError">GlosSI Integration failed to remove the GlosSI target configuration file and/or Steam shortcut for &quot;{0}&quot;, the removal process was aborted: {1}</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleChangedShortcutsUnexpectedError">More Steam shortcuts appears to have been modified by GlosSIConfig than intended, the changes have been reverted. Please consider reporting this erroneous behavior.</sys:String>
+    <sys:String x:Key="LOC_GI_ReadIconPathUnexpectedError">Se encontró un error inesperado al leer la ruta del icono: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_CreateSteamShortcutUnexpectedError">Algo salió mal al intentar crear el acceso directo de Steam: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_GetGlosSIVersionUnexpectedError">Error al comprobar la versión de GlosSI: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_CreateDefaultTargetFileUnexpectedError">Error al acceder o crear el archivo de destino predeterminado: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError">Error al respaldar los archivos de configuración GlosSI: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError">Error al realizar la copia de seguridad del archivo shortcuts.vdf: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError">Error al abrir el enlace: &quot;{0}&quot;: {1}</sys:String>
+    <sys:String x:Key="LOC_GI_ReadOverlayGlosSITargetUnexpectedError">Algo salió mal al intentar leer el archivo de destino referenciado por el nombre de capa {0} : {1}</sys:String>
+    <sys:String x:Key="LOC_GI_RunSteamGameUnexpectedError">GlosSI Integration no pudo ejecutar el acceso directo de Steam: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_DefaultTargetItemsMissingUnexpectedError">El objetivo por defecto de GlosSI no tiene elementos.</sys:String>
+    <sys:String x:Key="LOC_GI_CloseGlosSITargetTimelyUnexpectedError">GlosSI Integration no ha podido cerrar la superposición de Steam a tiempo.</sys:String>
+    <sys:String x:Key="LOC_GI_CloseGlosSITargetUnexpectedError">GlosSI Integration falló al cerrar la sobreposición de Steam: {0}</sys:String>
+    <sys:String x:Key="LOC_GI_CreateGlosSITargetUnexpectedError">GlosSI Integration no ha podido agregar el archivo de configuración de destino GlosSI y/o el acceso directo de Steam para &quot;{0}&quot;, el proceso de adición fue abortado: {1}</sys:String>
+    <sys:String x:Key="LOC_GI_RemoveGlosSITargetUnexpectedError">GlosSI Integration no ha podido eliminar el archivo de configuración de destino GlosSI y/o el acceso directo de Steam para &quot;{0}&quot;, el proceso de eliminación fue abortado: {1}</sys:String>
+    <sys:String x:Key="LOC_GI_MultipleChangedShortcutsUnexpectedError">Más atajos de Steam parecen haber sido modificados por GlosSIConfig de lo previsto, y los cambios han sido revertidos. Por favor considere informar de este comportamiento erróneo.</sys:String>
 
 </ResourceDictionary>
