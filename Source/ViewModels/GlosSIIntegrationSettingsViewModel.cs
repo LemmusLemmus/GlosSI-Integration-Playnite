@@ -663,7 +663,7 @@ namespace GlosSIIntegration
         {
             if (string.IsNullOrEmpty(overlayName))
             {
-                errors.Add(ResourceProvider.GetString("LOC_GI_OverlayNameNotSetError"));
+                errors.Add(string.Format(ResourceProvider.GetString("LOC_GI_OverlayNameNotSetError"), overlayType));
                 return false;
             }
 
