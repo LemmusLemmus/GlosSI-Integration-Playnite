@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows;
 using System.Threading;
 using System.IO;
+using GlosSIIntegration.Models;
 
 namespace GlosSIIntegration
 {
@@ -27,12 +28,28 @@ namespace GlosSIIntegration
         public bool IntegrationEnabled
         {
             get { return integrationEnabled; }
-            set { integrationEnabled = value; UpdateTopPanel(); }
+            private set
+            { 
+                integrationEnabled = value; 
+                UpdateTopPanel(); 
+                IntegrationToggledEvent?.Invoke(value);
+            }
         }
 
         public override Guid Id { get; } = Guid.Parse("6b0297da-75e5-4330-bb2d-b64bff22c315");
         public static IPlayniteAPI Api { get; private set; }
         public static GlosSIIntegration Instance { get; private set; }
+        private static volatile bool hasPlayniteStarted = false;
+        /// <summary>
+        /// True when Playnite has finished starting.
+        /// </summary>
+        public static bool HasPlayniteStarted { get { return hasPlayniteStarted; } }
+        public event Action<OnApplicationStoppedEventArgs> ApplicationStoppedEvent;
+        public event Action<OnGameStartingEventArgs> GameStartingEvent;
+        public event Action<OnGameStartedEventArgs> GameStartedEvent;
+        public event Action<OnGameStoppedEventArgs> GameStoppedEvent;
+        public event Action<OnGameStartupCancelledEventArgs> GameStartupCancelledEvent;
+        public event Action<bool> IntegrationToggledEvent;
         private GlosSIIntegrationSettingsViewModel SettingsViewModel { get; set; }
 
         public GlosSIIntegration(IPlayniteAPI api) : base(api)
@@ -50,7 +67,9 @@ namespace GlosSIIntegration
             topPanel = GetInitialTopPanel();
             InitializeIntegrationEnabled();
             InitializeTopPanelColor();
-            OverlayState.Initialize();
+
+            // Initialize automatic overlay switching.
+            new OverlaySwitchingDecisionMaker();
         }
 
         private void InitializeIntegrationEnabled()
@@ -138,14 +157,14 @@ namespace GlosSIIntegration
             return game.Tags != null && game.Tags.Any(t => t.Name == tagName);
         }
 
-        public override void OnGameStarted(OnGameStartedEventArgs args)
-        {
-            OverlayState.GameStarted(args.StartedProcessId);
-        }
-
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
-            OverlayState.GameStarting(args.Game);
+            GameStartingEvent?.Invoke(args);
+        }
+
+        public override void OnGameStarted(OnGameStartedEventArgs args)
+        {
+            GameStartedEvent?.Invoke(args);
         }
 
         /// <summary>
@@ -181,19 +200,24 @@ namespace GlosSIIntegration
 
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
-            OverlayState.GameStopped(args.Game);
+            GameStoppedEvent?.Invoke(args);
+        }
+
+        public override void OnGameStartupCancelled(OnGameStartupCancelledEventArgs args)
+        {
+            GameStartupCancelledEvent?.Invoke(args);
         }
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
-            OverlayState.PlayniteStarted();
+            hasPlayniteStarted = true;
             SettingsViewModel.InitialVerification();
             Api.Database.Tags.Add(LOC_IGNORED_TAG);
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
         {
-            OverlayState.Close();
+            ApplicationStoppedEvent?.Invoke(args);
         }
 
         public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
@@ -471,7 +495,6 @@ namespace GlosSIIntegration
         {
             logger.Trace("Top panel item pressed.");
             IntegrationEnabled = !IntegrationEnabled;
-            OverlayState.IntegrationToggled();
         }
 
         private void UpdateTopPanel()

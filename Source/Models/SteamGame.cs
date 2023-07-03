@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace GlosSIIntegration
+namespace GlosSIIntegration.Models
 {
     /// <summary>
     /// Represents a shortcut to a Steam game.
@@ -14,6 +14,11 @@ namespace GlosSIIntegration
         private readonly ulong gameID;
         private readonly string gameName;
 
+        /// <summary>
+        /// Constructor for a non-Steam game.
+        /// </summary>
+        /// <param name="name">The name of the game.</param>
+        /// <param name="path">The path to the game executable.</param>
         public SteamGame(string name, string path)
         {
             Crc algorithm = new Crc(32, 0x04C11DB7, true, 0xffffffff, true, 0xffffffff);
@@ -23,7 +28,7 @@ namespace GlosSIIntegration
             gameName = name;
         }
 
-        private string UTF8ToCodeUnits(string str)
+        private static string UTF8ToCodeUnits(string str)
         {
             return new string(Encoding.UTF8.GetBytes(str).Select(b => (char)b).ToArray());
         }
@@ -49,21 +54,23 @@ namespace GlosSIIntegration
         /// <summary>
         /// Runs the Steam game associated with the ID.
         /// </summary>
-        /// <returns>true if the process was started; false if starting the process failed.</returns>
-        public virtual bool Run()
+        /// <exception cref="InvalidOperationException">If starting the process failed.</exception>
+        public virtual void Run()
         {
+            LogManager.GetLogger().Info($"Starting Steam game \"{this}\".");
+
             try
             {
-                LogManager.GetLogger().Info($"Starting Steam game {this}.");
                 Process.Start("steam://rungameid/" + GetID().ToString()).Dispose();
-                return true;
             }
-            catch (Exception e)
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception 
+                || ex is ObjectDisposedException 
+                || ex is System.IO.FileNotFoundException)
             {
-                GlosSIIntegration.NotifyError(
-                    string.Format(ResourceProvider.GetString("LOC_GI_RunSteamGameUnexpectedError"),
-                    e.Message), "GlosSIIntegration-SteamGame-Run");
-                return false;
+                string msg = string.Format(
+                    ResourceProvider.GetString("LOC_GI_RunSteamGameUnexpectedError"), ex.Message);
+                GlosSIIntegration.NotifyError(msg, "GlosSIIntegration-SteamGame-Run");
+                throw new InvalidOperationException(msg, ex);
             }
         }
 
@@ -71,7 +78,7 @@ namespace GlosSIIntegration
         {
             if (!(obj is SteamGame other)) return false;
 
-            return gameName == other.gameName;
+            return gameID == other.gameID;
         }
 
         public override int GetHashCode()

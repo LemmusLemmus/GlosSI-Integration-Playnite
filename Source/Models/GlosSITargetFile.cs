@@ -8,7 +8,7 @@ using Playnite.SDK;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace GlosSIIntegration
+namespace GlosSIIntegration.Models
 {
     /// <summary>
     /// Represents a GlosSI target file.

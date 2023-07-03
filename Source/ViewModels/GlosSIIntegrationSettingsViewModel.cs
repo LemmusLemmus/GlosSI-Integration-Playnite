@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using GlosSIIntegration.Models;
 
 namespace GlosSIIntegration
 {
@@ -89,7 +90,7 @@ namespace GlosSIIntegration
             }
             else
             {
-                playniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOC_GI_RequriedSettingsIncorrectFullscreenError"), 
+                playniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOC_GI_RequriedSettingsIncorrectFullscreenError"),
                     ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
             }
 
@@ -138,10 +139,10 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                GlosSIIntegration.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupGlosSIUnexpectedError"), 
+                GlosSIIntegration.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupGlosSIUnexpectedError"),
                     e.Message), e);
             }
-            
+
             progressBar.Text = ResourceProvider.GetString("LOC_GI_BackingUpSteamFile");
             BackupShortcutsFile();
             progressBar.CurrentProgressValue++;
@@ -156,7 +157,7 @@ namespace GlosSIIntegration
         {
             try
             {
-                string destShortcutsFile = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(), 
+                string destShortcutsFile = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(),
                     @"Backup", GetIDFromShortcutsPath(Settings.SteamShortcutsPath), @"shortcuts.vdf");
 
                 if (!File.Exists(destShortcutsFile))
@@ -168,7 +169,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                GlosSIIntegration.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupSteamFileUnexpectedError"), 
+                GlosSIIntegration.DisplayError(string.Format(ResourceProvider.GetString("LOC_GI_FailedBackupSteamFileUnexpectedError"),
                     e.Message), e);
             }
         }
@@ -305,7 +306,7 @@ namespace GlosSIIntegration
             // Check the registry.
             try
             {
-                path = (string) Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Valve\Steam", "SteamPath", null);
+                path = (string)Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Valve\Steam", "SteamPath", null);
                 path = Path.Combine(path, "userdata");
                 if (Directory.Exists(path)) return path;
             }
@@ -366,7 +367,7 @@ namespace GlosSIIntegration
                         return fileText.Substring(startIndex, endIndex - startIndex);
                     }
                 }
-            } 
+            }
             catch { }
 
             return string.Format(ResourceProvider.GetString("LOC_GI_MultipleSteamUserCode"), GetIDFromShortcutsPath(shortcutsPath));
@@ -390,7 +391,7 @@ namespace GlosSIIntegration
             }
             catch (Exception ex)
             {
-                string message = string.Format(ResourceProvider.GetString("LOC_GI_OpenLinkFailedUnexpectedError"), 
+                string message = string.Format(ResourceProvider.GetString("LOC_GI_OpenLinkFailedUnexpectedError"),
                     link, ex.Message);
                 LogManager.GetLogger().Error(ex, message);
                 GlosSIIntegration.Api.Dialogs.ShowErrorMessage(message,
@@ -444,12 +445,12 @@ namespace GlosSIIntegration
                 return;
             }
 
-            if (Settings.GlosSIVersion < new Version("0.0.7.0"))
+            if (Settings.GlosSIVersion < new Version("0.0.7.0")) // TODO: Do not forget to update version requirements!
             {
                 logger.Warn(ResourceProvider.GetString("LOC_GI_OldGlosSIVersionWarning") +
                     $"\nInstalled date: {Settings.GlosSIVersion}");
-                playniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_OldGlosSIVersionWarning"), 
-                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"), 
+                playniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_OldGlosSIVersionWarning"),
+                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
@@ -460,7 +461,7 @@ namespace GlosSIIntegration
             // Executed before EndEdit is called and EndEdit is not called if false is returned.
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
-            return VerifySteamShortcutsPath(ref errors) & VerifyGlosSIPath(ref errors) && 
+            return VerifySteamShortcutsPath(ref errors) & VerifyGlosSIPath(ref errors) &&
                 (!Settings.UseIntegrationFullscreen || !Settings.UsePlayniteOverlay || VerifyPlayniteOverlayName(ref errors)) &
                 (!Settings.UseDefaultOverlay || VerifyDefaultOverlayName(ref errors));
         }
@@ -487,8 +488,8 @@ namespace GlosSIIntegration
         {
             get => new RelayCommand<object>((o) =>
             {
-                string newShortcutName = OpenShortcutCreationView(null, 
-                    Path.Combine(playniteApi.Paths.ConfigurationPath, @"Themes\Desktop\Default\Images\applogo.ico"));
+                string newShortcutName = OpenShortcutCreationView(null,
+                    Path.Combine(playniteApi.Paths.ApplicationPath, @"Themes\Desktop\Default\Images\applogo.ico")); // TODO: Changed should be fixed. Test-
                 if (newShortcutName != null) settings.DefaultOverlayName = newShortcutName;
             });
         }
@@ -498,7 +499,7 @@ namespace GlosSIIntegration
             get => new RelayCommand<object>((o) =>
             {
                 string newShortcutName = OpenShortcutCreationView("Playnite",
-                    Path.Combine(playniteApi.Paths.ConfigurationPath, @"Themes\Fullscreen\Default\Images\applogo.ico"));
+                    Path.Combine(playniteApi.Paths.ApplicationPath, @"Themes\Fullscreen\Default\Images\applogo.ico"));
                 if (newShortcutName != null) settings.PlayniteOverlayName = newShortcutName;
             });
         }
@@ -519,7 +520,7 @@ namespace GlosSIIntegration
             }
             else
             {
-                playniteApi.Dialogs.ShowErrorMessage($"{ResourceProvider.GetString("LOC_GI_RequriedSettingsIncorrectCreateShortcutError")}\n\n{string.Join(Environment.NewLine, errors)}", 
+                playniteApi.Dialogs.ShowErrorMessage($"{ResourceProvider.GetString("LOC_GI_RequriedSettingsIncorrectCreateShortcutError")}\n\n{string.Join(Environment.NewLine, errors)}",
                     ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
                 return null;
             }
@@ -553,7 +554,7 @@ namespace GlosSIIntegration
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFWrongNameError"));
                 return false;
             }
-            
+
             if (!File.Exists(Settings.SteamShortcutsPath))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFNotFoundError"));
@@ -599,7 +600,7 @@ namespace GlosSIIntegration
                 errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderNotFoundError"));
                 return false;
             }
-            else if (!File.Exists(Path.Combine(Settings.GlosSIPath, "GlosSIConfig.exe")) || 
+            else if (!File.Exists(Path.Combine(Settings.GlosSIPath, "GlosSIConfig.exe")) ||
                 !File.Exists(Path.Combine(Settings.GlosSIPath, "GlosSITarget.exe")))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderExecutablesNotFoundError"));
@@ -635,7 +636,7 @@ namespace GlosSIIntegration
         /// <returns>true if the Playnite overlay name is valid; false otherwise.</returns>
         private bool VerifyPlayniteOverlayName(ref List<string> errors)
         {
-            return VerifyOverlayName(Settings.PlayniteOverlayName, 
+            return VerifyOverlayName(Settings.PlayniteOverlayName,
                 ResourceProvider.GetString("LOC_GI_PlayniteOverlayType"), ref errors);
         }
 
@@ -681,7 +682,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                string message = string.Format(ResourceProvider.GetString("LOC_GI_ReadOverlayGlosSITargetUnexpectedError"), 
+                string message = string.Format(ResourceProvider.GetString("LOC_GI_ReadOverlayGlosSITargetUnexpectedError"),
                     overlayType, e.Message);
                 errors.Add(message);
                 logger.Error(e, message);

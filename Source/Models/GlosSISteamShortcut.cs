@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace GlosSIIntegration
+namespace GlosSIIntegration.Models
 {
     class GlosSISteamShortcut : SteamGame
     {
@@ -37,20 +37,28 @@ namespace GlosSIIntegration
         /// If the GlosSI configuration file could not be found, 
         /// the method only displays an error notification.
         /// </summary>
-        /// <returns>true if the process was started; false otherwise.</returns>
+        /// <exception cref="InvalidOperationException">If the GlosSITarget process is not runnable 
+        /// (i.e. <see cref="IsRunnable()"/> returns false) or if starting the process failed.</exception>
         /// <seealso cref="SteamGame.Run()"/>
-        public override bool Run()
+        public override void Run()
         {
-            LogManager.GetLogger().Trace($"Running GlosSITarget for {GetName()}...");
+            LogManager.GetLogger().Debug($"Running GlosSITarget for {GetName()}...");
+            VerifyRunnable();
+            base.Run();
+        }
+
+        /// <summary>
+        /// Verifies that the GlosSITarget shortcut is runnable. If not, throws an exception and displays an error message.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">If the shortcut is not runnable (i.e. does not have a .json file).</exception>
+        public void VerifyRunnable()
+        {
             if (!GlosSITargetFile.HasJsonFile(GetName()))
             {
-                GlosSIIntegration.NotifyError(
-                    ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError"),
-                    "GlosSIIntegration-SteamGame-RunGlosSITarget");
-                return false;
+                string msg = ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError");
+                GlosSIIntegration.NotifyError(msg, "GlosSIIntegration-SteamGame-RunGlosSITarget");
+                throw new InvalidOperationException(msg);
             }
-
-            return base.Run();
         }
     }
 }

@@ -24,7 +24,7 @@
 
 using System;
 
-namespace GlosSIIntegration
+namespace GlosSIIntegration.Models
 {
     /// <summary>
     /// A base class for CRC routines.
