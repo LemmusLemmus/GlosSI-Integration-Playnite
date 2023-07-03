@@ -289,9 +289,9 @@ namespace GlosSIIntegration
                         return;
                     }
                 }
-                catch (Exception e)
+                catch (InvalidOperationException ex)
                 {
-                    LogManager.GetLogger().Error(e, "Failed to check GlosSIConfig exit code.");
+                    LogManager.GetLogger().Error(ex, "Failed to check GlosSIConfig exit code.");
                 }
             }
 
