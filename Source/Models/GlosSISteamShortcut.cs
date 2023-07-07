@@ -4,7 +4,7 @@ using System.IO;
 
 namespace GlosSIIntegration.Models
 {
-    class GlosSISteamShortcut : SteamGame
+    class GlosSISteamShortcut : SteamShortcut
     {
         /// <summary>
         /// Instantiates a <c>GlosSISteamShortcut</c> object belonging to a GlosSITarget shortcut.
@@ -39,10 +39,10 @@ namespace GlosSIIntegration.Models
         /// </summary>
         /// <exception cref="InvalidOperationException">If the GlosSITarget process is not runnable 
         /// (i.e. <see cref="IsRunnable()"/> returns false) or if starting the process failed.</exception>
-        /// <seealso cref="SteamGame.Run()"/>
+        /// <seealso cref="SteamShortcut.Run()"/>
         public override void Run()
         {
-            LogManager.GetLogger().Debug($"Running GlosSITarget for {GetName()}...");
+            LogManager.GetLogger().Debug($"Running GlosSITarget for {Name}...");
             VerifyRunnable();
             base.Run();
         }
@@ -53,7 +53,7 @@ namespace GlosSIIntegration.Models
         /// <exception cref="InvalidOperationException">If the shortcut is not runnable (i.e. does not have a .json file).</exception>
         public void VerifyRunnable()
         {
-            if (!GlosSITargetFile.HasJsonFile(GetName()))
+            if (!GlosSITargetFile.HasJsonFile(Name))
             {
                 string msg = ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError");
                 GlosSIIntegration.NotifyError(msg, "GlosSIIntegration-SteamGame-RunGlosSITarget");

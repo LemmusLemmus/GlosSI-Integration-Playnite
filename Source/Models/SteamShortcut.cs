@@ -9,23 +9,30 @@ namespace GlosSIIntegration.Models
     /// <summary>
     /// Represents a shortcut to a Steam game.
     /// </summary>
-    class SteamGame
+    class SteamShortcut
     {
-        private readonly ulong gameID;
-        private readonly string gameName;
+        /// <summary>
+        /// The appID of the Steam shortcut.
+        /// </summary>
+        public ulong Id { get; }
 
         /// <summary>
-        /// Constructor for a non-Steam game.
+        /// The name of the Steam shortcut.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// Constructor for a non-Steam game shortcut.
         /// </summary>
         /// <param name="name">The name of the game.</param>
         /// <param name="path">The path to the game executable.</param>
-        public SteamGame(string name, string path)
+        public SteamShortcut(string name, string path)
         {
             Crc algorithm = new Crc(32, 0x04C11DB7, true, 0xffffffff, true, 0xffffffff);
             string input = UTF8ToCodeUnits("\"" + path + "\"" + name);
             uint top32 = algorithm.BitByBit(input) | 0x80000000;
-            gameID = (((ulong)top32) << 32) | 0x02000000;
-            gameName = name;
+            Id = (((ulong)top32) << 32) | 0x02000000;
+            Name = name;
         }
 
         private static string UTF8ToCodeUnits(string str)
@@ -34,25 +41,7 @@ namespace GlosSIIntegration.Models
         }
 
         /// <summary>
-        /// Gets the appID of the Steam game.
-        /// </summary>
-        /// <returns>The appID of the Steam game.</returns>
-        public ulong GetID()
-        {
-            return gameID;
-        }
-
-        /// <summary>
-        /// Gets the name of the Steam game.
-        /// </summary>
-        /// <returns>The name of the Steam game.</returns>
-        public string GetName()
-        {
-            return gameName;
-        }
-
-        /// <summary>
-        /// Runs the Steam game associated with the ID.
+        /// Runs the Steam shortcut.
         /// </summary>
         /// <exception cref="InvalidOperationException">If starting the process failed.</exception>
         public virtual void Run()
@@ -68,7 +57,7 @@ namespace GlosSIIntegration.Models
                 // Another (in this case irrelevant) difference is that "/Dialog" can be appended
                 // to the command below to show multiple launch options (if there are any).
                 // Other differences are unknown.
-                Process.Start("steam://launch/" + GetID().ToString()).Dispose();
+                Process.Start("steam://launch/" + Id.ToString()).Dispose();
             }
             catch (Exception ex) when (ex is System.ComponentModel.Win32Exception 
                 || ex is ObjectDisposedException 
@@ -83,19 +72,19 @@ namespace GlosSIIntegration.Models
 
         public override bool Equals(object obj)
         {
-            if (!(obj is SteamGame other)) return false;
+            if (!(obj is SteamShortcut other)) return false;
 
-            return gameID == other.gameID;
+            return Id == other.Id;
         }
 
         public override int GetHashCode()
         {
-            return (int)gameID;
+            return (int)Id;
         }
 
         public override string ToString()
         {
-            return $"{gameName}: {gameID}";
+            return $"{Name}: {Id}";
         }
     }
 }
