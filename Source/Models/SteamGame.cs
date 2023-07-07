@@ -61,7 +61,14 @@ namespace GlosSIIntegration.Models
 
             try
             {
-                Process.Start("steam://rungameid/" + GetID().ToString()).Dispose();
+                // The command "steam://rungameid/<id>" was used before,
+                // since the below command apparently did not work with non-Steam shortcuts before.
+                // The command has been changed because "steam://rungameid/<id>" shows
+                // a "Launching..." pop-up window, which is undesirable when starting GlosSITarget.
+                // Another (in this case irrelevant) difference is that "/Dialog" can be appended
+                // to the command below to show multiple launch options (if there are any).
+                // Other differences are unknown.
+                Process.Start("steam://launch/" + GetID().ToString()).Dispose();
             }
             catch (Exception ex) when (ex is System.ComponentModel.Win32Exception 
                 || ex is ObjectDisposedException 
