@@ -9,25 +9,18 @@
         "realDeviceIds": false
     },
     "extendedLogging": false,
-    "icon": "<icon>",
-    "launch": {
-        "closeOnExit": false,
-        "ignoreLauncher": true,
-        "killLauncher": false,
-        "launch": false,
-        "launchAppArgs": null,
-        "launchPath": null,
-        "launcherProcesses": [
-        ],
-        "waitForChildProcs": false
-    },
-    "name": "<name>",
+    "icon": "<automatic>",
+    "launch": "<automatic>",
+    "name": "<automatic>",
     "snapshotNotify": false,
     "version": 1,
     "window": {
         "disableOverlay": false,
+        "hideAltTab": true,
         "maxFps": null,
         "scale": null,
-        "windowMode": false
+        "windowMode": false,
+        "disableGlosSIOverlay": false,
+        "opaqueSteamOverlay": false
     }
 }

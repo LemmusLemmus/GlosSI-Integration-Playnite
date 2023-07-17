@@ -71,33 +71,12 @@ namespace GlosSIIntegration.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {
-        ///    &quot;controller&quot;: {
-        ///        &quot;allowDesktopConfig&quot;: false,
-        ///        &quot;emulateDS4&quot;: false,
-        ///        &quot;maxControllers&quot;: 4
-        ///    },
-        ///    &quot;devices&quot;: {
-        ///        &quot;hideDevices&quot;: true,
-        ///        &quot;realDeviceIds&quot;: false
-        ///    },
-        ///    &quot;icon&quot;: &quot;&lt;icon&gt;&quot;,
-        ///    &quot;launch&quot;: {
-        ///        &quot;closeOnExit&quot;: false,
-        ///        &quot;launch&quot;: false,
-        ///        &quot;launchAppArgs&quot;: null,
-        ///        &quot;launchPath&quot;: null,
-        ///        &quot;waitForChildProcs&quot;: false
-        ///    },
-        ///    &quot;name&quot;: &quot;&lt;name&gt;&quot;,
-        ///    &quot;version&quot;: 1,
-        ///    &quot;window&quot;: {
-        ///        &quot;disableOverlay&quot;: false,
-        /// [rest of string was truncated]&quot;;.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static string DefaultTarget {
+        internal static byte[] DefaultTarget {
             get {
-                return ResourceManager.GetString("DefaultTarget", resourceCulture);
+                object obj = ResourceManager.GetObject("DefaultTarget", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

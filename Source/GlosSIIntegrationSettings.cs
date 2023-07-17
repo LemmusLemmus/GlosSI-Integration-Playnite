@@ -68,7 +68,7 @@ namespace GlosSIIntegration
                 if (!File.Exists(defaultTargetPath))
                 {
                     LogManager.GetLogger().Trace("Creating DefaultTarget file...");
-                    File.WriteAllText(defaultTargetPath, Properties.Resources.DefaultTarget);
+                    File.WriteAllBytes(defaultTargetPath, Properties.Resources.DefaultTarget);
                     LogManager.GetLogger().Info("DefaultTarget file created.");
                 }
             }
