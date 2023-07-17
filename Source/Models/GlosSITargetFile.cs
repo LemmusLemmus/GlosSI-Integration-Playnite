@@ -1,5 +1,4 @@
 ﻿using Playnite.SDK.Models;
-using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Diagnostics;
 using System;
@@ -67,7 +66,7 @@ namespace GlosSIIntegration.Models
         {
             // Non-ASCII characters are not supported if the GlosSI version is <= 0.0.7.0.
             if ((IsNotAscii(game.Name) || IsNotAscii(GetGameIconPath())) &&
-                (GlosSIIntegration.GetSettings().GlosSIVersion == null || 
+                (GlosSIIntegration.GetSettings().GlosSIVersion == null ||
                 GlosSIIntegration.GetSettings().GlosSIVersion <= new Version("0.0.7.0")))
             {
                 LogManager.GetLogger().Warn($"Game \"{game.Name}\" skipped due to non-ASCII characters. GlosSI version: " +
@@ -115,26 +114,17 @@ namespace GlosSIIntegration.Models
 
         private void SaveAsJsonTarget()
         {
-            string jsonString = File.ReadAllText(GlosSIIntegration.GetSettings().DefaultTargetPath);
-            JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
+            GlosSITargetSettings settings = GlosSITargetSettings.ReadFrom(
+                GlosSIIntegration.GetSettings().DefaultTargetPath);
 
-            try
-            {
-                jObject.SelectToken("name").Replace(game.Name);
-                jObject.SelectToken("icon").Replace(GetGameIconPath());
-            }
-            catch (NullReferenceException e)
-            {
-                throw new NullReferenceException(ResourceProvider.GetString("LOC_GI_DefaultTargetItemsMissingUnexpectedError"), e);
-            }
-
-            jsonString = jObject.ToString();
+            settings.Name = game.Name;
+            settings.Icon = GetGameIconPath();
+            settings.Launch = new GlosSITargetSettings.LaunchOptions();
 
             // TODO: Send a warning message if there already exists a .json file with the same filename.
             // There is a risk that two different games with different game names have the same filename after illegal characters are removed.
             // There is also a risk that the user already made a GlosSI profile for a game without using this plugin.
-
-            File.WriteAllText(GetJsonFilePath(), jsonString);
+            settings.WriteTo(GetJsonFilePath());
         }
 
         /// <summary>

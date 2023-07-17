@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using Playnite.SDK;
+﻿using Playnite.SDK;
 using Playnite.SDK.Data;
 using System;
 using System.Collections.Generic;
@@ -668,29 +667,28 @@ namespace GlosSIIntegration
                 return false;
             }
 
-            string fileName = GlosSITargetFile.RemoveIllegalFileNameChars(overlayName);
-            string jsonString;
+            GlosSITargetSettings targetSettings;
 
             try
             {
-                jsonString = File.ReadAllText(GlosSITargetFile.GetJsonFilePath(fileName));
+                // Note that the below GlosSISteamShortcut should not to be used, since overlayName may be without invalid file name characters.
+                targetSettings = GlosSITargetSettings.ReadFrom(new GlosSISteamShortcut(overlayName));
             }
             catch (FileNotFoundException) // Verify that the corresponding .json file actually exists
             {
                 errors.Add(string.Format(ResourceProvider.GetString("LOC_GI_OverlayGlosSITargetNotFoundError"), overlayType));
                 return false;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 string message = string.Format(ResourceProvider.GetString("LOC_GI_ReadOverlayGlosSITargetUnexpectedError"),
-                    overlayType, e.Message);
+                    overlayType, ex.Message);
                 errors.Add(message);
-                logger.Error(e, message);
+                logger.Error(ex, message);
                 return false;
             }
 
-            JObject jObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
-            string actualName = jObject.GetValue("name")?.ToString();
+            string actualName = targetSettings.Name;
 
             if (string.IsNullOrEmpty(actualName))
             {

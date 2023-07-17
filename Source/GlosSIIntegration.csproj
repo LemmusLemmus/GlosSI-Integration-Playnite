@@ -56,6 +56,8 @@
     <Compile Include="Models\GameOverlay.cs" />
     <Compile Include="Models\GlosSISteamShortcut.cs" />
     <Compile Include="Models\GlosSITargetProcess.cs" />
+    <Compile Include="Models\GlosSITargetSettings.cs" />
+    <Compile Include="Models\JsonExtensions.cs" />
     <Compile Include="Models\OverlaySwitchingCoordinator.cs" />
     <Compile Include="Models\Overlay.cs" />
     <Compile Include="Models\OverlaySwitchingDecisionMaker.cs" />
@@ -187,6 +189,10 @@
   <ItemGroup>
     <Resource Include="Resources\DefaultSteamShortcutIcon.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Scripts\StartPlayniteFromGlosSI.vbs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
