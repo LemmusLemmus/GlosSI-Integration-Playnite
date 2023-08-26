@@ -1,5 +1,4 @@
-﻿using Playnite.SDK;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace GlosSIIntegration

@@ -9,7 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows;
 using System.Threading;
-using System.IO;
 using GlosSIIntegration.Models.Overlays;
 using GlosSIIntegration.Models.GlosSITargets.Files;
 using GlosSIIntegration.Models.GlosSITargets.Types;

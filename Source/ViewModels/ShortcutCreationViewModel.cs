@@ -2,11 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using GlosSIIntegration.Models;
 using GlosSIIntegration.Models.GlosSITargets.Types;
 using GlosSIIntegration.Models.GlosSITargets.Files;
 
