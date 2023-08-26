@@ -230,24 +230,19 @@ namespace GlosSIIntegration
 
         public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
         {
-            List<GameMenuItem> newGameMenuItems = new List<GameMenuItem>
+            yield return new GameMenuItem
             {
-                new GameMenuItem
-                {
-                    Description = ResourceProvider.GetString("LOC_GI_GameMenuAddIntegration"),
-                    MenuSection = ResourceProvider.GetString("LOC_GI_GameMenuSection"),
-                    Action = (arg) => AddGames(arg.Games)
-                },
-
-                new GameMenuItem
-                {
-                    Description = ResourceProvider.GetString("LOC_GI_GameMenuRemoveIntegration"),
-                    MenuSection = ResourceProvider.GetString("LOC_GI_GameMenuSection"),
-                    Action = (arg) => RemoveGames(arg.Games)
-                }
+                Description = ResourceProvider.GetString("LOC_GI_GameMenuAddIntegration"),
+                MenuSection = ResourceProvider.GetString("LOC_GI_GameMenuSection"),
+                Action = (arg) => AddGames(arg.Games)
             };
 
-            return newGameMenuItems;
+            yield return new GameMenuItem
+            {
+                Description = ResourceProvider.GetString("LOC_GI_GameMenuRemoveIntegration"),
+                MenuSection = ResourceProvider.GetString("LOC_GI_GameMenuSection"),
+                Action = (arg) => RemoveGames(arg.Games)
+            };
         }
 
         // TODO: Move this to a new class.
