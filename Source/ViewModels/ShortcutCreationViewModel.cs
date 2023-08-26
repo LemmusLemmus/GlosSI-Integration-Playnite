@@ -173,7 +173,7 @@ namespace GlosSIIntegration
                 return false;
             }
 
-            if (Path.GetFileName(ShortcutIconPath).ToLower().EndsWith(".exe"))
+            if (Path.GetFileName(ShortcutIconPath).EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
             {
                 List<MessageBoxOption> options = new List<MessageBoxOption>
                 {

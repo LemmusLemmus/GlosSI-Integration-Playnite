@@ -479,8 +479,8 @@ namespace GlosSIIntegration
         /// <returns>true if it is a Steam game; false otherwise.</returns>
         public static bool IsSteamGame(Game playniteGame)
         {
-            return playniteGame.PluginId == steamPluginId || 
-                (playniteGame.Source != null && playniteGame.Source.Name.ToLower() == "steam");
+            return playniteGame.PluginId == steamPluginId ||
+                (playniteGame.Source != null && playniteGame.Source.Name.Equals("steam", StringComparison.OrdinalIgnoreCase));
         }
 
         public override ISettings GetSettings(bool firstRunSettings)
