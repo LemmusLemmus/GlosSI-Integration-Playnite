@@ -69,7 +69,6 @@ namespace GlosSIIntegration
             topPanelTextBlock = GetInitialTopPanelTextBlock();
             topPanel = GetInitialTopPanel();
             InitializeIntegrationEnabled();
-            InitializeTopPanelColor();
 
             // Initialize automatic overlay switching.
             new OverlaySwitchingDecisionMaker();
@@ -215,8 +214,12 @@ namespace GlosSIIntegration
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
             hasPlayniteStarted = true;
-            SettingsViewModel.InitialVerification();
+            if (IntegrationEnabled)
+            {
+                UpdateTopPanelGlyphBrush();
+            }
             Api.Database.Tags.Add(LOC_IGNORED_TAG);
+            SettingsViewModel.InitialVerification();
             ApplicationStartedEvent?.Invoke(args);
         }
 
@@ -523,22 +526,6 @@ namespace GlosSIIntegration
         private Brush GetGlyphBrush()
         {
             return (Brush)PlayniteApi.Resources.GetResource("GlyphBrush");
-        }
-
-        /// <summary>
-        /// Updates <c>topPanelTextBlock.Foreground</c> after all plugins (hopefully) have finished initializing, if necessary.
-        /// </summary>
-        private void InitializeTopPanelColor()
-        {
-            if (IntegrationEnabled)
-            {
-                new Thread(() =>
-                {
-                    Thread.Sleep(2000);
-                    UpdateTopPanelGlyphBrush();
-                })
-                { IsBackground = true }.Start();
-            }
         }
 
         private void UpdateTopPanelGlyphBrush()
