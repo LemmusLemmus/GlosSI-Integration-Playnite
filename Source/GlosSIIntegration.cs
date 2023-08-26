@@ -39,6 +39,7 @@ namespace GlosSIIntegration
         }
 
         public override Guid Id { get; } = Guid.Parse("6b0297da-75e5-4330-bb2d-b64bff22c315");
+        private static readonly Guid steamPluginId = Guid.Parse("cb91dfc9-b977-43bf-8e70-55f46e410fab");
         public static IPlayniteAPI Api { get; private set; }
         public static GlosSIIntegration Instance { get; private set; }
         private static volatile bool hasPlayniteStarted = false;
@@ -481,9 +482,8 @@ namespace GlosSIIntegration
         /// <returns>true if it is a Steam game; false otherwise.</returns>
         public static bool IsSteamGame(Game playniteGame)
         {
-            return (playniteGame.Source != null && playniteGame.Source.Name.ToLower() == "steam") ||
-                (playniteGame.InstallDirectory != null &&
-                Path.GetFullPath(playniteGame.InstallDirectory).Contains(@"Steam\steamapps\common"));
+            return playniteGame.PluginId == steamPluginId || 
+                (playniteGame.Source != null && playniteGame.Source.Name.ToLower() == "steam");
         }
 
         public override ISettings GetSettings(bool firstRunSettings)
