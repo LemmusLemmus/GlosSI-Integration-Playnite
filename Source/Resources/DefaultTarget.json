@@ -20,7 +20,6 @@
         "maxFps": null,
         "scale": null,
         "windowMode": false,
-        "disableGlosSIOverlay": false,
-        "opaqueSteamOverlay": false
+        "disableGlosSIOverlay": true
     }
 }
