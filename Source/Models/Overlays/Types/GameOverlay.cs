@@ -1,28 +1,36 @@
-﻿using Playnite.SDK.Models;
+﻿using GlosSIIntegration.Models.GlosSITargets.Types;
+using Playnite.SDK.Models;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
-namespace GlosSIIntegration.Models
+namespace GlosSIIntegration.Models.Overlays.Types
 {
-    class GameOverlay : Overlay, IDisposable
+    internal class GameOverlay : SteamStartableOverlay, IDisposable
     {
         private Process runningGameProcess;
         private readonly object runningGameLock = new object();
-        private readonly Game associatedGame;
-        private bool overlayClosedExternally;
+        private readonly bool closeGameWhenOverlayClosed;
+        public Game AssociatedGame { get; }
 
         /// <summary>
-        /// Instantiates a new game overlay object.
+        /// Creates an overlay object for the game, even if the game should not actually have one.
         /// </summary>
         /// <param name="associatedGame">The game for which this overlay is used.</param>
-        /// <param name="overlayName">The name of the overlay to be created. 
-        /// Must correspond to a known existing overlay.</param>
         /// <exception cref="InvalidOperationException">If the path to GlosSI has not been set.</exception>
-        protected GameOverlay(Game associatedGame, string overlayName) : base(overlayName)
+        protected GameOverlay(Game associatedGame) : this(associatedGame, new GameGlosSITarget(associatedGame)) { }
+
+        /// <summary>
+        /// Creates an overlay object for the game, even if the game should not actually have one.
+        /// </summary>
+        /// <param name="associatedGame">The game for which this overlay is used.</param>
+        /// <param name="target">The <see cref="GlosSITarget"/> associated with the game.</param>
+        /// <exception cref="InvalidOperationException">If the path to GlosSI has not been set.</exception>
+        protected GameOverlay(Game associatedGame, GlosSITarget target) : base(target)
         {
-            overlayClosedExternally = true; // Assumed to be true until proven otherwise.
             runningGameProcess = null;
-            this.associatedGame = associatedGame;
+            AssociatedGame = associatedGame;
+            closeGameWhenOverlayClosed = GlosSIIntegration.GetSettings().CloseGameWhenOverlayIsClosed;
         }
 
         /// <summary>
@@ -30,19 +38,19 @@ namespace GlosSIIntegration.Models
         /// Note: This method does not check if the game has the ignored tag.
         /// </summary>
         /// <param name="game">The game to create the overlay for.</param>
-        /// <returns>If the game should have an overlay, the overlay; <c>null</c> otherwise.</returns>
+        /// <returns>The overlay if the game should have an overlay; <c>null</c> otherwise.</returns>
         public static GameOverlay Create(Game game)
         {
             try
             {
                 if (GlosSIIntegration.GameHasIntegratedTag(game))
                 {
-                    return new GameOverlay(game, game.Name);
+                    return new GameOverlay(game);
                 }
                 else if (GlosSIIntegration.GetSettings().UseDefaultOverlay
                     && !GlosSIIntegration.IsSteamGame(game))
                 {
-                    return new GameOverlay(game, GlosSIIntegration.GetSettings().DefaultOverlayName);
+                    return new DefaultGameOverlay(game);
                 }
             }
             catch (InvalidOperationException ex)
@@ -53,11 +61,16 @@ namespace GlosSIIntegration.Models
             return null;
         }
 
-        public bool IsGameSame(Game game)
+        /// <summary>
+        /// Checks if <paramref name="game"/> references the same game as <see cref="AssociatedGame"/>.
+        /// </summary>
+        /// <param name="game">The game to compare.</param>
+        /// <returns>true if the same game is referenced; false otherwise.</returns>
+        public bool IsGameSame(Game game) // TODO: Remove and instead just use AssociatedGame.Equals() wherever needed?
         {
             if (game == null) return false;
 
-            return game.Equals(associatedGame);
+            return game.Equals(AssociatedGame);
         }
 
         /// <summary>
@@ -90,32 +103,17 @@ namespace GlosSIIntegration.Models
             }
         }
 
-        protected internal override void BeforeOverlayClosed()
+        protected override async Task OnClosedCalled(int overlayExitCode)
         {
-            overlayClosedExternally = false;
-        }
-
-        protected internal override void OnOverlayClosed(int overlayExitCode)
-        {
-            // Note that runningGameProcess is not disposed here.
-            // This is because the overlay may be reused for the same game.
+            Task baseTask = base.OnClosedCalled(overlayExitCode);
 
             try
             {
-                if (!overlayClosedExternally)
-                {
-                    logger.Trace("Overlay was closed by the extension.");
-                    return;
-                }
+                // Note that runningGameProcess is not disposed here.
+                // This is because the overlay may be reused for the same game.
 
                 lock (runningGameLock)
                 {
-                    if (runningGameProcess == null)
-                    {
-                        logger.Warn("Game overlay has no attached game process.");
-                        return;
-                    }
-
                     // Trivia: The extension used to check the exit code of GlosSITarget
                     // to avoid killing the game when the user closed the GlosSITarget
                     // process normally (i.e. not via Steam).
@@ -127,16 +125,28 @@ namespace GlosSIIntegration.Models
                     //
                     // TODO: Add a new method of checking if GlosSITarget was closed via
                     // the Steam overlay or not.
-                    if (GlosSIIntegration.GetSettings().CloseGameWhenOverlayIsClosed)
+                    if (closeGameWhenOverlayClosed &&
+                        // Check that the overlay was closed from the overlay/externally,
+                        // and not via the extension.
+                        !State.ClosedByExtension &&
+                        // If the game has already closed, there is no need to close it.
+                        !runningGameProcess.HasExitedSafe() &&
+                        // If a GlosSITarget is running, the overlay was probably replaced by another
+                        // GlosSITarget process, and closing the game would be unexpected.
+                        !GlosSITargetProcess.IsRunning())
                     {
+                        if (runningGameProcess == null)
+                        {
+                            logger.Warn("Game overlay has no attached game process.");
+                            return;
+                        }
                         KillGame();
                     }
                 }
             }
             finally
             {
-                overlayClosedExternally = true; // Reset
-                base.OnOverlayClosed(overlayExitCode);
+                await baseTask.ConfigureAwait(false);
             }
         }
 
@@ -151,7 +161,7 @@ namespace GlosSIIntegration.Models
             }
             catch (InvalidOperationException ex)
             {
-                logger.Debug($"Game closed before GlosSITarget, not doing anything: {ex.Message}.");
+                logger.Warn($"Game closed before GlosSITarget, not doing anything: {ex.Message}.");
             }
             catch (Exception ex)
             when (ex is InvalidOperationException || ex is System.ComponentModel.Win32Exception)
@@ -181,5 +191,9 @@ namespace GlosSIIntegration.Models
                 }
             }
         }
+
+        protected override void OnStartedCalled() { }
+
+        protected override void BeforeClosedCalled() { }
     }
 }

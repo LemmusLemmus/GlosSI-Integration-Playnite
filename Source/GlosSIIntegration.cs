@@ -10,7 +10,9 @@ using System.Windows.Media;
 using System.Windows;
 using System.Threading;
 using System.IO;
-using GlosSIIntegration.Models;
+using GlosSIIntegration.Models.Overlays;
+using GlosSIIntegration.Models.GlosSITargets.Files;
+using GlosSIIntegration.Models.GlosSITargets.Types;
 
 namespace GlosSIIntegration
 {
@@ -29,9 +31,9 @@ namespace GlosSIIntegration
         {
             get { return integrationEnabled; }
             private set
-            { 
-                integrationEnabled = value; 
-                UpdateTopPanel(); 
+            {
+                integrationEnabled = value;
+                UpdateTopPanel();
                 IntegrationToggledEvent?.Invoke(value);
             }
         }
@@ -49,6 +51,7 @@ namespace GlosSIIntegration
         public event Action<OnGameStartedEventArgs> GameStartedEvent;
         public event Action<OnGameStoppedEventArgs> GameStoppedEvent;
         public event Action<OnGameStartupCancelledEventArgs> GameStartupCancelledEvent;
+        public event Action<OnApplicationStartedEventArgs> ApplicationStartedEvent;
         public event Action<bool> IntegrationToggledEvent;
         private GlosSIIntegrationSettingsViewModel SettingsViewModel { get; set; }
 
@@ -194,6 +197,7 @@ namespace GlosSIIntegration
         /// <seealso cref="DisplayError(string, Exception)"/>
         public static void NotifyError(string message, string id)
         {
+            // Both logging and Notifications.Add should be thread-safe and OK to call from a non-UI thread.
             logger.Error(message);
             Api.Notifications.Add(id, message, NotificationType.Error);
         }
@@ -213,6 +217,7 @@ namespace GlosSIIntegration
             hasPlayniteStarted = true;
             SettingsViewModel.InitialVerification();
             Api.Database.Tags.Add(LOC_IGNORED_TAG);
+            ApplicationStartedEvent?.Invoke(args);
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
@@ -242,6 +247,9 @@ namespace GlosSIIntegration
             return newGameMenuItems;
         }
 
+        // TODO: Move this to a new class.
+        // TODO: Outright refuse to add games if the version requirement is not fullfilled.
+        // Also reword version error message, and update code in GlosSITargetFile.cs
         /// <summary>
         /// Attempts to integrate the games with GlosSI.
         /// Displays a progress bar and a result message.
@@ -358,11 +366,13 @@ namespace GlosSIIntegration
                             WarnGameHasUnsupportedCharacters();
                         }
                     }
-                    catch (GlosSITargetFile.UnexpectedGlosSIBehaviour)
+                    catch (GlosSITargetFile.UnexpectedGlosSIBehaviourException)
                     {
                         logger.Error(string.Format(errorMessage, game.Name, "UnexpectedGlosSIBehaviour"));
                         break;
                     }
+                    // A lot of things could potentially go wrong.
+                    // Notify the user of any potential error instead of crashing.
                     catch (Exception e)
                     {
                         DisplayError(string.Format(errorMessage, game.Name, e.Message), e);
@@ -382,11 +392,11 @@ namespace GlosSIIntegration
 
             if (avoidSteamGames)
             {
-                process = (game) => !IsSteamGame(game) && new GlosSITargetFile(game).Create();
+                process = (game) => !string.IsNullOrEmpty(game.Name) && !IsSteamGame(game) && new GameGlosSITarget(game).File.Create();
             }
             else
             {
-                process = (game) => new GlosSITargetFile(game).Create();
+                process = (game) => !string.IsNullOrEmpty(game.Name) && new GameGlosSITarget(game).File.Create();
             }
 
             gamesAdded = ProcessGames(games, progressBar,
@@ -396,7 +406,7 @@ namespace GlosSIIntegration
 
         private void RemoveGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesRemoved)
         {
-            bool process(Game game) => new GlosSITargetFile(game).Remove();
+            bool process(Game game) => !string.IsNullOrEmpty(game.Name) && new GameGlosSITarget(game).File.Remove();
 
             gamesRemoved = ProcessGames(games, progressBar,
                 ResourceProvider.GetString("LOC_GI_RemoveGlosSITargetUnexpectedError"),

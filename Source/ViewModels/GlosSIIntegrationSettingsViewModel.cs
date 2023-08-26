@@ -6,7 +6,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using GlosSIIntegration.Models;
+using GlosSIIntegration.Models.SteamLauncher;
+using GlosSIIntegration.Models.GlosSITargets.Types;
+using GlosSIIntegration.Models.GlosSITargets.Files;
 
 namespace GlosSIIntegration
 {
@@ -305,11 +307,10 @@ namespace GlosSIIntegration
             // Check the registry.
             try
             {
-                path = (string)Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Valve\Steam", "SteamPath", null);
-                path = Path.Combine(path, "userdata");
+                path = Path.Combine(Steam.Path, "userdata");
                 if (Directory.Exists(path)) return path;
             }
-            catch (Exception e)
+            catch (Exception e) // TOOD: Too general!
             {
                 logger.Warn(e, $"Could not read the Steam userdata path from the registry:");
             }
@@ -390,6 +391,7 @@ namespace GlosSIIntegration
             }
             catch (Exception ex)
             {
+                // TODO: Remove unnecessarily localized string.
                 string message = string.Format(ResourceProvider.GetString("LOC_GI_OpenLinkFailedUnexpectedError"),
                     link, ex.Message);
                 LogManager.GetLogger().Error(ex, message);
@@ -403,6 +405,10 @@ namespace GlosSIIntegration
             // Code executed when settings view is opened and user starts editing values.
             EditingClone = Serialization.GetClone(Settings);
 
+            // TODO: Unnecessary?
+            // Try to AutoSet elsewhere!
+            // Right now the user might be greeted with a dialog that tells them that settings are wrong or missing,
+            // when they are all simply set here. Will lead to confusion.
             bool autoUpdateSettings = false;
 
             if (string.IsNullOrEmpty(Settings.SteamShortcutsPath))
@@ -415,7 +421,7 @@ namespace GlosSIIntegration
                 autoUpdateSettings |= AutoSetGlosSIPath();
             }
 
-            if (autoUpdateSettings) plugin.SavePluginSettings(Settings);
+            if (autoUpdateSettings) EndEdit();
         }
 
         public void CancelEdit()
@@ -487,9 +493,10 @@ namespace GlosSIIntegration
         {
             get => new RelayCommand<object>((o) =>
             {
-                string newShortcutName = OpenShortcutCreationView(null,
-                    Path.Combine(playniteApi.Paths.ApplicationPath, @"Themes\Desktop\Default\Images\applogo.ico")); // TODO: Changed should be fixed. Test-
-                if (newShortcutName != null) settings.DefaultOverlayName = newShortcutName;
+                DefaultGlosSITarget newTarget = OpenShortcutCreationView(null,
+                    Path.Combine(playniteApi.Paths.ApplicationPath, @"Themes\Desktop\Default\Images\applogo.ico"),
+                    (name) => new DefaultGlosSITarget(name));
+                if (newTarget != null) settings.DefaultOverlayName = newTarget.Name;
             });
         }
 
@@ -497,9 +504,10 @@ namespace GlosSIIntegration
         {
             get => new RelayCommand<object>((o) =>
             {
-                string newShortcutName = OpenShortcutCreationView("Playnite",
-                    Path.Combine(playniteApi.Paths.ApplicationPath, @"Themes\Fullscreen\Default\Images\applogo.ico"));
-                if (newShortcutName != null) settings.PlayniteOverlayName = newShortcutName;
+                PlayniteGlosSITarget newTarget = OpenShortcutCreationView("Playnite", 
+                    Path.Combine(playniteApi.Paths.ApplicationPath, @"Themes\Fullscreen\Default\Images\applogo.ico"), 
+                    (name) => new PlayniteGlosSITarget(name));
+                if (newTarget != null) settings.PlayniteOverlayName = newTarget.Name;
             });
         }
 
@@ -508,14 +516,15 @@ namespace GlosSIIntegration
         /// </summary>
         /// <param name="defaultName">The default name of the new overlay.</param>
         /// <param name="defaultIconPath">The default icon of the new overlay.</param>
+        /// <param name="targetGetter">Function to get <see cref="GlosSITarget"/> object from the name of the target.</param>
         /// <returns>The name of the new overlay; <c>null</c> if the action was cancelled.</returns>
-        private string OpenShortcutCreationView(string defaultName, string defaultIconPath)
+        private T OpenShortcutCreationView<T>(string defaultName, string defaultIconPath, Func<string, T> targetGetter) where T : GlosSITarget
         {
             List<string> errors = new List<string>();
 
             if (VerifyGlosSITargetsPath() && VerifyGlosSIPath(ref errors) & VerifySteamShortcutsPath(ref errors))
             {
-                return ShortcutCreationView.ShowDialog(defaultName, defaultIconPath);
+                return ShortcutCreationViewModel.ShowDialog(defaultName, defaultIconPath, targetGetter);
             }
             else
             {
@@ -534,6 +543,7 @@ namespace GlosSIIntegration
         {
             if (string.IsNullOrEmpty(Settings.SteamShortcutsPath))
             {
+                // TODO: Attempt autoset here?
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFNotSetError"));
                 return false;
             }
@@ -580,6 +590,7 @@ namespace GlosSIIntegration
         {
             if (string.IsNullOrEmpty(Settings.GlosSIPath))
             {
+                // TODO: Attempt to autoset here?
                 errors.Add(ResourceProvider.GetString("LOC_GI_GlosSIFolderNotSetError"));
                 return false;
             }
@@ -635,8 +646,15 @@ namespace GlosSIIntegration
         /// <returns>true if the Playnite overlay name is valid; false otherwise.</returns>
         private bool VerifyPlayniteOverlayName(ref List<string> errors)
         {
-            return VerifyOverlayName(Settings.PlayniteOverlayName,
-                ResourceProvider.GetString("LOC_GI_PlayniteOverlayType"), ref errors);
+            string ovName = Settings.PlayniteOverlayName;
+            if (VerifyOverlayTargetName(ref ovName, ResourceProvider.GetString("LOC_GI_PlayniteOverlayType"),
+                (name) => new PlayniteGlosSITarget(name), ref errors))
+            {
+                Settings.PlayniteOverlayName = ovName;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -647,8 +665,15 @@ namespace GlosSIIntegration
         /// <returns>true if the Playnite overlay name is valid; false otherwise.</returns>
         private bool VerifyDefaultOverlayName(ref List<string> errors)
         {
-            return VerifyOverlayName(Settings.DefaultOverlayName,
-                ResourceProvider.GetString("LOC_GI_DefaultOverlayType"), ref errors);
+            string ovName = Settings.DefaultOverlayName;
+            if (VerifyOverlayTargetName(ref ovName, ResourceProvider.GetString("LOC_GI_DefaultOverlayType"), 
+                (name) => new DefaultGlosSITarget(name), ref errors))
+            {
+                Settings.DefaultOverlayName = ovName;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -657,9 +682,10 @@ namespace GlosSIIntegration
         /// </summary>
         /// <param name="overlayName">The name of the overlay.</param>
         /// <param name="overlayType">The type of the overlay. This is used for error messages and logging.</param>
+        /// <param name="targetGetter">Function to get <see cref="GlosSITarget"/> object from the name of the target.</param>
         /// <param name="errors">The list of errors to which potential errors are added as descriptive messages.</param>
         /// <returns>true if the overlay name is valid; false otherwise.</returns>
-        private bool VerifyOverlayName(string overlayName, string overlayType, ref List<string> errors)
+        private bool VerifyOverlayTargetName(ref string overlayName, string overlayType, Func<string, GlosSITarget> target, ref List<string> errors)
         {
             if (string.IsNullOrEmpty(overlayName))
             {
@@ -667,17 +693,20 @@ namespace GlosSIIntegration
                 return false;
             }
 
-            GlosSITargetSettings targetSettings;
-
             try
             {
-                // Note that the below GlosSISteamShortcut should not to be used, since overlayName may be without invalid file name characters.
-                targetSettings = GlosSITargetSettings.ReadFrom(new GlosSISteamShortcut(overlayName));
+                GlosSITarget glosSItarget = target(overlayName);
+                glosSItarget.File.Validate();
             }
-            catch (FileNotFoundException) // Verify that the corresponding .json file actually exists
+            catch (FileNotFoundException)
             {
                 errors.Add(string.Format(ResourceProvider.GetString("LOC_GI_OverlayGlosSITargetNotFoundError"), overlayType));
                 return false;
+            }
+            catch (GlosSITargetFile.TargetNameMismatchException ex)
+            {
+                // Here the actual name in the file is trusted.
+                overlayName = ex.ActualName;
             }
             catch (Exception ex)
             {
@@ -685,28 +714,6 @@ namespace GlosSIIntegration
                     overlayType, ex.Message);
                 errors.Add(message);
                 logger.Error(ex, message);
-                return false;
-            }
-
-            string actualName = targetSettings.Name;
-
-            if (string.IsNullOrEmpty(actualName))
-            {
-                errors.Add(string.Format(ResourceProvider.GetString("LOC_GI_OverlayGlosSITargetNoNameError"), overlayType));
-                return false;
-            }
-            else if (actualName != overlayName)
-            {
-                // If there is a mismatch between the entered name and the name stored in the .json file,
-                // use the name in the .json file instead.
-                if (overlayType == ResourceProvider.GetString("LOC_GI_PlayniteOverlayType"))
-                {
-                    Settings.PlayniteOverlayName = actualName;
-                }
-                else if (overlayType == ResourceProvider.GetString("LOC_GI_DefaultOverlayType"))
-                {
-                    Settings.DefaultOverlayName = actualName;
-                }
             }
 
             return true;

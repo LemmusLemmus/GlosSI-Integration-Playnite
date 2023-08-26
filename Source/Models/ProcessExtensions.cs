@@ -7,64 +7,27 @@ using System.Threading.Tasks;
 
 namespace GlosSIIntegration.Models
 {
-    static class ProcessExtensions
+    internal static class ProcessExtensions
     {
-        private const uint WM_CLOSE = 0x0010;
+        #region Win32
         /// <summary>
-        /// Exit code if a process has not terminated.
+        /// Exit code if a process has not terminated 
+        /// (unless the process exited with this exit code).
         /// </summary>
-        private const int STILL_ACTIVE = 259;
+        private const int StillActiveExitCode = 259;
         [Flags]
         public enum ProcessAccessFlags : uint
         {
-            PROCESS_QUERY_LIMITED_INFORMATION = 0x00001000,
+            ProcessQueryLimitedInformation = 0x00001000,
         }
 
-        [DllImport("user32.dll")]
-        private static extern IntPtr FindWindow(IntPtr lpClassName, string lpWindowName);
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
+        private static extern bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool CloseHandle(IntPtr handle);
-
-        /// <summary>
-        /// Closes a process by its name. 
-        /// Note that the process might not have closed yet when the method returns.
-        /// </summary>
-        /// <param name="windowName">The name of the process window.</param>
-        /// <exception cref="InvalidOperationException">If the process window was not found. 
-        /// This could be because the process has already closed.</exception>
-        /// <exception cref="Win32Exception">If Win32 PostMessage failed.</exception>
-        public static void CloseProcessByName(string windowName)
-        {
-            IntPtr hWnd = FindWindow(windowName);
-
-            if (hWnd == IntPtr.Zero)
-            {
-                throw new InvalidOperationException($"No \"{ windowName }\" window to close was found.");
-            }
-
-            if (!PostMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero))
-            {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-        }
-
-        /// <summary>
-        /// Finds a window by its name. 
-        /// See <a href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowa">
-        /// Win32 FindWindow</a>.
-        /// </summary>
-        /// <param name="windowName">The name of the window.</param>
-        /// <returns>The window handle, or <see cref="IntPtr.Zero"/> if it fails.</returns>
-        public static IntPtr FindWindow(string windowName)
-        {
-            return FindWindow(IntPtr.Zero, windowName);
-        }
+        private static extern bool CloseHandle(IntPtr handle);
+        #endregion
 
         /// <summary>
         /// Checks if a process has exited. Replaces <see cref="Process.HasExited"/>. 
@@ -80,29 +43,55 @@ namespace GlosSIIntegration.Models
         /// <exception cref="Win32Exception">If something went wrong...</exception>
         public static bool HasExitedSafe(this Process process)
         {
-            IntPtr hProcess = OpenProcess(ProcessAccessFlags.PROCESS_QUERY_LIMITED_INFORMATION, false, process.Id);
+            IntPtr hProcess = OpenProcess(ProcessAccessFlags.ProcessQueryLimitedInformation, false, process.Id);
 
             if (hProcess == null)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                throw new Win32Exception();
             }
 
             if (!GetExitCodeProcess(hProcess, out uint exitCode))
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                CloseHandle(hProcess);
+                throw new Win32Exception();
             }
 
             if (!CloseHandle(hProcess))
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                throw new Win32Exception();
             }
 
-            return exitCode != STILL_ACTIVE;
+            return exitCode != StillActiveExitCode;
         }
 
         // Method stolen from
         // https://github.com/microsoft/vs-threading/blob/main/src/Microsoft.VisualStudio.Threading/AwaitExtensions.cs
         // Changed to use HasExitedSafe() instead.
+        /* Original license:
+        Microsoft.VisualStudio.Threading
+        Copyright (c) Microsoft Corporation
+        All rights reserved. 
+
+        MIT License
+
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        */
         /// <summary>
         /// Returns a task that completes when the process exits and provides the exit code of that process.
         /// </summary>

@@ -7,23 +7,26 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using GlosSIIntegration.Models;
+using GlosSIIntegration.Models.GlosSITargets.Types;
+using GlosSIIntegration.Models.GlosSITargets.Files;
 
 namespace GlosSIIntegration
 {
-    public class ShortcutCreationViewModel : ObservableObject
+    internal class ShortcutCreationViewModel : ObservableObject
     {
-        private readonly Image iconPreview;
+        private Image iconPreview;
 
         private string shortcutName;
-        public string ShortcutName { 
-            get { return shortcutName; }
-            set { if (shortcutName == value) return; SetValue(ref shortcutName, value); }
+        public string ShortcutName
+        {
+            get => shortcutName;
+            set { if (shortcutName == value) { return; } SetValue(ref shortcutName, value); }
         }
 
         private string shortcutIconPath;
         public string ShortcutIconPath
         {
-            get { return shortcutIconPath; }
+            get => shortcutIconPath;
             set
             {
                 if (shortcutIconPath == value) return;
@@ -42,7 +45,7 @@ namespace GlosSIIntegration
                 try
                 {
                     iconPreview.Source = new BitmapImage(new Uri($"pack://application:,,,/" +
-                        $"{Assembly.GetExecutingAssembly()};component/Resources/DefaultSteamShortcutIcon.png"));
+                        $"{typeof(ShortcutCreationViewModel).Assembly};component/Resources/DefaultSteamShortcutIcon.png")); // TODO: Test! Before Assembly.GetExecutingAssembly()
                 }
                 catch (Exception e)
                 {
@@ -53,17 +56,59 @@ namespace GlosSIIntegration
             }
         }
 
+        private readonly Func<string, GlosSITarget> targetGetter;
+        private GlosSITarget createdTarget;
+
         /// <summary>
         /// Creates a new <c>ShortcutCreationViewModel</c> object.
         /// </summary>
         /// <param name="defaultName">The default name of the new Steam shortcut.</param>
         /// <param name="defaultIconPath">The default icon path of the new Steam shortcut.</param>
         /// <param name="previewIconImage">The image used to display the currently selected icon.</param>
-        public ShortcutCreationViewModel(string defaultName, string defaultIconPath, Image previewIconImage)
+        private ShortcutCreationViewModel(string defaultName, string defaultIconPath, Func<string, GlosSITarget> targetGetter)
         {
-            iconPreview = previewIconImage;
+            iconPreview = null;
+            createdTarget = null;
             ShortcutName = defaultName;
             ShortcutIconPath = defaultIconPath;
+            this.targetGetter = targetGetter;
+        }
+
+        public void SetIconPreview(Image previewIconImage)
+        {
+            if (iconPreview != null)
+            {
+                throw new InvalidOperationException("ShortcutCreationViewModel already has an icon preview.");
+            }
+
+            iconPreview = previewIconImage;
+        }
+
+        /// <summary>
+        /// Shows a shortcut creation dialog.
+        /// </summary>
+        /// <param name="defaultName">The default name of the new shortcut. 
+        /// Can be left as <c>null</c>.</param>
+        /// <param name="defaultIconPath">The path to the default icon of the new shortcut. 
+        /// Can be left as <c>null</c>.</param>
+        /// <returns>The name of the created shortcut; <c>null</c> if no shortcut was created.</returns>
+        public static T ShowDialog<T>(string defaultName, string defaultIconPath, Func<string, T> targetGetter) where T : GlosSITarget
+        {
+            ShortcutCreationViewModel viewModel = new ShortcutCreationViewModel(defaultName, defaultIconPath, targetGetter);
+            ShortcutCreationView shortcutCreationView = new ShortcutCreationView(viewModel);
+            Window dialogWindow = API.Instance.Dialogs.CreateWindow(new WindowCreationOptions
+            {
+                ShowCloseButton = true,
+                ShowMaximizeButton = true,
+                ShowMinimizeButton = true
+            });
+
+            dialogWindow.Content = shortcutCreationView;
+            dialogWindow.Title = ResourceProvider.GetString("LOC_GI_ShortcutCreationWindowTitle");
+            dialogWindow.SizeToContent = SizeToContent.WidthAndHeight;
+
+            dialogWindow.ShowDialog();
+            return (T)viewModel.createdTarget;
         }
 
         public RelayCommand<object> BrowseIcon
@@ -90,7 +135,7 @@ namespace GlosSIIntegration
                 return false;
             }
 
-            if (GlosSITargetFile.HasJsonFile(ShortcutName))
+            if (new GlosSITargetFileInfo(ShortcutName).Exists())
             {
                 // TODO: Give the user the choice to use the already existing GlosSI target file instead.
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutTargetAlreadyExistsError"));
@@ -174,8 +219,15 @@ namespace GlosSIIntegration
             {
                 try
                 {
-                    GlosSITargetFile target = new GlosSITargetFile(ShortcutName, ShortcutIconPath);
-                    target.Create();
+                    GlosSITarget target = targetGetter(ShortcutName);
+                    if (target.File.Create(ShortcutIconPath))
+                    {
+                        createdTarget = target;
+                    }
+                    else
+                    {
+                        // TODO: Do something about this?
+                    }
                     return true;
                 }
                 catch (GlosSITargetFile.UnsupportedCharacterException)
@@ -183,7 +235,7 @@ namespace GlosSIIntegration
                     GlosSIIntegration.WarnUnsupportedCharacters(
                         ResourceProvider.GetString("LOC_GI_ShortcutUnsupportedCharacterError"), MessageBoxImage.Error);
                 }
-                catch (GlosSITargetFile.UnexpectedGlosSIBehaviour)
+                catch (GlosSITargetFile.UnexpectedGlosSIBehaviourException)
                 {
                     LogManager.GetLogger().Error($"Creating shortcut \"{ShortcutName}\" " +
                         $"with icon path \"{ShortcutIconPath}\" lead to UnexpectedGlosSIBehaviour.");

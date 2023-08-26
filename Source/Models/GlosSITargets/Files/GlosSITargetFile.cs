@@ -1,59 +1,40 @@
-﻿using Playnite.SDK.Models;
-using System.IO;
+﻿using System.IO;
 using System.Diagnostics;
 using System;
 using System.Text.RegularExpressions;
 using Playnite.SDK;
 using System.Linq;
 using System.Collections.Generic;
+using GlosSIIntegration.Models.GlosSITargets.Types;
 
-namespace GlosSIIntegration.Models
+namespace GlosSIIntegration.Models.GlosSITargets.Files
 {
     /// <summary>
     /// Represents a GlosSI target file.
     /// </summary>
-    class GlosSITargetFile
+    internal class GlosSITargetFile : GlosSITargetFileInfo
     {
-        private readonly Game game;
-        private readonly bool isPlayniteGame;
-        /// <summary>
-        /// The filename of the .json GlosSITarget profile, without the extension.
-        /// </summary>
-        private readonly string jsonFileName;
+        private readonly GlosSITarget target;
 
+        // TODO: Increase version requirement and remove everything related to this exception.
         public class UnsupportedCharacterException : Exception { }
-        public class UnexpectedGlosSIBehaviour : Exception { }
-
-        /// <summary>
-        /// Creates a <c>GlosSITargetFile</c> object from a Playnite <see cref="Game"/>.
-        /// </summary>
-        /// <param name="playniteGame">The Playnite game.</param>
-        /// <exception cref="ArgumentException">If the name of the game is null.</exception>
-        public GlosSITargetFile(Game playniteGame)
+        public class UnexpectedGlosSIBehaviourException : Exception { }
+        public class TargetNameMissingException : Exception
         {
-            game = playniteGame;
-            if (game.Name == null) throw new ArgumentException("The name of the game is null.");
-            jsonFileName = RemoveIllegalFileNameChars(playniteGame.Name);
-            isPlayniteGame = true;
+            public TargetNameMissingException() : base("The name of the target is missing.") { }
+        }
+        public class TargetNameMismatchException : Exception
+        {
+            public string ActualName { get; }
+            public TargetNameMismatchException(string actualName)
+            {
+                ActualName = actualName;
+            }
         }
 
-        /// <summary>
-        /// Creates a <c>GlosSITargetFile</c> object from a name and a path to an icon.
-        /// </summary>
-        /// <param name="name">The name of the shortcut.</param>
-        /// <param name="iconPath">A path to the icon of the shortcut. The path can be <c>null</c>.</param>
-        /// <exception cref="ArgumentNullException">If the name is null.</exception>
-        public GlosSITargetFile(string name, string iconPath)
+        public GlosSITargetFile(GlosSITarget target) : base(target.Name)
         {
-            if (name == null) throw new ArgumentNullException("name");
-
-            game = new Game()
-            {
-                Name = name,
-                Icon = iconPath
-            };
-            jsonFileName = RemoveIllegalFileNameChars(name);
-            isPlayniteGame = false;
+            this.target = target;
         }
 
         /// <summary>
@@ -62,14 +43,14 @@ namespace GlosSIIntegration.Models
         /// </summary>
         /// <exception cref="UnsupportedCharacterException">If the name of the game or 
         /// its full icon path contains unsupported characters.</exception>
-        private void VerifyGameCharacters()
+        private void VerifyTargetCharacters(string iconPath)
         {
             // Non-ASCII characters are not supported if the GlosSI version is <= 0.0.7.0.
-            if ((IsNotAscii(game.Name) || IsNotAscii(GetGameIconPath())) &&
+            if ((IsNotAscii(Name) || IsNotAscii(iconPath)) &&
                 (GlosSIIntegration.GetSettings().GlosSIVersion == null ||
                 GlosSIIntegration.GetSettings().GlosSIVersion <= new Version("0.0.7.0")))
             {
-                LogManager.GetLogger().Warn($"Game \"{game.Name}\" skipped due to non-ASCII characters. GlosSI version: " +
+                LogManager.GetLogger().Warn($"Game \"{target.Name}\" skipped due to non-ASCII characters. GlosSI version: " +
                     GlosSIIntegration.GetSettings().GlosSIVersion);
                 throw new UnsupportedCharacterException();
             }
@@ -80,105 +61,64 @@ namespace GlosSIIntegration.Models
         /// </summary>
         /// <param name="str">The string to be checked.</param>
         /// <returns>true if the string contains a non-ASCII character; false otherwise.</returns>
-        private bool IsNotAscii(string str)
+        private static bool IsNotAscii(string str)
         {
             if (string.IsNullOrEmpty(str)) return false;
 
             return str.Any(c => c > 127);
         }
 
-        public static string RemoveIllegalFileNameChars(string filename)
-        {
-            return string.Concat(filename.Split(Path.GetInvalidFileNameChars()));
-        }
-
         /// <summary>
         /// Creates a GlosSITarget and Steam shortcut for a game, using the default .json structure.
         /// Already integrated games and games tagged for ignoring are ignored.
         /// </summary>
-        /// <returns>true if the GlosSITarget was created; false if the game was ignored.</returns>
+        /// <param name="iconPath">A path to the icon of the shortcut. The path can be <c>null</c> for no icon.</param>
+        /// <returns>true if the GlosSITarget was created; false if creation was ignored.</returns>
         /// <exception cref="FileNotFoundException">If the default target json-file could not be found.</exception>
         /// <exception cref="DirectoryNotFoundException">If the glosSITargetsPath directory could not be found.</exception>
-        /// <exception cref="UnsupportedCharacterException"><see cref="VerifyGameCharacters"/></exception>
-        public bool Create()
+        /// <exception cref="UnsupportedCharacterException"><see cref="VerifyTargetCharacters"/></exception>
+        public virtual bool Create(string iconPath)
         {
-            if (GlosSIIntegration.GameHasIgnoredTag(game) ||
-                GlosSIIntegration.GameHasIntegratedTag(game)) return false;
-
-            VerifyGameCharacters();
-            SaveAsJsonTarget();
+            VerifyTargetCharacters(iconPath);
+            SaveAsJsonTarget(iconPath);
             SaveToSteamShortcuts();
-            if (isPlayniteGame) GlosSIIntegration.AddTagToGame(GlosSIIntegration.LOC_INTEGRATED_TAG, game);
             return true;
         }
 
-        private void SaveAsJsonTarget()
+        public virtual bool Create()
+        {
+            return Create(null);
+        }
+
+        private void SaveAsJsonTarget(string iconPath)
         {
             GlosSITargetSettings settings = GlosSITargetSettings.ReadFrom(
                 GlosSIIntegration.GetSettings().DefaultTargetPath);
 
-            settings.Name = game.Name;
-            settings.Icon = GetGameIconPath();
-            settings.Launch = new GlosSITargetSettings.LaunchOptions();
+            settings.Name = target.Name;
+            settings.Icon = iconPath;
+            settings.Launch = target.GetPreferredLaunchOptions();
 
-            // TODO: Send a warning message if there already exists a .json file with the same filename.
+            // TODO: Send a warning message if there already exists a .json file with the same filename. Or even better, permit name conflicts.
             // There is a risk that two different games with different game names have the same filename after illegal characters are removed.
             // There is also a risk that the user already made a GlosSI profile for a game without using this plugin.
-            settings.WriteTo(GetJsonFilePath());
-        }
-
-        /// <summary>
-        /// Gets the path to the icon of the game.
-        /// </summary>
-        /// <returns>The absolute path to the icon of the game, or <c>null</c> if it has no icon.</returns>
-        private string GetGameIconPath()
-        {
-            if (string.IsNullOrEmpty(game.Icon)) return null;
-
-            if (isPlayniteGame)
-            {
-                return Path.Combine(GlosSIIntegration.Api.Paths.ConfigurationPath, @"library\files\", game.Icon);
-            }
-            else
-            {
-                return game.Icon;
-            }
-        }
-
-        /// <summary>
-        /// Gets the path to the .json with the supplied name.
-        /// </summary>
-        /// <param name="jsonFileName">The name of the .json file.</param>
-        /// <returns>The path to the .json file.</returns>
-        public static string GetJsonFilePath(string jsonFileName)
-        {
-            return Path.Combine(GlosSIIntegration.GetSettings().GlosSITargetsPath, jsonFileName + ".json");
-        }
-
-        private string GetJsonFilePath()
-        {
-            return GetJsonFilePath(jsonFileName);
-        }
-
-        /// <summary>
-        /// Checks if this object has a corresponding .json file.
-        /// The actual name stored inside the .json file is not compared.
-        /// </summary>
-        /// <returns>true if the target has a corresponding .json file; false otherwise.</returns>
-        private bool HasJsonFile()
-        {
-            return File.Exists(GetJsonFilePath());
-        }
-
-        /// <summary>
-        /// Checks if there exists a .json file that corresponds to the entered name 
-        /// when illegal file name characters have been removed.
-        /// The actual name stored inside the .json file is not compared.
-        /// </summary>
-        /// <returns>true if the name has a corresponding .json file; false otherwise.</returns>
-        public static bool HasJsonFile(string gameName)
-        {
-            return File.Exists(GetJsonFilePath(RemoveIllegalFileNameChars(gameName)));
+            // And there is a risk that two different games have exactly the same name,
+            // or that the user may already have a GlosSI shortcut with the same name.
+            //
+            // In theory, name conflicts can be resolved by
+            // 1) Ensuring that target file names are unique.
+            // Either by for example namining them based on the database id of the game,
+            // or by placing them in different directories when conflicts arise.
+            // GlosSI has to support it however.
+            // 2) Ensuring that Steam IDs are unique.
+            // When calculating Steam IDs, only the name of the shortcut and the path of the shortcut makes a difference
+            // (command line arguments are ignored).
+            // The name should be up to the user.
+            // Although the paths must point to the same GlosSITarget.exe, the string path itself could possibly differ.
+            // For example, by writing "dir\..\dir" as many times as necessary for a unique path.
+            // One could alternatively simply make use of different letter case,
+            // although that assumes that letter case makes no difference in file paths (which is a very reasonable assumption to make on Windows).
+            settings.WriteTo(FullPath);
         }
 
         /// <summary>
@@ -186,28 +126,57 @@ namespace GlosSIIntegration.Models
         /// This removes the game's integrated tag, GlosSITarget and entry in Steam shortcuts.vdf file.
         /// </summary>
         /// <returns>true if the integration was removed; false if it was nonexistent to begin with.</returns>
-        /// <exception cref="UnsupportedCharacterException"><see cref="VerifyGameCharacters"/></exception>
-        public bool Remove()
+        /// <exception cref="UnsupportedCharacterException"><see cref="VerifyTargetCharacters"/></exception>
+        public virtual bool Remove()
         {
-            if (!isPlayniteGame || GlosSIIntegration.GameHasIntegratedTag(game))
+            if (File.Exists(FullPath))
             {
-                VerifyGameCharacters();
-
-                if (isPlayniteGame)
-                {
-                    GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.LOC_INTEGRATED_TAG, game);
-                    GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.SRC_INTEGRATED_TAG, game);
-                }
-                if (HasJsonFile())
-                {
-                    RemoveFromSteamShortcuts();
-                    File.Delete(GetJsonFilePath());
-                }
+                VerifyTargetCharacters(null);
+                RemoveFromSteamShortcuts();
+                File.Delete(FullPath);
                 return true;
             }
-            else
+            return false;
+        }
+
+        /// <summary>
+        /// Validates the contents of the file to ensure that the configured settings work with the extension.
+        /// If necessary, updates the required settings.
+        /// </summary>
+        /// <exception cref="FileNotFoundException">If the file could not be found.</exception>
+        /// <exception cref="TargetNameMissingException">If the name of the shortcut in the file is missing or empty.</exception>
+        /// <exception cref="TargetNameMismatchException">If the name of the shortcut in the file does not correspond 
+        /// to the name of this <see cref="GlosSITargetFile"/> instance. This condition is check last: 
+        /// if this exception is thrown everything else passed.</exception>
+        public virtual void Validate()
+        {
+            if (!File.Exists(FullPath)) throw new FileNotFoundException();
+
+            GlosSITargetSettings targetSettings;
+
+            targetSettings = GlosSITargetSettings.ReadFrom(FullPath);
+
+            string actualName = targetSettings.Name;
+
+            if (string.IsNullOrEmpty(actualName))
             {
-                return false;
+                throw new TargetNameMissingException();
+            }
+
+            GlosSITargetSettings.LaunchOptions targetLaunchOptions = target.GetPreferredLaunchOptions();
+
+            // Note: This will currently also reset the launch property. Should not be a problem though.
+            if (!targetLaunchOptions.IsEveryPropertyEqual(targetSettings.Launch))
+            {
+                LogManager.GetLogger().Debug($"\"{target.Name}\" target launch options updated from:\n" +
+                    $"{targetSettings.Launch}\nto:\n{targetLaunchOptions}");
+                targetSettings.Launch = targetLaunchOptions;
+                targetSettings.WriteTo();
+            }
+
+            if (actualName != target.Name)
+            {
+                throw new TargetNameMismatchException(actualName);
             }
         }
 
@@ -218,26 +187,13 @@ namespace GlosSIIntegration.Models
         /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
         private void SaveToSteamShortcuts()
         {
-            SaveToSteamShortcuts(jsonFileName);
-        }
-
-        /// <summary>
-        /// Saves a GlosSITarget profile to Steam. 
-        /// A restart of Steam is required for these changes to take effect.
-        /// </summary>
-        /// <param name="jsonFileName">The file name of the .json target file to be added to Steam.</param>
-        /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
-        public static void SaveToSteamShortcuts(string jsonFileName)
-        {
-            // When adding, GlosSI takes the game name without illegal file name characters.
-            RunGlosSIConfigWithArguments("add", "\"" + jsonFileName + "\"");
+            RunGlosSIConfigWithArguments("add", Name);
         }
 
         /// <summary>
         /// Removes the GlosSITarget profile to Steam. 
         /// A restart of Steam is required for these changes to take effect.
         /// </summary>
-        /// <exception cref="Exception">If starting GlosSIConfig failed.</exception>
         private void RemoveFromSteamShortcuts()
         {
             // TODO: There is a risk that the user changes the name of the game.
@@ -245,7 +201,7 @@ namespace GlosSIIntegration.Models
             // There will have to be a way to identify which json file belongs to which game though.
 
             // When removing, GlosSI takes the game name with all characters, including illegal file name characters.
-            RunGlosSIConfigWithArguments("remove", GetCommandLineArgumentSafeString(game.Name));
+            RunGlosSIConfigWithArguments("remove", target.Name);
         }
 
         private static string GetCommandLineArgumentSafeString(string str)
@@ -263,6 +219,7 @@ namespace GlosSIIntegration.Models
         /// <param name="targetArgument">The second argument, corresponding to a GlosSI target .json file.</param>
         private static void RunGlosSIConfigWithArguments(string initialArgument, string targetArgument)
         {
+            targetArgument = GetCommandLineArgumentSafeString(targetArgument);
             string initialContents = File.ReadAllText(GlosSIIntegration.GetSettings().SteamShortcutsPath);
             string arguments = $"{initialArgument} {targetArgument} \"{GlosSIIntegration.GetSettings().SteamShortcutsPath}\"";
 
@@ -288,6 +245,8 @@ namespace GlosSIIntegration.Models
             VerifyShortcutModification(initialContents, arguments);
         }
 
+        // TODO: Try to figure out why the problem occurs in the first place.
+        // Probably happens when the shortcuts.vdf file becomes to big.
         /// <summary>
         /// Verifes that GlosSIConfig doesn't modify more than one shortcut in shortcuts.vdf.
         /// The content of the file is reverted to <paramref name="initialContents"/> if the verification fails.
@@ -295,7 +254,7 @@ namespace GlosSIIntegration.Models
         /// <param name="initialContents">The initial shortcuts.vdf contents before the modification.</param>
         /// <param name="arguments">The arguments used to modifiy shortcuts.vdf with GlosSIConfig. 
         /// Only used for logging.</param>
-        /// <exception cref="UnexpectedGlosSIBehaviour">If the verification failed.</exception>
+        /// <exception cref="UnexpectedGlosSIBehaviourException">If the verification failed.</exception>
         private static void VerifyShortcutModification(string initialContents, string arguments)
         {
             string newContents = File.ReadAllText(GlosSIIntegration.GetSettings().SteamShortcutsPath);
@@ -319,9 +278,9 @@ namespace GlosSIIntegration.Models
                 }
 
                 // Revert shortcuts.vdf file.
-                File.WriteAllText(GlosSIIntegration.GetSettings().SteamShortcutsPath, initialContents);
+                File.WriteAllText(GlosSIIntegration.GetSettings().SteamShortcutsPath, initialContents); // TODO: This does not help.
 
-                throw new UnexpectedGlosSIBehaviour();
+                throw new UnexpectedGlosSIBehaviourException();
             }
             else if (shortcutCountDiff == 0)
             {

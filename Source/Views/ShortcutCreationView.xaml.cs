@@ -11,41 +11,11 @@ namespace GlosSIIntegration
     {
         private readonly ShortcutCreationViewModel shortcutCreationModel;
 
-        /// <summary>
-        /// Shows a shortcut creation dialog.
-        /// </summary>
-        /// <param name="defaultName">The default name of the new shortcut. 
-        /// Can be left as <c>null</c>.</param>
-        /// <param name="defaultIconPath">The path to the default icon of the new shortcut. 
-        /// Can be left as <c>null</c>.</param>
-        /// <returns>The name of the created shortcut; <c>null</c> if no shortcut was created.</returns>
-        public static string ShowDialog(string defaultName, string defaultIconPath)
-        {
-            Window dialogWindow = API.Instance.Dialogs.CreateWindow(new WindowCreationOptions
-            {
-                ShowCloseButton = true,
-                ShowMaximizeButton = true,
-                ShowMinimizeButton = true
-            });
-            ShortcutCreationView shortcutCreationView = new ShortcutCreationView(defaultName, defaultIconPath);
-            dialogWindow.Content = shortcutCreationView;
-            dialogWindow.Title = ResourceProvider.GetString("LOC_GI_ShortcutCreationWindowTitle");
-            dialogWindow.SizeToContent = SizeToContent.WidthAndHeight;
-
-            if (dialogWindow.ShowDialog() == true)
-            {
-                return shortcutCreationView.shortcutCreationModel.ShortcutName;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        private ShortcutCreationView(string defaultName, string defaultIconPath)
+        internal ShortcutCreationView(ShortcutCreationViewModel viewModel)
         {
             InitializeComponent();
-            shortcutCreationModel = new ShortcutCreationViewModel(defaultName, defaultIconPath, IconPreview);
+            viewModel.SetIconPreview(IconPreview);
+            shortcutCreationModel = viewModel;
             DataContext = shortcutCreationModel;
         }
 

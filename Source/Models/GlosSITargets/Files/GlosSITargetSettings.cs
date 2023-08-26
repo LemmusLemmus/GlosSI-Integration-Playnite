@@ -3,14 +3,17 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace GlosSIIntegration.Models
+namespace GlosSIIntegration.Models.GlosSITargets.Files
 {
-    // See https://github.com/Alia5/GlosSI/blob/main/GlosSITarget/Settings.h
     /// <summary>
     /// Represents the GlosSI target settings.
+    /// <para>
+    /// See GlosSI <a href="https://github.com/Alia5/GlosSI/blob/main/GlosSITarget/Settings.h">Settings.h</a> 
+    /// </para>
     /// </summary>
     internal class GlosSITargetSettings
     {
@@ -52,28 +55,13 @@ namespace GlosSIIntegration.Models
 
         private GlosSITargetSettings(JObject jObj) : this(jObj, null)
         {
-            originalFilePath = GetFilePathFromName(Name);
-        }
-
-        private static string GetFilePathFromName(string name)
-        {
-            return GlosSITargetFile.GetJsonFilePath(GlosSITargetFile.RemoveIllegalFileNameChars(name));
-        }
-
-        public static async Task<GlosSITargetSettings> ReadFromAsync(GlosSISteamShortcut steamShortcut)
-        {
-            return await ReadFromAsync(GetFilePathFromName(steamShortcut.Name)).ConfigureAwait(false);
+            originalFilePath = new GlosSITargetFileInfo(Name).FullPath;
         }
 
         public static async Task<GlosSITargetSettings> ReadFromAsync(string filePath)
         {
             return new GlosSITargetSettings(
                 await JsonExtensions.ReadFromFileAsync(filePath).ConfigureAwait(false), filePath);
-        }
-
-        public static GlosSITargetSettings ReadFrom(GlosSISteamShortcut steamShortcut)
-        {
-            return ReadFrom(GetFilePathFromName(steamShortcut.Name));
         }
 
         public static GlosSITargetSettings ReadFrom(string filePath)
@@ -112,7 +100,7 @@ namespace GlosSIIntegration.Models
         /// Get the settings of the currently running GlosSITarget process.
         /// If GlosSITarget is not currently running, a <see cref="HttpRequestException"/> will be thrown.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The settings object.</returns>
         /// <exception cref="HttpRequestException">If, among other things, GlosSITarget is 
         /// not currently running.</exception>
         public static async Task<GlosSITargetSettings> ReadCurrent()
@@ -128,7 +116,7 @@ namespace GlosSIIntegration.Models
         }
 
         /// <summary>
-        /// Represents the launch options available to a GlosSI target. 
+        /// Represents the launch options available to a GlosSI target.
         /// </summary>
         public class LaunchOptions // Includes every property as of GlosSI version 0.1.2.0.
         {
@@ -169,6 +157,24 @@ namespace GlosSIIntegration.Models
                 IgnoreLauncher = true;
                 KillLauncher = false;
                 LauncherProcesses = new List<string>();
+            }
+
+            public bool IsEveryPropertyEqual(LaunchOptions other)
+            {
+                return Launch == other.Launch
+                    && LaunchPath == other.LaunchPath
+                    && LaunchAppArgs == other.LaunchAppArgs
+                    && CloseOnExit == other.CloseOnExit
+                    && WaitForChildProcs == other.WaitForChildProcs
+                    && IsUWP == other.IsUWP
+                    && IgnoreLauncher == other.IgnoreLauncher
+                    && KillLauncher == other.KillLauncher
+                    && (
+                        LauncherProcesses == other.LauncherProcesses 
+                        || LauncherProcesses != null 
+                        && other.LauncherProcesses != null 
+                        && LauncherProcesses.SequenceEqual(other.LauncherProcesses)
+                    );
             }
 
             public override string ToString()

@@ -3,10 +3,14 @@
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using System;
+using System.Threading.Tasks;
+using System.Windows;
+using GlosSIIntegration.Models.SteamLauncher;
+using GlosSIIntegration.Models.Overlays.Types;
 
-namespace GlosSIIntegration.Models
+namespace GlosSIIntegration.Models.Overlays
 {
-    class OverlaySwitchingDecisionMaker
+    internal class OverlaySwitchingDecisionMaker
     {
         private static readonly ILogger logger = LogManager.GetLogger();
 
@@ -30,19 +34,25 @@ namespace GlosSIIntegration.Models
             GlosSIIntegration.Instance.GameStoppedEvent += (e) => GameStopped(e.Game);
             GlosSIIntegration.Instance.GameStartupCancelledEvent += (e) => GameStartupCancelled(e.Game);
             GlosSIIntegration.Instance.IntegrationToggledEvent += ToggleOverlay;
-            GlosSIIntegration.Instance.ApplicationStoppedEvent += (e) => 
+            GlosSIIntegration.Instance.ApplicationStoppedEvent += (e) =>
             {
                 relevantGameOverlay?.Dispose();
-                OverlaySwitchingCoordinator.Instance.ScheduleClose();
-                OverlaySwitchingCoordinator.Instance.Wait();
+                RunBlocking(OverlaySwitchingCoordinator.Instance.Exit);
             };
-
-            // Start the Playnite overlay, if there is one.
-            PlayniteOverlay playniteOverlay = PlayniteOverlay.Create();
-            if (playniteOverlay != null)
+            GlosSIIntegration.Instance.ApplicationStartedEvent += (e) =>
             {
-                TryScheduleSwitchTo(playniteOverlay);
-            }
+                // Start the Playnite overlay, if there is one.
+                PlayniteOverlay playniteOverlay = PlayniteOverlay.Create();
+                if (playniteOverlay != null)
+                {
+                    TryStartOverlay(playniteOverlay);
+                }
+            };
+        }
+
+        private static void RunBlocking(Func<Task> function)
+        {
+            Task.Run(function).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -56,6 +66,7 @@ namespace GlosSIIntegration.Models
             if (relevantGameOverlay != null)
             {
 #if REPLACE_EXISTING_GAME_OVERLAY
+                // TODO: Update wiki https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki/Limitations#running-multiple-games-simultaneously
                 logger.Debug($"Started game \"{game.Name}\" while another game with overlay is running. " +
                     $"Replacing the previous overlay...");
 #else
@@ -69,7 +80,16 @@ namespace GlosSIIntegration.Models
             // relevantGameOverlay is updated even if the integration is disabled,
             // since it is used by ToggleOverlay(bool).
             relevantGameOverlay = GameOverlay.Create(game);
-            TryScheduleSwitchTo(relevantGameOverlay);
+            if (GlosSIIntegration.Instance.IntegrationEnabled)
+            {
+                RunBlocking(async () =>
+                {
+                    await TryScheduleSwitchTo(relevantGameOverlay).ConfigureAwait(false);
+                    // It is neccessary to wait in order to avoid overlay starting/closing from stealing focus momentarily.
+                    // Momentary focus loss would be fine when in Playnite, but not when in-game.
+                    await OverlaySwitchingCoordinator.Instance.AwaitTask().ConfigureAwait(false);
+                });
+            }
         }
 
         /// <summary>
@@ -114,7 +134,7 @@ namespace GlosSIIntegration.Models
             // Even if another game is currently running, one can assume that the user has changed
             // their attention away from the game.
             // Either way, such a situation is improbable.
-            ReturnOverlayToPlaynite();
+            ReturnToPlaynite();
         }
 
         /// <summary>
@@ -132,18 +152,92 @@ namespace GlosSIIntegration.Models
                 return;
             }
 
-            ReturnOverlayToPlaynite();
+            if (WasStartedFromSteam(relevantGameOverlay))
+            {
+                ReturnToSteam();
+            }
+            else
+            {
+                ReturnToPlaynite();
+            }
+        }
+
+        /// <summary>
+        /// Checks if an overlay was started from Steam and not this extension.
+        /// <para>
+        /// WARNING: The overlay must have started before this method is called.
+        /// Otherwise old or non-existent data could be used!
+        /// </para>
+        /// </summary>
+        /// <param name="overlay">The overlay to check if it was started from Steam.</param>
+        /// <returns>true if the overlay was started from steam; false otherwise
+        /// Also returns false if <paramref name="overlay"/> is <c>null</c>.</returns>
+        private bool WasStartedFromSteam(Overlay overlay)
+        {
+            if (overlay == null)
+            {
+                return false;
+            }
+
+            if (relevantGameOverlay != null)
+            {
+                lock (relevantGameOverlay.stateLock)
+                {
+                    if (!relevantGameOverlay.State.StartedByExtension)
+                    {
+                        // Presumably started via Steam.
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private void ReturnToSteam()
+        {
+            if (Steam.Mode is SteamBigPictureMode mode)
+            {
+                // Return to Steam Big Picture mode as fast as possible.
+                // Makes the transition prettier by showing Playnite momentarily as opposed to for several seconds.
+                mode.MainWindow.Show();
+            }
+            // If the game was started from Steam desktop mode,
+            // no need to show the window: Steam normally does not focus it.
+
+            // TODO: Would be better if could prevent Playnite from maximizing in the first place,
+            // especially since it also causes the taskbar to flash.
+            Application.Current.MainWindow.WindowState = WindowState.Minimized;
+
+            if (relevantGameOverlay != null) // There is nothing to close if there is no game overlay.
+            {
+                relevantGameOverlay.Dispose();
+                relevantGameOverlay = null;
+                CloseCurrentOverlay();
+            }
         }
 
         /// <summary>
         /// Switches the overlay in response to the user returning to the Playnite library.
         /// Switches to the Playnite overlay if there is one, otherwise closes any running overlay.
         /// </summary>
-        private void ReturnOverlayToPlaynite()
+        private void ReturnToPlaynite()
         {
-            TryScheduleSwitchTo(PlayniteOverlay.Create());
-            relevantGameOverlay?.Dispose();
-            relevantGameOverlay = null;
+            PlayniteOverlay playniteOverlay = PlayniteOverlay.Create();
+
+            if (playniteOverlay != null)
+            {
+                TryStartOverlay(playniteOverlay);
+            }
+            else if (relevantGameOverlay != null) // There is nothing to close if there is no game overlay.
+            {
+                CloseCurrentOverlay();
+            }
+
+            if (relevantGameOverlay != null)
+            {
+                relevantGameOverlay.Dispose();
+                relevantGameOverlay = null;
+            }
         }
 
         /// <summary>
@@ -157,7 +251,7 @@ namespace GlosSIIntegration.Models
                 if (relevantGameOverlay != null)
                 {
                     logger.Debug("Steam Overlay launched while in-game.");
-                    TryScheduleSwitchTo(relevantGameOverlay);
+                    TryStartOverlay(relevantGameOverlay);
                 }
                 else
                 {
@@ -170,26 +264,56 @@ namespace GlosSIIntegration.Models
                     PlayniteOverlay playniteOverlay = PlayniteOverlay.Create();
                     if (playniteOverlay != null)
                     {
-                        TryScheduleSwitchTo(playniteOverlay);
+                        TryStartOverlay(playniteOverlay);
                     }
                 }
             }
             else
             {
-                OverlaySwitchingCoordinator.Instance.ScheduleClose();
+                RunBlocking(async () =>
+                {
+                    await OverlaySwitchingCoordinator.Instance.ScheduleClose(false).ConfigureAwait(false);
+                });
             }
         }
 
-        private static void TryScheduleSwitchTo(Overlay overlay)
+        private static void TryStartOverlay(Overlay overlay)
+        {
+            if (GlosSIIntegration.Instance.IntegrationEnabled)
+            {
+                RunBlocking(async () =>
+                {
+                    await TryScheduleSwitchTo(overlay).ConfigureAwait(false);
+                });
+            }
+        }
+
+        private static void CloseCurrentOverlay()
+        {
+            RunBlocking(async () =>
+            {
+                await OverlaySwitchingCoordinator.Instance.ScheduleClose(true).ConfigureAwait(false);
+            });
+        }
+
+        private static async Task TryScheduleSwitchTo(Overlay overlay)
         {
             try
             {
-                OverlaySwitchingCoordinator.Instance.ScheduleSwitchTo(overlay);
+                await OverlaySwitchingCoordinator.Instance.ScheduleSwitchTo(overlay).ConfigureAwait(false);
+
+                if (overlay is GameOverlay)
+                {
+                    // If a game is running when the overlay starts
+                    // (or potentially when Steam focus loss is combated, see SteamBigPictureMode.PreventFocusTheft() for details),
+                    // the game may lose focus. Avoid this by ensuring that the game overlay has finished starting.
+                    await OverlaySwitchingCoordinator.Instance.AwaitTask().ConfigureAwait(false);
+                }
             }
             catch (InvalidOperationException ex)
             {
                 logger.Error(ex, "Failed to switch overlay! Closing any existing overlay instead.");
-                OverlaySwitchingCoordinator.Instance.ScheduleClose();
+                await OverlaySwitchingCoordinator.Instance.ScheduleClose(true).ConfigureAwait(false);
             }
         }
     }

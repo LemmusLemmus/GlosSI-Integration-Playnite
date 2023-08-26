@@ -14,7 +14,9 @@ namespace GlosSIIntegration
         private string glosSIPath = null;
         private readonly string glosSITargetsPath = Environment.ExpandEnvironmentVariables(@"%appdata%\GlosSI\Targets");
         private string steamShortcutsPath = null;
-        private string defaultTargetPath = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(), "DefaultTarget.json");
+        private readonly string defaultTargetPath = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(), "DefaultTarget.json");
+        private readonly string startPlayniteFromGlosSIScriptPath = Path.Combine(Path.GetDirectoryName(typeof(GlosSIIntegrationSettings).Assembly.Location),
+            @"Scripts\StartPlayniteFromGlosSI.vbs");
         private string playniteOverlayName = null;
         private bool usePlayniteOverlay = false;
         private bool useIntegrationFullscreen = true;
@@ -24,8 +26,12 @@ namespace GlosSIIntegration
         private Version glosSIVersion = null;
 
         public bool CloseGameWhenOverlayIsClosed { get => closeGameWhenOverlayIsClosed; set => SetValue(ref closeGameWhenOverlayIsClosed, value); }
-        // Setting GlosSIPath also updates the current GlosSIVersion.
-        public string GlosSIPath { get => glosSIPath; set { if (value != glosSIPath) glosSIVersion = null; SetValue(ref glosSIPath, value); } }
+        // TODO: Rename to GlosSIFolderPath or GlosSIDirectory?
+        /// <summary>
+        /// The path to the GlosSI folder containing <c>GlosSIConfig.exe</c> and <c>GlosSITarget.exe</c>.
+        /// Setting GlosSIPath also updates the current GlosSIVersion.
+        /// </summary>
+        public string GlosSIPath { get => glosSIPath; set { if (value != glosSIPath) { glosSIVersion = null; } SetValue(ref glosSIPath, value); } }
         public string SteamShortcutsPath { get => steamShortcutsPath; set => SetValue(ref steamShortcutsPath, value); }
         public string PlayniteOverlayName { get => playniteOverlayName; set => SetValue(ref playniteOverlayName, value); }
         public bool UsePlayniteOverlay { get => usePlayniteOverlay; set => SetValue(ref usePlayniteOverlay, value); }
@@ -34,10 +40,15 @@ namespace GlosSIIntegration
         public bool UseDefaultOverlay { get => useDefaultOverlay; set => SetValue(ref useDefaultOverlay, value); }
         public string DefaultOverlayName { get => defaultOverlayName; set => SetValue(ref defaultOverlayName, value); }
 
+        /// <summary>
+        /// Read-only and therefore thread-safe.
+        /// </summary>
         [DontSerialize]
         public string GlosSITargetsPath { get => glosSITargetsPath; }
         [DontSerialize]
-        public string DefaultTargetPath { get => GetDefaultTargetPath(); set => defaultTargetPath = value; }
+        public string StartPlayniteFromGlosSIScriptPath { get => startPlayniteFromGlosSIScriptPath; }
+        [DontSerialize]
+        public string DefaultTargetPath { get => GetDefaultTargetPath(); }
         [DontSerialize]
         public Version GlosSIVersion { get => GetGlosSIVersion(); set => glosSIVersion = value; }
 
@@ -74,7 +85,7 @@ namespace GlosSIIntegration
             }
             catch (Exception e)
             {
-                RethrowException(e, "LOC_GI_CreateDefaultTargetFileUnexpectedError");
+                RethrowException(e, "LOC_GI_CreateDefaultTargetFileUnexpectedError"); // TODO: Unnecessary localized string?
             }
 
             return defaultTargetPath;

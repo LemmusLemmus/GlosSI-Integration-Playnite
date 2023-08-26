@@ -24,7 +24,7 @@
 
 using System;
 
-namespace GlosSIIntegration.Models
+namespace GlosSIIntegration.Models.GlosSITargets.Shortcuts
 {
     /// <summary>
     /// A base class for CRC routines.
@@ -61,7 +61,7 @@ namespace GlosSIIntegration.Models
                 uint bit = crc & 0x01;
                 if (bit != 0)
                 {
-                    crc ^= (uint) this.poly;
+                    crc ^= this.poly;
                 }
                 crc >>= 1;
                 if (bit != 0)
@@ -99,7 +99,7 @@ namespace GlosSIIntegration.Models
 
             foreach (char c in input)
             {
-                uint octet = (uint) c;
+                uint octet = c;
                 if (this.reflectIn) octet = Reflect(octet, 8);
                 for (int i = 0; i < 8; i++)
                 {

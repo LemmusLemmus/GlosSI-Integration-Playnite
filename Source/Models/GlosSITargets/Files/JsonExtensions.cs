@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace GlosSIIntegration.Models
+namespace GlosSIIntegration.Models.GlosSITargets.Files
 {
     internal static class JsonExtensions
     {
@@ -95,6 +95,12 @@ namespace GlosSIIntegration.Models
             {
                 Playnite.SDK.LogManager.GetLogger().Trace(ex,
                     $"Failed to read JSON property {propertyName}.");
+                return null;
+            }
+            catch (JsonSerializationException ex)
+            {
+                Playnite.SDK.LogManager.GetLogger().Trace(ex,
+                    $"Failed to deserialize JSON property {propertyName}.");
                 return null;
             }
         }

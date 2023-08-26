@@ -1,8 +1,9 @@
 ﻿using Playnite.SDK;
 using System;
 using System.IO;
+using GlosSIIntegration.Models.GlosSITargets.Files;
 
-namespace GlosSIIntegration.Models
+namespace GlosSIIntegration.Models.GlosSITargets.Shortcuts
 {
     class GlosSISteamShortcut : SteamShortcut
     {
@@ -11,9 +12,10 @@ namespace GlosSIIntegration.Models
         /// </summary>
         /// <param name="name">The name of the shortcut.</param>
         /// <exception cref="InvalidOperationException">
-        /// If the GlosSIPath setting is <c>null</c>.</exception>
+        /// If the <see cref="GlosSIIntegrationSettings.GlosSIPath"/> setting is <c>null</c>.</exception>
         public GlosSISteamShortcut(string name) : base(name, GetGlosSITargetPath()) { }
 
+        // TODO: Calculate in GetSettings() instead, and do the same for GlosSIConfig?
         /// <summary>
         /// Gets the path to the GlosSITarget executable.
         /// </summary>
@@ -47,13 +49,14 @@ namespace GlosSIIntegration.Models
             base.Run();
         }
 
+        // TODO: Below only checks if the target file exists, not whether the shortcut has actually been added to Steam.
         /// <summary>
         /// Verifies that the GlosSITarget shortcut is runnable. If not, throws an exception and displays an error message.
         /// </summary>
         /// <exception cref="InvalidOperationException">If the shortcut is not runnable (i.e. does not have a .json file).</exception>
         public void VerifyRunnable()
         {
-            if (!GlosSITargetFile.HasJsonFile(Name))
+            if (!new GlosSITargetFileInfo(Name).Exists())
             {
                 string msg = ResourceProvider.GetString("LOC_GI_GlosSITargetNotFoundOnGameStartError");
                 GlosSIIntegration.NotifyError(msg, "GlosSIIntegration-SteamGame-RunGlosSITarget");
