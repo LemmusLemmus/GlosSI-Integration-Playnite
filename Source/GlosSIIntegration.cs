@@ -471,7 +471,7 @@ namespace GlosSIIntegration
                 ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"), icon, options);
             if (result == options[1])
             {
-                GlosSIIntegrationSettingsViewModel.OpenLink("https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/wiki/Limitations#miscellaneous");
+                GlosSIIntegrationSettingsViewModel.OpenLink("https://glossi.flatspot.pictures/#downloads");
             }
         }
 
