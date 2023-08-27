@@ -8,7 +8,6 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows;
-using System.Threading;
 using GlosSIIntegration.Models.Overlays;
 using GlosSIIntegration.Models.GlosSITargets.Files;
 using GlosSIIntegration.Models.GlosSITargets.Types;
@@ -107,7 +106,7 @@ namespace GlosSIIntegration
             return topPanel;
         }
 
-        public static GlosSIIntegrationSettings GetSettings()
+        public static GlosSIIntegrationSettings GetSettings() // TODO: Turn into a property?
         {
             return Instance.SettingsViewModel.Settings;
         }
@@ -154,6 +153,8 @@ namespace GlosSIIntegration
             return GameHasTag(game, LOC_IGNORED_TAG) || GameHasTag(game, SRC_IGNORED_TAG);
         }
 
+        // TODO: Stop doing string comparisons and save the tag object.
+        // Store the tag in a file (maybe "Targets.json") so that the tag can freely be renamed.
         private static bool GameHasTag(Game game, string tagName)
         {
             return game.Tags != null && game.Tags.Any(t => t.Name == tagName);
@@ -404,11 +405,11 @@ namespace GlosSIIntegration
 
         private void RemoveGamesProcess(List<Game> games, GlobalProgressActionArgs progressBar, out int gamesRemoved)
         {
-            bool process(Game game) => !string.IsNullOrEmpty(game.Name) && new GameGlosSITarget(game).File.Remove();
+            bool Process(Game game) => !string.IsNullOrEmpty(game.Name) && new GameGlosSITarget(game).File.Remove();
 
             gamesRemoved = ProcessGames(games, progressBar,
                 ResourceProvider.GetString("LOC_GI_RemoveGlosSITargetUnexpectedError"),
-                process);
+                Process);
         }
 
         /// <summary>
