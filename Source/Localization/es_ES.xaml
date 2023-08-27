@@ -106,7 +106,6 @@
     <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError">Error al abrir el enlace: &quot;{0}&quot;: {1}</sys:String>
     <sys:String x:Key="LOC_GI_ReadOverlayGlosSITargetUnexpectedError">Algo salió mal al intentar leer el archivo de destino referenciado por el nombre de capa {0} : {1}</sys:String>
     <sys:String x:Key="LOC_GI_RunSteamGameUnexpectedError">GlosSI Integration no pudo ejecutar el acceso directo de Steam: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_DefaultTargetItemsMissingUnexpectedError">El objetivo por defecto de GlosSI no tiene elementos.</sys:String>
     <sys:String x:Key="LOC_GI_CloseGlosSITargetTimelyUnexpectedError">GlosSI Integration no ha podido cerrar la superposición de Steam a tiempo.</sys:String>
     <sys:String x:Key="LOC_GI_CloseGlosSITargetUnexpectedError">GlosSI Integration falló al cerrar la sobreposición de Steam: {0}</sys:String>
     <sys:String x:Key="LOC_GI_CreateGlosSITargetUnexpectedError">GlosSI Integration no ha podido agregar el archivo de configuración de destino GlosSI y/o el acceso directo de Steam para &quot;{0}&quot;, el proceso de adición fue abortado: {1}</sys:String>
