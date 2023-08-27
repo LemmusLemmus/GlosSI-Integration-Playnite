@@ -41,6 +41,8 @@ namespace GlosSIIntegration.Models.Overlays
             };
             GlosSIIntegration.Instance.ApplicationStartedEvent += (e) =>
             {
+                KnownTargets.LoadTargets();
+
                 // Start the Playnite overlay, if there is one.
                 PlayniteOverlay playniteOverlay = PlayniteOverlay.Create();
                 if (playniteOverlay != null)

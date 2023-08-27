@@ -57,6 +57,7 @@
     <Compile Include="Models\GlosSITargets\Types\DefaultGlosSITarget.cs" />
     <Compile Include="Models\GlosSITargets\Files\GlosSITargetFileInfo.cs" />
     <Compile Include="Models\GlosSITargets\Types\UnidentifiedGlosSITarget.cs" />
+    <Compile Include="Models\GlosSITargets\KnownTargets.cs" />
     <Compile Include="Models\SteamLauncher\ISteamMode.cs" />
     <Compile Include="Models\Overlays\Types\DefaultGameOverlay.cs" />
     <Compile Include="Models\GlosSITargets\Types\GameGlosSITarget.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Models\SteamLauncher\Steam.cs" />
     <Compile Include="Models\SteamLauncher\SteamBigPictureMode.cs" />
     <Compile Include="Models\SteamLauncher\SteamDesktopMode.cs" />
+    <Compile Include="Models\GlosSITargets\TargetsVersionMigrator.cs" />
     <Compile Include="Models\WinWindow.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

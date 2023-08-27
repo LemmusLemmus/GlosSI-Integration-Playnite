@@ -70,7 +70,6 @@ namespace GlosSIIntegration.Models.GlosSITargets.Files
 
         /// <summary>
         /// Creates a GlosSITarget and Steam shortcut for a game, using the default .json structure.
-        /// Already integrated games and games tagged for ignoring are ignored.
         /// </summary>
         /// <param name="iconPath">A path to the icon of the shortcut. The path can be <c>null</c> for no icon.</param>
         /// <returns>true if the GlosSITarget was created; false if creation was ignored.</returns>
@@ -79,7 +78,6 @@ namespace GlosSIIntegration.Models.GlosSITargets.Files
         /// <exception cref="UnsupportedCharacterException"><see cref="VerifyTargetCharacters"/></exception>
         public virtual bool Create(string iconPath)
         {
-            VerifyTargetCharacters(iconPath);
             SaveAsJsonTarget(iconPath);
             SaveToSteamShortcuts();
             return true;
@@ -90,8 +88,21 @@ namespace GlosSIIntegration.Models.GlosSITargets.Files
             return Create(null);
         }
 
+        /// <summary>
+        /// Overwrites the contents of the target file, without modifiying the Steam shortcut.
+        /// Does not change the icon path, since if that is to be changed the Steam shortcut also has to be updated.
+        /// The file to be overwritten must already exist.
+        /// </summary>
+        public void Overwrite()
+        {
+            GlosSITargetSettings settings = GlosSITargetSettings.ReadFrom(FullPath);
+            SaveAsJsonTarget(settings.Icon);
+        }
+
         private void SaveAsJsonTarget(string iconPath)
         {
+            VerifyTargetCharacters(iconPath);
+
             GlosSITargetSettings settings = GlosSITargetSettings.ReadFrom(
                 GlosSIIntegration.GetSettings().DefaultTargetPath);
 

@@ -15,6 +15,7 @@ namespace GlosSIIntegration
         private readonly string glosSITargetsPath = Environment.ExpandEnvironmentVariables(@"%appdata%\GlosSI\Targets");
         private string steamShortcutsPath = null;
         private readonly string defaultTargetPath = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(), "DefaultTarget.json");
+        private readonly string knownTargetsPath = Path.Combine(GlosSIIntegration.Instance.GetPluginUserDataPath(), "Targets.json");
         private readonly string startPlayniteFromGlosSIScriptPath = Path.Combine(Path.GetDirectoryName(typeof(GlosSIIntegrationSettings).Assembly.Location),
             @"Scripts\StartPlayniteFromGlosSI.vbs");
         private string playniteOverlayName = null;
@@ -47,8 +48,13 @@ namespace GlosSIIntegration
         public string GlosSITargetsPath { get => glosSITargetsPath; }
         [DontSerialize]
         public string StartPlayniteFromGlosSIScriptPath { get => startPlayniteFromGlosSIScriptPath; }
+        /// <summary>
+        /// If the the file does not exist, creates it.
+        /// </summary>
         [DontSerialize]
         public string DefaultTargetPath { get => GetDefaultTargetPath(); }
+        [DontSerialize]
+        public string KnownTargetsPath { get => knownTargetsPath; }
         [DontSerialize]
         public Version GlosSIVersion { get => GetGlosSIVersion(); set => glosSIVersion = value; }
 
@@ -74,21 +80,29 @@ namespace GlosSIIntegration
 
         private string GetDefaultTargetPath()
         {
+            if (!File.Exists(defaultTargetPath))
+            {
+                CreateDefaultTarget();
+            }
+
+            return defaultTargetPath;
+        }
+
+        /// <summary>
+        /// Creates the "DefaultTargets.json" file. If the file already exists, overwrites it.
+        /// </summary>
+        public void CreateDefaultTarget()
+        {
             try
             {
-                if (!File.Exists(defaultTargetPath))
-                {
-                    LogManager.GetLogger().Trace("Creating DefaultTarget file...");
-                    File.WriteAllBytes(defaultTargetPath, Properties.Resources.DefaultTarget);
-                    LogManager.GetLogger().Info("DefaultTarget file created.");
-                }
+                LogManager.GetLogger().Trace("Creating DefaultTarget file...");
+                File.WriteAllBytes(defaultTargetPath, Properties.Resources.DefaultTarget);
+                LogManager.GetLogger().Info("DefaultTarget file created.");
             }
             catch (Exception e)
             {
                 RethrowException(e, "LOC_GI_CreateDefaultTargetFileUnexpectedError"); // TODO: Unnecessary localized string?
             }
-
-            return defaultTargetPath;
         }
 
         private void RethrowException(Exception e, string locKey)

@@ -15,7 +15,7 @@ namespace GlosSIIntegration.Models.GlosSITargets.Types
             GlosSIIntegration.GetSettings().DefaultOverlayName ??
             throw new NotSupportedException("DefaultOverlayName setting not set.")) { }
 
-        public bool Exists()
+        public static bool Exists()
         {
             return !string.IsNullOrEmpty(GlosSIIntegration.GetSettings().DefaultOverlayName);
         }

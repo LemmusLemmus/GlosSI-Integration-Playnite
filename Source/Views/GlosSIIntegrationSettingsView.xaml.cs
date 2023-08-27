@@ -20,6 +20,11 @@ namespace GlosSIIntegration
         private void EditDefaultGlosSITarget_Click(object sender, RoutedEventArgs e)
         {
             // TODO: This would be better done via the GlosSI GUI, perphaps by implementing a command line argument.
+            OpenDefaultGlosSITarget();
+        }
+
+        public static void OpenDefaultGlosSITarget()
+        {
             try
             {
                 Process.Start(GlosSIIntegration.GetSettings().DefaultTargetPath);
