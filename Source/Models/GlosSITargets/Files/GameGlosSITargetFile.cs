@@ -6,6 +6,7 @@ namespace GlosSIIntegration.Models.GlosSITargets.Files
     internal class GameGlosSITargetFile : GlosSITargetFile
     {
         private readonly GameGlosSITarget target;
+        private PlayniteGameSteamAssets SteamAssets => new PlayniteGameSteamAssets(target.AssociatedGame, target);
 
         public GameGlosSITargetFile(GameGlosSITarget target) : base(target)
         {
@@ -35,6 +36,7 @@ namespace GlosSIIntegration.Models.GlosSITargets.Files
                 base.Create(iconPath))
             {
                 GlosSIIntegration.AddTagToGame(GlosSIIntegration.LOC_INTEGRATED_TAG, target.AssociatedGame);
+                SteamAssets.SetFromPlayniteAssets(false);
                 return true;
             }
 
@@ -56,12 +58,19 @@ namespace GlosSIIntegration.Models.GlosSITargets.Files
             return Create(GetPathToGameIcon());
         }
 
+        public override void Overwrite()
+        {
+            base.Overwrite();
+            SteamAssets.SetFromPlayniteAssets(false);
+        }
+
         public override bool Remove()
         {
             if (GlosSIIntegration.GameHasIntegratedTag(target.AssociatedGame))
             {
                 GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.LOC_INTEGRATED_TAG, target.AssociatedGame);
                 GlosSIIntegration.RemoveTagFromGame(GlosSIIntegration.SRC_INTEGRATED_TAG, target.AssociatedGame);
+                SteamAssets.DeleteAllAssets();
                 return base.Remove();
             }
 

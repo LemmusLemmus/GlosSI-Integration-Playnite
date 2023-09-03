@@ -58,6 +58,9 @@
     <Compile Include="Models\GlosSITargets\Files\GlosSITargetFileInfo.cs" />
     <Compile Include="Models\GlosSITargets\Types\UnidentifiedGlosSITarget.cs" />
     <Compile Include="Models\GlosSITargets\KnownTargets.cs" />
+    <Compile Include="Models\HardLink.cs" />
+    <Compile Include="Models\PlayniteGameSteamAssets.cs" />
+    <Compile Include="Models\SteamGameAssets.cs" />
     <Compile Include="Models\SteamLauncher\ISteamMode.cs" />
     <Compile Include="Models\Overlays\Types\DefaultGameOverlay.cs" />
     <Compile Include="Models\GlosSITargets\Types\GameGlosSITarget.cs" />

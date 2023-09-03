@@ -93,7 +93,7 @@ namespace GlosSIIntegration.Models.GlosSITargets.Files
         /// Does not change the icon path, since if that is to be changed the Steam shortcut also has to be updated.
         /// The file to be overwritten must already exist.
         /// </summary>
-        public void Overwrite()
+        public virtual void Overwrite()
         {
             GlosSITargetSettings settings = GlosSITargetSettings.ReadFrom(FullPath);
             SaveAsJsonTarget(settings.Icon);
