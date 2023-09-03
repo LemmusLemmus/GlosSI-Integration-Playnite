@@ -20,11 +20,17 @@ namespace GlosSIIntegration.Models
         {
             if (lastVersion == 0)
             {
+                
+
                 List<GlosSITarget> targetsToMigrate = GetTargetsToMigrate();
                 if (targetsToMigrate.Count == 0)
                 {
                     logger.Info("The extension has not been used before: " +
                         "target settings migration is not needed.");
+                }
+                else if (string.IsNullOrEmpty(GlosSIIntegration.GetSettings().SteamShortcutsPath))
+                {
+                    throw new InvalidOperationException("Cannot migrate settings: The path to Steam has not been set.");
                 }
                 else
                 {
