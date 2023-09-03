@@ -10,6 +10,8 @@ namespace GlosSIIntegration
 {
     public class GlosSIIntegrationSettings : ObservableObject
     {
+        // TODO: Consider using System.Uri instead of string.
+
         private bool closeGameWhenOverlayIsClosed = true;
         private string glosSIPath = null;
         private readonly string glosSITargetsPath = Environment.ExpandEnvironmentVariables(@"%appdata%\GlosSI\Targets");
@@ -33,6 +35,10 @@ namespace GlosSIIntegration
         /// Setting GlosSIPath also updates the current GlosSIVersion.
         /// </summary>
         public string GlosSIPath { get => glosSIPath; set { if (value != glosSIPath) { glosSIVersion = null; } SetValue(ref glosSIPath, value); } }
+        // TODO: Instead of relying on the path to shortcuts.vdf, only save the Steam user ID and use it
+        // (as well as the Steam path registry value) to calculate all needed Steam paths.
+        // Set the user ID only once, and do not permit changing it via the UI (unless the user has been informed of the consequences).
+        // Could write a short wiki page detailing the process of changing the user ID.
         public string SteamShortcutsPath { get => steamShortcutsPath; set => SetValue(ref steamShortcutsPath, value); }
         public string PlayniteOverlayName { get => playniteOverlayName; set => SetValue(ref playniteOverlayName, value); }
         public bool UsePlayniteOverlay { get => usePlayniteOverlay; set => SetValue(ref usePlayniteOverlay, value); }

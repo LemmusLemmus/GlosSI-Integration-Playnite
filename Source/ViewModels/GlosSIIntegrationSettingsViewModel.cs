@@ -207,7 +207,6 @@ namespace GlosSIIntegration
             {
                 try
                 {
-                    // GetFullPath is only used for appearance, by converting any '/' to '\'.
                     Settings.SteamShortcutsPath = Path.GetFullPath(newSteamShortcutsPath);
                     return true;
                 }
