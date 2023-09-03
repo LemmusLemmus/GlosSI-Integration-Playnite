@@ -9,9 +9,6 @@
         "realDeviceIds": false
     },
     "extendedLogging": false,
-    "icon": "<automatic>",
-    "launch": "<automatic>",
-    "name": "<automatic>",
     "snapshotNotify": false,
     "version": 1,
     "window": {
