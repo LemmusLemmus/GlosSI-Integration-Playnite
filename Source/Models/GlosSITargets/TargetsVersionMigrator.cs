@@ -111,10 +111,11 @@ namespace GlosSIIntegration.Models
                 "Additionally, if you use the Playnite library overlay, you can now switch between Steam and fullscreen Playnite. " +
                 "Start the Playnite overlay shortcut from Steam to enter Playnite. " +
                 "Exit the Playnite overlay (via the Steam overlay) to switch to Steam Big Picture mode.\r\n\r\n" +
-                "The settings of the currently existing GlosSI targets have to be updated, however. " +
+                "The settings of the currently existing GlosSI targets have to be updated and " +
+                "Playnite game images will be added to the Steam shortcuts (when possible). " +
                 "Click the OK button to update all targets used by this extension. " +
-                "The default settings have also been updated. " +
-                "If you know what you are doing and want to change them before proceeding, click the \"Review DefaultTarget.json\" button.";
+                "The default settings have also been updated: " +
+                "if you know what you are doing and want to change them before proceeding, click the \"Review DefaultTarget.json\" button.";
 
             List<MessageBoxOption> options = new List<MessageBoxOption>
                         {
