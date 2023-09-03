@@ -10,19 +10,19 @@ namespace GlosSIIntegration.Models
     internal class WinWindow
     {
         #region Win32
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("User32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("User32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr FindWindow(IntPtr intPtrZero, string lpWindowName);
 
-        [DllImport("user32.dll")]
+        [DllImport("User32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
-        [DllImport("user32.dll")]
+        [DllImport("User32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        [DllImport("user32.dll", SetLastError = true)]
+        [DllImport("User32.dll", SetLastError = true)]
         private static extern bool LockSetForegroundWindow(SetForegroundWindowLock lockState);
 
         private enum SetForegroundWindowLock : int
@@ -31,10 +31,10 @@ namespace GlosSIIntegration.Models
             Unlock = 2
         }
 
-        [DllImport("user32.dll", SetLastError = true)]
+        [DllImport("User32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
-        [DllImport("user32.dll", SetLastError = true)]
+        [DllImport("User32.dll", SetLastError = true)]
         private static extern bool PostMessage(IntPtr hWnd, WindowMessage msg, IntPtr wParam, IntPtr lParam);
 
         private enum WindowMessage : uint
@@ -45,7 +45,7 @@ namespace GlosSIIntegration.Models
         [DllImport("User32.dll")]
         private static extern bool EnableWindow(IntPtr hWnd, bool enable);
 
-        [DllImport("user32.dll")]
+        [DllImport("User32.dll")]
         private static extern bool ShowWindow(IntPtr hWnd, ShowWindowOption nCmdShow);
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace GlosSIIntegration.Models
             ForceMinimize
         }
 
-        [DllImport("dwmapi.dll", PreserveSig = false)]
+        [DllImport("Dwmapi.dll", PreserveSig = false)]
         private static extern void DwmSetWindowAttribute(IntPtr hWnd, DwmWindowAttribute dwAttribute, ref int pvAttribute, int cbAttribute);
 
         private enum DwmWindowAttribute : uint
