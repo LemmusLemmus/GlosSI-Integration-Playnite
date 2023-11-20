@@ -2,17 +2,17 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xml:space="preserve">
 
     <!--General-->
-    <sys:String x:Key="LOC_GI_DefaultWindowTitle">GlosSI Integration</sys:String>
-    <sys:String x:Key="LOC_GI_RestartSteamReminder">Steam must be restarted for the changes to take effect.</sys:String>
-    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">GlosSI Integration failed to run the Steam shortcut: The GlosSI .json target file could not be found.</sys:String>
-    <sys:String x:Key="LOC_GI_TopPanelButtonDisableTooltip">Disable GlosSI Integration</sys:String>
-    <sys:String x:Key="LOC_GI_TopPanelButtonEnableTooltip">Enable GlosSI Integration</sys:String>
+    <sys:String x:Key="LOC_GI_DefaultWindowTitle">Intégration GlosSI</sys:String>
+    <sys:String x:Key="LOC_GI_RestartSteamReminder">Steam doit être redémarré pour appliquer les modifications.</sys:String>
+    <sys:String x:Key="LOC_GI_GlosSITargetNotFoundOnGameStartError">L'Intégration GlosSI n'a pas réussi à exécuter le raccourci Steam : le fichier cible GlosSI .json n'a pas pu être trouvé.</sys:String>
+    <sys:String x:Key="LOC_GI_TopPanelButtonDisableTooltip">Désactiver l'intégration GlosSI</sys:String>
+    <sys:String x:Key="LOC_GI_TopPanelButtonEnableTooltip">Activer l'intégration GlosSI</sys:String>
 
     <!--Progress Bars-->
-    <sys:String x:Key="LOC_GI_BackingUpGlosSIFiles">Backing up GlosSI configuration files...</sys:String>
-    <sys:String x:Key="LOC_GI_BackingUpSteamFile">Backing up Steam shortcuts file...</sys:String>
-    <sys:String x:Key="LOC_GI_AddingIntegrationToGames">Adding GlosSI integration to games...</sys:String>
-    <sys:String x:Key="LOC_GI_RemovingIntegrationFromGames">Removing GlosSI integration from games...</sys:String>
+    <sys:String x:Key="LOC_GI_BackingUpGlosSIFiles">Sauvegarde des fichiers de configuration GlosSI...</sys:String>
+    <sys:String x:Key="LOC_GI_BackingUpSteamFile">Sauvegarde du fichier de raccourcis Steam...</sys:String>
+    <sys:String x:Key="LOC_GI_AddingIntegrationToGames">Ajout de l'intégration GlosSI...</sys:String>
+    <sys:String x:Key="LOC_GI_RemovingIntegrationFromGames">Suppression de l'intégration GlosSI...</sys:String>
 
     <!--Adding Integration to Games-->
     <sys:String x:Key="LOC_GI_AddGameIsSteamGame">The selected game &quot;{0}&quot; is a Steam game and should already support the Steam overlay/input. Are you sure you want to add the game?</sys:String>
