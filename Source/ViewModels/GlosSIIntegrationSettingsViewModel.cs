@@ -572,7 +572,7 @@ namespace GlosSIIntegration
             // A bit dumb, since paths can be constructed in many ways, but this
             // should ensure that the user actually picks the correct shortcuts.vdf file.
             string lowercasePath = Settings.SteamShortcutsPath.ToLowerInvariant();
-            if (!lowercasePath.Contains(@"steam\userdata") || !lowercasePath.Contains(@"config\shortcuts.vdf"))
+            if (!lowercasePath.Contains(@"userdata") || !lowercasePath.Contains(@"config\shortcuts.vdf"))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFWrongLocationError"));
                 return false;
