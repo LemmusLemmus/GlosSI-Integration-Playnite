@@ -18,7 +18,7 @@ namespace GlosSIIntegration
         public string ShortcutName
         {
             get => shortcutName;
-            set { if (shortcutName == value) { return; } SetValue(ref shortcutName, value); }
+            set => SetValue(ref shortcutName, value);
         }
 
         private string shortcutIconPath;
@@ -27,7 +27,6 @@ namespace GlosSIIntegration
             get => shortcutIconPath;
             set
             {
-                if (shortcutIconPath == value) return;
                 SetValue(ref shortcutIconPath, value);
 
                 if (!string.IsNullOrEmpty(value) && File.Exists(value))
@@ -43,7 +42,7 @@ namespace GlosSIIntegration
                 try
                 {
                     iconPreview.Source = new BitmapImage(new Uri($"pack://application:,,,/" +
-                        $"{typeof(ShortcutCreationViewModel).Assembly};component/Resources/DefaultSteamShortcutIcon.png")); // TODO: Test! Before Assembly.GetExecutingAssembly()
+                        $"{typeof(ShortcutCreationViewModel).Assembly};component/Resources/DefaultSteamShortcutIcon.png"));
                 }
                 catch (Exception e)
                 {
@@ -68,18 +67,15 @@ namespace GlosSIIntegration
             iconPreview = null;
             createdTarget = null;
             ShortcutName = defaultName;
-            ShortcutIconPath = defaultIconPath;
+            shortcutIconPath = defaultIconPath;
             this.targetGetter = targetGetter;
         }
 
         public void SetIconPreview(Image previewIconImage)
         {
-            if (iconPreview != null)
-            {
-                throw new InvalidOperationException("ShortcutCreationViewModel already has an icon preview.");
-            }
-
             iconPreview = previewIconImage;
+            // Refresh displayed icon by resetting ShortcutIconPath.
+            ShortcutIconPath = shortcutIconPath;
         }
 
         /// <summary>
