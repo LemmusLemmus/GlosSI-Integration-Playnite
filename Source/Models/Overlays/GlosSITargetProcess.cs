@@ -25,7 +25,7 @@ namespace GlosSIIntegration.Models.Overlays
         /// <returns>The found GlosSITarget process.</returns>
         /// <exception cref="TimeoutException">If GlosSITarget did not start after 
         /// <paramref name="timeout"/> milliseconds.</exception>
-        public static async Task<Process> WaitForProcessToStart(int timeout = 300000)
+        public static async Task<Process> WaitForProcessToStart(int timeout = 30000)
         {
             // TODO: Could be made non-polling by using the ManagementEventWatcher class.
 
@@ -40,7 +40,11 @@ namespace GlosSIIntegration.Models.Overlays
                 await Task.Delay(pollingDelay).ConfigureAwait(false);
                 if ((sleptTime += pollingDelay) > timeout)
                 {
-                    throw new TimeoutException("GlosSITarget did not start in time.");
+                    const string errorMsg = "GlosSITarget did not start in time. " +
+                        "Ensure that the specified path to GlosSITarget is correct and has not been changed. " +
+                        "Also make sure that the Steam shortcut has not been renamed.";
+                    logger.Error(errorMsg);
+                    throw new TimeoutException(errorMsg);
                 }
             }
 
