@@ -185,7 +185,7 @@ namespace GlosSIIntegration.Models.Overlays
             {
                 lock (relevantGameOverlay.stateLock)
                 {
-                    if (!relevantGameOverlay.State.StartedByExtension)
+                    if (relevantGameOverlay.State != null && !relevantGameOverlay.State.StartedByExtension)
                     {
                         // Presumably started via Steam.
                         return true;
@@ -197,6 +197,8 @@ namespace GlosSIIntegration.Models.Overlays
 
         private void ReturnToSteam()
         {
+            logger.Trace("Returning to Steam...");
+
             if (Steam.Mode is SteamBigPictureMode mode)
             {
                 // Return to Steam Big Picture mode as fast as possible.
