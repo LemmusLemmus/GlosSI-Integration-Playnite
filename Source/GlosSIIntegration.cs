@@ -197,7 +197,7 @@ namespace GlosSIIntegration
         /// <seealso cref="DisplayError(string, Exception)"/>
         public static void NotifyError(string message, string id)
         {
-            // Both logging and Notifications.Add should be thread-safe and OK to call from a non-UI thread.
+            // Both logging and Notifications.Add should be thread-safe and OK to call from a non-UI thread?
             logger.Error(message);
             Api.Notifications.Add(id, message, NotificationType.Error);
         }

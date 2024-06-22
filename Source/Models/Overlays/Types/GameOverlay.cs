@@ -154,10 +154,11 @@ namespace GlosSIIntegration.Models.Overlays.Types
         {
             try
             {
-                logger.Trace("Attempting to kill game...");
                 // TODO: Might want to close the game more gracefully? At least as an alternative?
+                // TODO: This does not work for all games, as the PID reported might not be the actual game exe, but rather an auxillary exe.
+                // Some kind of heuristic is needed.
+                logger.Debug($"Killing game (with PID {runningGameProcess.Id}) in retaliation for GlosSI being killed.");
                 runningGameProcess.Kill();
-                logger.Debug("Killed game in retaliation for GlosSI being killed.");
             }
             catch (InvalidOperationException ex)
             {

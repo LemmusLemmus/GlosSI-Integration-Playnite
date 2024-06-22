@@ -82,6 +82,7 @@ namespace GlosSIIntegration.Models.Overlays
             // relevantGameOverlay is updated even if the integration is disabled,
             // since it is used by ToggleOverlay(bool).
             relevantGameOverlay = GameOverlay.Create(game);
+            // TODO: The game might have been started from Steam! If overlay is not tracked, closing the game with it will not work.
             if (GlosSIIntegration.Instance.IntegrationEnabled)
             {
                 RunBlocking(async () =>
