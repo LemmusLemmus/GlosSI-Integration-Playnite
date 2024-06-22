@@ -390,12 +390,7 @@ namespace GlosSIIntegration
             }
             catch (Exception ex)
             {
-                // TODO: Remove unnecessarily localized string.
-                string message = string.Format(ResourceProvider.GetString("LOC_GI_OpenLinkFailedUnexpectedError"),
-                    link, ex.Message);
-                LogManager.GetLogger().Error(ex, message);
-                GlosSIIntegration.Api.Dialogs.ShowErrorMessage(message,
-                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"));
+                LogManager.GetLogger().Error(ex, $"Failed to open the link: \"{link}\".");
             }
         }
 
