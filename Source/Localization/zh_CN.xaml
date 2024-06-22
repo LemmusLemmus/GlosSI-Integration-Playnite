@@ -103,13 +103,9 @@
     <sys:String x:Key="LOC_GI_CreateDefaultTargetFileUnexpectedError">Failed to access or create the default target file: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError">Failed to backup the GlosSI configuration files: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError">Failed to backup the shortcuts.vdf file: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError">Failed to open the link: &quot;{0}&quot;: {1}</sys:String>
     <sys:String x:Key="LOC_GI_ReadOverlayGlosSITargetUnexpectedError">Something went wrong when attempting to read the target file referenced by the {0} overlay name: {1}</sys:String>
     <sys:String x:Key="LOC_GI_RunSteamGameUnexpectedError">GlosSI Integration failed to run the Steam shortcut: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_CloseGlosSITargetTimelyUnexpectedError">GlosSI Integration failed to close the Steam Overlay in time.</sys:String>
-    <sys:String x:Key="LOC_GI_CloseGlosSITargetUnexpectedError">GlosSI Integration failed to close the Steam Overlay: {0}</sys:String>
     <sys:String x:Key="LOC_GI_CreateGlosSITargetUnexpectedError">GlosSI Integration failed to add the GlosSI target configuration file and/or Steam shortcut for &quot;{0}&quot;, the adding process was aborted: {1}</sys:String>
     <sys:String x:Key="LOC_GI_RemoveGlosSITargetUnexpectedError">GlosSI Integration failed to remove the GlosSI target configuration file and/or Steam shortcut for &quot;{0}&quot;, the removal process was aborted: {1}</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleChangedShortcutsUnexpectedError">More Steam shortcuts appears to have been modified by GlosSIConfig than intended, the changes have been reverted. Please consider reporting this erroneous behavior.</sys:String>
 
 </ResourceDictionary>
