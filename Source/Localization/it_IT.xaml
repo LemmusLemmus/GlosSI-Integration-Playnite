@@ -103,13 +103,9 @@
     <sys:String x:Key="LOC_GI_CreateDefaultTargetFileUnexpectedError">Impossibile accedere o creare il file destinazione predefinito: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupGlosSIUnexpectedError">Backup dei file di configurazione di GlosSI non riuscito: {0}</sys:String>
     <sys:String x:Key="LOC_GI_FailedBackupSteamFileUnexpectedError">Backup del file shortcuts.vdf non riuscito: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_OpenLinkFailedUnexpectedError">Apertura del link non riuscita: &quot;{0}&quot;: {1}</sys:String>
     <sys:String x:Key="LOC_GI_ReadOverlayGlosSITargetUnexpectedError">Qualcosa è andato storto durante il tentativo di leggere il file di destinazione referenziato dal nome {0} overlay: {1}</sys:String>
     <sys:String x:Key="LOC_GI_RunSteamGameUnexpectedError">L'integrazione GlosSI non è riuscita ad eseguire il collegamento di Steam: {0}</sys:String>
-    <sys:String x:Key="LOC_GI_CloseGlosSITargetTimelyUnexpectedError">L'integrazione di GlosSI non è riuscita a chiudere il Overlay di Steam in tempo.</sys:String>
-    <sys:String x:Key="LOC_GI_CloseGlosSITargetUnexpectedError">L'integrazione di GlosSI non è riuscita a chiudere l'Overlay di Steam: {0}</sys:String>
     <sys:String x:Key="LOC_GI_CreateGlosSITargetUnexpectedError">L'integrazione di GlosSI non è riuscita ad aggiungere il file di configurazione di destinazione GlosSI e/o la scorciatoia di Steam per &quot;{0}&quot;, il processo di aggiunta è stato annullato: {1}</sys:String>
     <sys:String x:Key="LOC_GI_RemoveGlosSITargetUnexpectedError">L'integrazione di GlosSI non è riuscita a rimuovere il file di configurazione di destinazione di GlosSI e/o la scorciatoia di Steam per &quot;{0}&quot;, il processo di rimozione è stato interrotto: {1}</sys:String>
-    <sys:String x:Key="LOC_GI_MultipleChangedShortcutsUnexpectedError">Sembra che più scorciatoie di Steam siano state modificate da GlosSIConfig di quanto previsto, le modifiche sono state annullate. Si prega di considerare la possibilità di segnalare questo comportamento sbagliato.</sys:String>
 
 </ResourceDictionary>
