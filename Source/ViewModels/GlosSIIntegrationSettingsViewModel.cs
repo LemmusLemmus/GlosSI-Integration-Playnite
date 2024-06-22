@@ -277,8 +277,8 @@ namespace GlosSIIntegration
 
             foreach (string dir in dirs)
             {
-                string foundPath = Path.Combine(dir, @"config\shortcuts.vdf");
-                if (File.Exists(foundPath)) validPaths.Add(foundPath);
+                string foundDir = Path.Combine(dir, "config");
+                if (Directory.Exists(foundDir)) validPaths.Add(Path.Combine(foundDir, "shortcuts.vdf"));
             }
 
             if (validPaths.Count == 0)
@@ -563,7 +563,7 @@ namespace GlosSIIntegration
                 return false;
             }
 
-            if (!File.Exists(Settings.SteamShortcutsPath))
+            if (!Directory.Exists(Path.GetDirectoryName(Settings.SteamShortcutsPath)))
             {
                 errors.Add(ResourceProvider.GetString("LOC_GI_ShortcutsVDFNotFoundError"));
                 return false;

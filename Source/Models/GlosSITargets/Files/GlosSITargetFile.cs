@@ -231,7 +231,6 @@ namespace GlosSIIntegration.Models.GlosSITargets.Files
         private static void RunGlosSIConfigWithArguments(string initialArgument, string targetArgument)
         {
             targetArgument = GetCommandLineArgumentSafeString(targetArgument);
-            string initialContents = File.ReadAllText(GlosSIIntegration.GetSettings().SteamShortcutsPath);
             string arguments = $"{initialArgument} {targetArgument} \"{GlosSIIntegration.GetSettings().SteamShortcutsPath}\"";
 
             using (Process glosSIConfig = Process.Start(Path.Combine(GlosSIIntegration.GetSettings().GlosSIPath, "GlosSIConfig.exe"), arguments))
@@ -252,57 +251,9 @@ namespace GlosSIIntegration.Models.GlosSITargets.Files
                     LogManager.GetLogger().Error(ex, "Failed to check GlosSIConfig exit code.");
                 }
             }
-
-            VerifyShortcutModification(initialContents, arguments);
         }
 
-        // TODO: Try to figure out why the problem occurs in the first place.
-        // Probably happens when the shortcuts.vdf file becomes to big.
-        /// <summary>
-        /// Verifes that GlosSIConfig doesn't modify more than one shortcut in shortcuts.vdf.
-        /// The content of the file is reverted to <paramref name="initialContents"/> if the verification fails.
-        /// </summary>
-        /// <param name="initialContents">The initial shortcuts.vdf contents before the modification.</param>
-        /// <param name="arguments">The arguments used to modifiy shortcuts.vdf with GlosSIConfig. 
-        /// Only used for logging.</param>
-        /// <exception cref="UnexpectedGlosSIBehaviourException">If the verification failed.</exception>
-        private static void VerifyShortcutModification(string initialContents, string arguments)
-        {
-            string newContents = File.ReadAllText(GlosSIIntegration.GetSettings().SteamShortcutsPath);
-
-            int shortcutCountDiff = Math.Abs(GetShortcutCount(initialContents) - GetShortcutCount(newContents));
-
-            if (shortcutCountDiff > 1)
-            {
-                LogManager.GetLogger().Error("More than one shortcut was changed unintentionally by GlosSIConfig.\n" +
-                    $"Arguments provided: {arguments}\n" +
-                    $"Old shortcuts.vdf:\n{initialContents}\nNew shortcuts.vdf:\n{newContents}");
-                List<MessageBoxOption> options = new List<MessageBoxOption>
-                {
-                    new MessageBoxOption(ResourceProvider.GetString("LOCOKLabel"), true, false),
-                    new MessageBoxOption(ResourceProvider.GetString("LOCCancelLabel"), false, true)
-                };
-                if (GlosSIIntegration.Api.Dialogs.ShowMessage(ResourceProvider.GetString("LOC_GI_MultipleChangedShortcutsUnexpectedError"),
-                    ResourceProvider.GetString("LOC_GI_DefaultWindowTitle"), System.Windows.MessageBoxImage.Error, options).Equals(options[0]))
-                {
-                    GlosSIIntegrationSettingsViewModel.OpenLink("https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/issues");
-                }
-
-                // Revert shortcuts.vdf file.
-                File.WriteAllText(GlosSIIntegration.GetSettings().SteamShortcutsPath, initialContents); // TODO: This does not help.
-
-                throw new UnexpectedGlosSIBehaviourException();
-            }
-            else if (shortcutCountDiff == 0)
-            {
-                LogManager.GetLogger().Warn("No shortcuts were changed by GlosSIConfig. " +
-                    $"Old shortcuts.vdf:\n{initialContents}\nNew shortcuts.vdf:\n{newContents}");
-            }
-        }
-
-        private static int GetShortcutCount(string shortcutsVdfContents)
-        {
-            return Regex.Matches(shortcutsVdfContents, "\0exe").Count;
-        }
+        // TODO: Sometimes GlosSIConfig breaks the shortcuts.vdf file. Try to figure out why the problem occurs in the first place.
+        // It seems to happen when the shortcuts.vdf file becomes to big.
     }
 }

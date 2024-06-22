@@ -39,6 +39,10 @@ namespace GlosSIIntegration
         // (as well as the Steam path registry value) to calculate all needed Steam paths.
         // Set the user ID only once, and do not permit changing it via the UI (unless the user has been informed of the consequences).
         // Could write a short wiki page detailing the process of changing the user ID.
+        /// <summary>
+        /// The path to the shortcuts.vdf file, containing all Steam non-Steam shortcuts.
+        /// Note that the file does not necessarily exist, if no shortcut has ever been added.
+        /// </summary>
         public string SteamShortcutsPath { get => steamShortcutsPath; set => SetValue(ref steamShortcutsPath, value); }
         public string PlayniteOverlayName { get => playniteOverlayName; set => SetValue(ref playniteOverlayName, value); }
         public bool UsePlayniteOverlay { get => usePlayniteOverlay; set => SetValue(ref usePlayniteOverlay, value); }
