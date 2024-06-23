@@ -1,5 +1,20 @@
 ﻿AddonId: GlosSIIntegration_6b0297da-75e5-4330-bb2d-b64bff22c315
 Packages:
+  - Version: 1.2.0
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2024-06-23
+    PackageUrl: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/releases/download/v1.2.0/GlosSIIntegration_6b0297da-75e5-4330-bb2d-b64bff22c315_1_2_0.pext
+    Changelog:
+      - Shortcut switching has been redesigned. It should hopefully be more reliable now, and window focus should no longer be lost at times.
+      - The "Launching..." popup that Steam shows when starting a non-Steam shortcut is now gone! This also appears to speed up launching of shortcuts.
+      - The shortcuts created by this extension can now be launched from the Steam library!
+      - Launching the "Playnite Overlay" from Steam will now start Playnite, and closing it will start Steam BPM.
+      - Playnite game images will now be carried over to the non-Steam shortcut in the Steam library, if possible.
+      - The default GlosSITarget settings have been updated, for example to not show the GlosSI logging.
+      - Various bug fixes.
+      - Added Spanish, Chinese (Simplified) and French translations. Thanks, Madcore, BennyDung and enzomtp!
+      - This update has been long-overdue, most of these changes were implemented a year ago. I had simply not released them yet, due to fear of introducing new bugs. If you encounter any, please report them!
+      - Since maintenance of GlosSI has stopped for the time being, the future of this extension is uncertain...
   - Version: 1.1.2
     RequiredApiVersion: 6.5.0
     ReleaseDate: 2022-11-16
