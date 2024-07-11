@@ -33,12 +33,14 @@ namespace GlosSIIntegration.Models
 
         private string GetPlayniteCoverPath()
         {
-            return API.Instance.Database.GetFullFilePath(game.CoverImage);
+            return (game.CoverImage == null) ? null :
+                API.Instance.Database.GetFullFilePath(game.CoverImage);
         }
 
         private string GetPlayniteBackgroundPath()
         {
-            return API.Instance.Database.GetFullFilePath(game.BackgroundImage);
+            return (game.BackgroundImage == null) ? null :
+                API.Instance.Database.GetFullFilePath(game.BackgroundImage);
         }
 
         // Note: Since Playnite does not have a concept of
