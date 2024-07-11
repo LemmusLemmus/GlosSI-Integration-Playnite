@@ -1,5 +1,11 @@
 ﻿AddonId: GlosSIIntegration_6b0297da-75e5-4330-bb2d-b64bff22c315
 Packages:
+  - Version: 1.2.1
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2024-07-11
+    PackageUrl: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/releases/download/v1.2.1/GlosSIIntegration_6b0297da-75e5-4330-bb2d-b64bff22c315_1_2_1.pext
+    Changelog:
+      - Fixed an error when a Playnite game does not have a cover or background image.
   - Version: 1.2.0
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2024-06-23
