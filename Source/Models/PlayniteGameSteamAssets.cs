@@ -56,20 +56,21 @@ namespace GlosSIIntegration.Models
 
         private void TrySetAsset(string filePath, bool overwrite, Action<string, bool> setImageAction)
         {
-            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-            {
-                string fileExtension = Path.GetExtension(filePath);
-                if (!Asset.HasValidFileExtension(fileExtension))
-                {
-                    logger.Warn($"Could not add shortcut image from Playnite image: " +
-                        $"Steam does not support the file extension (fileExtension).");
-                }
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return;
 
+            string fileExtension = Path.GetExtension(filePath);
+            if (Asset.HasValidFileExtension(fileExtension))
+            {
                 setImageAction(filePath, overwrite);
+            }
+            else
+            {
+                logger.Warn($"Could not add shortcut image from Playnite image: " +
+                    $"Steam does not support the file extension of the file " +
+                    $"\"{Path.GetFileName(filePath)}\".");
             }
         }
 
-        // Throws NotSupportedException
         /// <summary>
         /// Reads the size of an image.
         /// </summary>

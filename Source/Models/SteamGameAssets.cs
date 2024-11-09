@@ -121,7 +121,7 @@ namespace GlosSIIntegration.Models
                 string fileExtension = Path.GetExtension(filePath);
                 if (!HasValidFileExtension(fileExtension))
                 {
-                    throw new ArgumentOutOfRangeException($"The file extension of the image ({fileExtension}) " +
+                    throw new ArgumentOutOfRangeException($"The file extension of the image \"{Path.GetFileName(filePath)}\" " +
                         $"is not supported by Steam.");
                 }
 
@@ -166,7 +166,7 @@ namespace GlosSIIntegration.Models
             /// <returns>true if valid; false otherwise.</returns>
             public static bool HasValidFileExtension(string fileExtension)
             {
-                return SupportedFileExtensions.Any(
+                return !string.IsNullOrEmpty(fileExtension) && SupportedFileExtensions.Any(
                     ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
             }
 
