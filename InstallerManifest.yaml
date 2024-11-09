@@ -1,5 +1,11 @@
 ﻿AddonId: GlosSIIntegration_6b0297da-75e5-4330-bb2d-b64bff22c315
 Packages:
+  - Version: 1.2.2
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2024-11-09
+    PackageUrl: https://github.com/LemmusLemmus/GlosSI-Integration-Playnite/releases/download/v1.2.2/GlosSIIntegration_6b0297da-75e5-4330-bb2d-b64bff22c315_1_2_2.pext
+    Changelog:
+      - Fixed an error when adding a Playnite game with an image whose file extension is not supported by Steam.
   - Version: 1.2.1
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2024-07-11
